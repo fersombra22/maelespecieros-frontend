@@ -1,0 +1,130 @@
+<div class="modal-backdrop" *ngIf="venta">
+  <div class="modal-container">
+    <!-- HEADER -->
+
+    <div class="modal-header">
+      <div class="titulo-modal">
+        <i class="fa-solid fa-file-invoice-dollar"></i>
+
+        <div>
+          <span> Comprobante de venta </span>
+
+          <h3>Detalle de Venta</h3>
+        </div>
+      </div>
+
+      <button class="btn-close" (click)="cerrarModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- BODY -->
+
+    <div class="modal-body">
+      <!-- INFORMACION -->
+
+      <div class="info-grid">
+        <div class="info-card">
+          <span> Número </span>
+
+          <strong>
+            {{ venta.numeroVenta }}
+          </strong>
+        </div>
+
+        <div class="info-card">
+          <span> Fecha </span>
+
+          <strong>
+            {{ venta.fecha | date: 'dd/MM/yyyy HH:mm' }}
+          </strong>
+        </div>
+
+        <div class="info-card">
+          <span> Forma de pago </span>
+
+          <strong>
+            {{ venta.formaPago }}
+          </strong>
+        </div>
+
+        <div class="info-card">
+          <span> Estado </span>
+
+          <strong
+            class="estado"
+            [ngClass]="{
+              completa: venta.estado === 'COMPLETADA',
+
+              anulada: venta.estado === 'ANULADA',
+            }"
+          >
+            {{ venta.estado }}
+          </strong>
+        </div>
+      </div>
+
+      <!-- TABLA PRODUCTOS -->
+
+      <div class="tabla-detalle">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+
+              <th>Cantidad</th>
+
+              <th>Precio</th>
+
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let detalle of venta.detalles">
+              <td>
+                {{ detalle.nombreProducto }}
+              </td>
+
+              <td>
+                {{ detalle.cantidad }}
+              </td>
+
+              <td>$ {{ detalle.precioUnitario | number: '1.2-2' }}</td>
+
+              <td>$ {{ detalle.subtotal | number: '1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TOTALES -->
+
+      <div class="resumen">
+        <div>
+          <span> Subtotal </span>
+
+          <strong> $ {{ venta.subtotal | number: '1.2-2' }} </strong>
+        </div>
+
+        <div>
+          <span> Descuento </span>
+
+          <strong> $ {{ venta.descuento | number: '1.2-2' }} </strong>
+        </div>
+
+        <h2>Total: $ {{ venta.total | number: '1.2-2' }}</h2>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+
+    <div class="modal-footer">
+      <button class="btn-cerrar" (click)="cerrarModal()">
+        <i class="fa-solid fa-xmark"></i>
+
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>

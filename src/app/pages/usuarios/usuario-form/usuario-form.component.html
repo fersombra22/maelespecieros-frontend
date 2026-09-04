@@ -1,0 +1,102 @@
+<form class="usuario-form" [formGroup]="formulario" (ngSubmit)="enviar()">
+  <div class="form-header">
+    <div class="form-icon">
+      <i class="fa-solid fa-user-gear"></i>
+    </div>
+
+    <div>
+      <h3>
+        {{ usuarioEditar ? 'Editar Usuario' : 'Nuevo Usuario' }}
+      </h3>
+
+      <p>Complete la información del usuario.</p>
+    </div>
+  </div>
+
+  <div class="form-grid">
+    <!-- NOMBRE -->
+
+    <div class="campo">
+      <label> Nombre Completo </label>
+
+      <input type="text" formControlName="nombre" placeholder="Ingrese el nombre completo" />
+
+      <small
+        class="error"
+        *ngIf="formulario.get('nombre')?.invalid && formulario.get('nombre')?.touched"
+      >
+        El nombre es obligatorio.
+      </small>
+    </div>
+
+    <!-- USUARIO -->
+
+    <div class="campo">
+      <label> Usuario </label>
+
+      <input type="text" formControlName="username" placeholder="Nombre de usuario" />
+
+      <small
+        class="error"
+        *ngIf="formulario.get('username')?.invalid && formulario.get('username')?.touched"
+      >
+        El usuario es obligatorio.
+      </small>
+    </div>
+
+    <!-- PASSWORD -->
+
+    <div class="campo">
+      <label> Contraseña </label>
+
+      <input type="password" formControlName="password" placeholder="Ingrese una contraseña" />
+
+      <small class="info" *ngIf="usuarioEditar">
+        Deje este campo vacío para conservar la contraseña actual.
+      </small>
+
+      <small
+        class="error"
+        *ngIf="
+          !usuarioEditar &&
+          formulario.get('password')?.invalid &&
+          formulario.get('password')?.touched
+        "
+      >
+        La contraseña debe tener al menos 4 caracteres.
+      </small>
+    </div>
+
+    <!-- ROL -->
+
+    <div class="campo">
+      <label> Rol </label>
+
+      <select formControlName="rol">
+        <option value="">Seleccione un rol</option>
+
+        <option value="ADMIN">Administrador</option>
+
+        <option value="EMPLEADO">Empleado</option>
+      </select>
+
+      <small class="error" *ngIf="formulario.get('rol')?.invalid && formulario.get('rol')?.touched">
+        Debe seleccionar un rol.
+      </small>
+    </div>
+  </div>
+
+  <div class="botones">
+    <button type="button" class="btn-cancelar" (click)="cerrar()">
+      <i class="fa-solid fa-xmark"></i>
+
+      Cancelar
+    </button>
+
+    <button type="submit" class="btn-guardar">
+      <i class="fa-solid fa-floppy-disk"></i>
+
+      {{ usuarioEditar ? 'Actualizar Usuario' : 'Guardar Usuario' }}
+    </button>
+  </div>
+</form>

@@ -1,0 +1,48 @@
+:host {
+  display: block;
+  width: 280px;
+  background-color: var(--bg-sidebar); /* Color oscuro institucional definido en styles.css */
+  border-right: 1px solid var(--border-color);
+  transition: width var(--transition-fast);
+}
+
+.sidebar {
+  height: 100%;
+}
+
+/* Enlaces del menú */
+.nav-link {
+  transition: all var(--transition-fast);
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff !important;
+}
+
+.nav-link.active {
+  background-color: var(--primary);
+  color: #ffffff !important;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Scrollbar personalizado para el sidebar (fondo oscuro) */
+.sidebar-nav::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 991px) {
+  :host {
+    display: none; /* En móviles se oculta el sidebar por ahora o requiere lógica adicional (offcanvas) */
+  }
+}

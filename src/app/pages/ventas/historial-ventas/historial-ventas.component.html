@@ -1,0 +1,269 @@
+<div class="historial-container">
+  <!--====================================-->
+  <!-- HEADER -->
+  <!--====================================-->
+
+  <section class="page-header">
+    <div class="header-info">
+      <div class="header-icon">
+        <i class="fa-solid fa-file-invoice-dollar"></i>
+      </div>
+
+      <div>
+        <span class="bread"> Ventas / Historial </span>
+
+        <h1>Historial de Ventas</h1>
+
+        <p>Consulta, detalle y control de operaciones realizadas</p>
+      </div>
+    </div>
+  </section>
+
+  <!--====================================-->
+  <!-- BUSQUEDA -->
+  <!--====================================-->
+
+  <section class="busqueda-card">
+    <div class="busqueda-input">
+      <label>
+        <i class="fa-solid fa-magnifying-glass"></i>
+
+        Buscar venta
+      </label>
+
+      <input type="text" placeholder="Ejemplo: V000001" [(ngModel)]="numeroBusqueda" />
+    </div>
+
+    <div class="acciones-busqueda">
+      <button class="btn-buscar" (click)="buscarVenta()">
+        <i class="fa-solid fa-search"></i>
+
+        Buscar
+      </button>
+
+      <button class="btn-limpiar" (click)="limpiarBusqueda()">
+        <i class="fa-solid fa-rotate"></i>
+
+        Limpiar
+      </button>
+    </div>
+  </section>
+
+  <!--====================================-->
+  <!-- CARGANDO -->
+  <!--====================================-->
+
+  <div class="loading" *ngIf="cargando">
+    <div class="spinner-border"></div>
+
+    <p>Cargando ventas...</p>
+  </div>
+
+  <!--====================================-->
+  <!-- TABLA -->
+  <!--====================================-->
+
+  <section class="tabla-card" *ngIf="!cargando">
+    <div class="tabla-header">
+      <div>
+        <h2>
+          <i class="fa-solid fa-list"></i>
+
+          Ventas realizadas
+        </h2>
+
+        <span> Registro histórico de operaciones </span>
+      </div>
+
+      <div class="contador">
+        {{ ventas.length }}
+
+        ventas
+      </div>
+    </div>
+
+    <div class="sin-datos" *ngIf="ventas.length === 0">
+      <i class="fa-solid fa-file-circle-xmark"></i>
+
+      <p>No existen ventas para mostrar.</p>
+    </div>
+
+    <div class="tabla-container" *ngIf="ventas.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>Número</th>
+
+            <th>Fecha</th>
+
+            <th>Forma Pago</th>
+
+            <th>Total</th>
+
+            <th>Estado</th>
+
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let venta of ventas">
+            <td>
+              <span class="numero-venta">
+                {{ venta.numeroVenta }}
+              </span>
+            </td>
+
+            <td>
+              {{ venta.fecha | date: 'dd/MM/yyyy HH:mm' }}
+            </td>
+
+            <td>
+              <span class="pago">
+                {{ venta.formaPago }}
+              </span>
+            </td>
+
+            <td>
+              <strong class="total">
+                {{ venta.total | currency: 'ARS' }}
+              </strong>
+            </td>
+
+            <td>
+              <span
+                class="estado"
+                [ngClass]="{
+                  completada: venta.estado === 'COMPLETADA',
+
+                  anulada: venta.estado === 'ANULADA',
+                }"
+              >
+                {{ venta.estado }}
+              </span>
+            </td>
+
+            <td>
+              <div class="acciones">
+                <button class="accion editar text-primary" title="Ver detalle" (click)="verDetalle(venta)">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+
+                <button class="accion text-success mx-1" title="Descargar comprobante" (click)="descargarPdf(venta.id)">
+                  <i class="fa-solid fa-file-pdf"></i>
+                </button>
+
+                <button
+                  class="accion eliminar text-danger"
+                  title="Anular venta"
+                  *ngIf="venta.estado !== 'ANULADA'"
+                  (click)="anular(venta.id)"
+                >
+                  <i class="fa-solid fa-ban"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginación -->
+    <div class="table-footer d-flex justify-content-between align-items-center mt-3 px-3 pb-3" *ngIf="totalPages > 1">
+      <span>Total de ventas: <strong>{{ totalElements }}</strong></span>
+      <div class="pagination-controls">
+        <button class="btn btn-sm btn-outline-secondary me-2" [disabled]="currentPage === 0" (click)="cambiarPagina(currentPage - 1)">
+          <i class="fa-solid fa-chevron-left"></i> Anterior
+        </button>
+        <span class="mx-2">Página {{ currentPage + 1 }} de {{ totalPages }}</span>
+        <button class="btn btn-sm btn-outline-secondary ms-2" [disabled]="currentPage === totalPages - 1" (click)="cambiarPagina(currentPage + 1)">
+          Siguiente <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!--====================================-->
+  <!-- MODAL DETALLE -->
+  <!--====================================-->
+
+  <div class="modal-fondo" *ngIf="mostrarDetalle">
+    <div class="modal-detalle">
+      <div class="modal-header">
+        <div>
+          <span> Detalle de operación </span>
+
+          <h2>
+            <i class="fa-solid fa-file-invoice"></i>
+
+            Venta
+
+            {{ ventaSeleccionada?.numeroVenta }}
+          </h2>
+        </div>
+
+        <button class="cerrar" (click)="cerrarDetalle()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="datos-venta">
+        <p>
+          <strong>Fecha:</strong>
+
+          {{ ventaSeleccionada?.fecha | date: 'dd/MM/yyyy HH:mm' }}
+        </p>
+
+        <p>
+          <strong>Forma de pago:</strong>
+
+          {{ ventaSeleccionada?.formaPago }}
+        </p>
+      </div>
+
+      <div class="detalle-tabla">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+
+              <th>Cant.</th>
+
+              <th>Precio</th>
+
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let detalle of ventaSeleccionada?.detalles">
+              <td>
+                {{ detalle.nombreProducto }}
+              </td>
+
+              <td>
+                {{ detalle.cantidad }}
+              </td>
+
+              <td>
+                {{ detalle.precioUnitario | currency: 'ARS' }}
+              </td>
+
+              <td>
+                {{ detalle.subtotal | currency: 'ARS' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="total-modal">
+        Total:
+
+        {{ ventaSeleccionada?.total | currency: 'ARS' }}
+      </div>
+
+      <button class="btn-cerrar-modal" (click)="cerrarDetalle()">Cerrar</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,220 @@
+<div class="categorias-container">
+  <!-- ========================= -->
+  <!-- HEADER -->
+  <!-- ========================= -->
+
+  <section class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="fa-solid fa-layer-group"></i>
+      </div>
+
+      <div class="header-text">
+        <span class="bread"> Inventario / Configuración </span>
+
+        <h1>Categorías</h1>
+
+        <p>Organización inteligente del inventario de Mael Especieros</p>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <button class="btn-nuevo" (click)="abrirNuevo()">
+        <i class="fa-solid fa-plus"></i>
+
+        Nueva Categoría
+      </button>
+    </div>
+  </section>
+
+  <!-- ========================= -->
+  <!-- TABLA -->
+  <!-- ========================= -->
+
+  <section class="card-categorias">
+    <div class="table-header">
+      <div>
+        <h2>Catálogo de Categorías</h2>
+
+        <span> Administración de categorías disponibles </span>
+      </div>
+
+      <div class="table-info">{{ totalElements }} registros</div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th width="25%">Categoría</th>
+
+            <th width="35%">Descripción</th>
+
+            <th width="15%">Código</th>
+
+            <th width="15%">Estado</th>
+
+            <th width="10%">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <!-- LOADING STATE -->
+          <tr *ngIf="cargando">
+            <td colspan="5" class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- EMPTY STATE -->
+          <tr *ngIf="!cargando && categorias.length === 0">
+            <td colspan="5" class="text-center py-4 text-muted">
+              No se encontraron categorías.
+            </td>
+          </tr>
+
+          <tr *ngFor="let categoria of categorias" [class.d-none]="cargando">
+            <td>
+              <div class="categoria-info">
+                <div class="categoria-avatar">
+                  <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+
+                <div>
+                  <strong>
+                    {{ categoria.nombre }}
+                  </strong>
+                </div>
+              </div>
+            </td>
+
+            <td>
+              {{ categoria.descripcion }}
+            </td>
+
+            <td>
+              <span class="codigo">
+                {{ categoria.prefijo }}
+              </span>
+            </td>
+
+            <td>
+              <span class="estado activa" *ngIf="categoria.activo">
+                <i class="fa-solid fa-circle-check"></i>
+
+                Activa
+              </span>
+
+              <span class="estado inactiva" *ngIf="!categoria.activo">
+                <i class="fa-solid fa-circle-minus"></i>
+
+                Inactiva
+              </span>
+            </td>
+
+            <td>
+              <div class="acciones">
+                <button class="accion editar" (click)="editar(categoria)" title="Editar">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+
+                <button
+                  *ngIf="categoria.activo"
+                  class="accion eliminar"
+                  (click)="desactivar(categoria)"
+                  title="Desactivar"
+                >
+                  <i class="fa-solid fa-ban"></i>
+                </button>
+
+                <button
+                  *ngIf="!categoria.activo"
+                  class="accion activar"
+                  (click)="activar(categoria)"
+                  title="Activar"
+                >
+                  <i class="fa-solid fa-check"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Paginación -->
+    <div class="table-footer d-flex justify-content-between align-items-center mt-3 p-3" *ngIf="totalPages > 1">
+      <span>Total de categorías: <strong>{{ totalElements }}</strong></span>
+      <div class="pagination-controls">
+        <button class="btn btn-sm btn-outline-secondary me-2" [disabled]="currentPage === 0" (click)="cambiarPagina(currentPage - 1)">
+          <i class="fa-solid fa-chevron-left"></i> Anterior
+        </button>
+        <span class="mx-2">Página {{ currentPage + 1 }} de {{ totalPages }}</span>
+        <button class="btn btn-sm btn-outline-secondary ms-2" [disabled]="currentPage === totalPages - 1" (click)="cambiarPagina(currentPage + 1)">
+          Siguiente <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ================================= -->
+<!-- MODAL -->
+<!-- ================================= -->
+
+<div class="modal-fondo" *ngIf="mostrarModal">
+  <div class="modal-contenido">
+    <div class="modal-header">
+      <div>
+        <span class="modal-subtitulo"> Configuración </span>
+
+        <h2>
+          {{ modoEdicion ? 'Editar Categoría' : 'Nueva Categoría' }}
+        </h2>
+
+        <p>Complete la información de la categoría.</p>
+      </div>
+
+      <button class="cerrar" (click)="cerrarModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <div class="form-group">
+        <label> Nombre </label>
+
+        <input type="text" placeholder="Ej: Especieros" [(ngModel)]="categoria.nombre" />
+      </div>
+
+      <div class="form-group">
+        <label> Descripción </label>
+
+        <textarea
+          rows="4"
+          placeholder="Descripción de la categoría"
+          [(ngModel)]="categoria.descripcion"
+        >
+        </textarea>
+      </div>
+
+      <div class="form-group">
+        <label> Prefijo del Código </label>
+
+        <input maxlength="5" placeholder="ESP" [(ngModel)]="categoria.prefijo" />
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+
+      <button class="btn-guardar" (click)="guardar()">
+        <i class="fa-solid fa-floppy-disk"></i>
+
+        Guardar
+      </button>
+    </div>
+  </div>
+</div>

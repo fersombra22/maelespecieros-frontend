@@ -1,0 +1,202 @@
+<div class="usuarios-container">
+  <!--====================================-->
+  <!-- HEADER -->
+  <!--====================================-->
+
+  <section class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="fa-solid fa-users"></i>
+      </div>
+
+      <div>
+        <span class="bread"> Administración / Usuarios </span>
+
+        <h1>Usuarios</h1>
+
+        <p>Administración de usuarios y permisos del sistema</p>
+      </div>
+    </div>
+
+    <button class="btn-nuevo" (click)="nuevoUsuario()">
+      <i class="fa-solid fa-user-plus"></i>
+
+      Nuevo Usuario
+    </button>
+  </section>
+
+  <!--====================================-->
+  <!-- BUSCADOR -->
+  <!--====================================-->
+
+  <section class="search-card">
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass"></i>
+
+      <input type="text" placeholder="Buscar usuario..." />
+    </div>
+
+    <div class="contador">
+      <i class="fa-solid fa-users"></i>
+
+      {{ usuarios.length }}
+
+      Usuarios
+    </div>
+  </section>
+
+  <!--====================================-->
+  <!-- CARGANDO -->
+  <!--====================================-->
+
+  <section class="loading" *ngIf="cargando">
+    <div class="spinner-border"></div>
+
+    <p>Cargando usuarios...</p>
+  </section>
+
+  <!--====================================-->
+  <!-- TABLA -->
+  <!--====================================-->
+
+  <section class="tabla-card" *ngIf="!cargando">
+    <div class="table-header">
+      <div>
+        <h2>Usuarios Registrados</h2>
+
+        <span> Administración de accesos </span>
+      </div>
+    </div>
+
+    <div class="tabla-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Usuario</th>
+
+            <th>Nombre</th>
+
+            <th>Rol</th>
+
+            <th>Estado</th>
+
+            <th>Fecha Alta</th>
+
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let usuario of usuarios">
+            <td>
+              <div class="usuario-info">
+                <div class="avatar">
+                  <i class="fa-solid fa-user"></i>
+                </div>
+
+                <strong>
+                  {{ usuario.username }}
+                </strong>
+              </div>
+            </td>
+
+            <td>
+              {{ usuario.nombre }}
+            </td>
+
+            <td>
+              <span
+                class="rol"
+                [ngClass]="{
+                  admin: usuario.rol === 'ADMIN',
+
+                  empleado: usuario.rol === 'EMPLEADO',
+                }"
+              >
+                {{ usuario.rol }}
+              </span>
+            </td>
+
+            <td>
+              <span
+                class="estado"
+                [ngClass]="{
+                  activo: usuario.activo,
+
+                  inactivo: !usuario.activo,
+                }"
+              >
+                {{ usuario.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+
+            <td>
+              {{ usuario.fechaAlta | date: 'dd/MM/yyyy' }}
+            </td>
+
+            <td>
+              <div class="acciones">
+                <button class="accion editar text-primary" title="Editar" (click)="editar(usuario)">
+                  <i class="fa-solid fa-user-pen"></i>
+                </button>
+
+                <button class="accion text-success mx-1" title="Desbloquear" *ngIf="!usuario.activo" (click)="desbloquear(usuario.id)">
+                  <i class="fa-solid fa-unlock"></i>
+                </button>
+
+                <button class="accion eliminar text-danger" title="Desactivar" *ngIf="usuario.activo" (click)="eliminar(usuario.id)">
+                  <i class="fa-solid fa-user-slash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="table-footer d-flex justify-content-between align-items-center mt-3">
+      <span>Total de usuarios: <strong>{{ totalElements }}</strong></span>
+      
+      <div class="pagination-controls" *ngIf="totalPages > 1">
+        <button class="btn btn-sm btn-outline-secondary me-2" [disabled]="currentPage === 0" (click)="cambiarPagina(currentPage - 1)">
+          <i class="fa-solid fa-chevron-left"></i> Anterior
+        </button>
+        <span class="mx-2">Página {{ currentPage + 1 }} de {{ totalPages }}</span>
+        <button class="btn btn-sm btn-outline-secondary ms-2" [disabled]="currentPage === totalPages - 1" (click)="cambiarPagina(currentPage + 1)">
+          Siguiente <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!--====================================-->
+<!-- MODAL -->
+<!--====================================-->
+
+<div class="modal-fondo" *ngIf="mostrarFormulario">
+  <div class="modal-contenido">
+    <div class="modal-header">
+      <div>
+        <span class="modal-subtitulo"> Administración de Usuarios </span>
+
+        <h2>
+          {{ usuarioSeleccionado ? 'Editar Usuario' : 'Nuevo Usuario' }}
+        </h2>
+      </div>
+
+      <button class="cerrar" (click)="cancelarFormulario()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <app-usuario-form
+        [usuarioEditar]="usuarioSeleccionado"
+        (guardar)="guardarUsuario($event)"
+        (cancelar)="cancelarFormulario()"
+      >
+      </app-usuario-form>
+    </div>
+  </div>
+</div>

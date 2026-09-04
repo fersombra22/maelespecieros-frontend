@@ -1,0 +1,34 @@
+﻿:root {
+  --madera-oscura: #3b2415;
+
+  --madera: #6b4226;
+
+  --marron: #8b5e34;
+
+  --dorado: #c9a35b;
+
+  --beige: #f3e6ce;
+
+  --fondo: #efe5d5;
+
+  --texto: #2b1a0f;
+
+  --blanco: #ffffff;
+}
+
+* {
+  margin: 0;
+
+  padding: 0;
+
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg-app);
+
+  font-family: 'Segoe UI', Arial, sans-serif;
+
+  color: var(--text-main);
+}
+

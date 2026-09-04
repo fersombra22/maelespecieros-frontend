@@ -1,0 +1,581 @@
+﻿/*==================================================
+ MAEL ESPECIEROS
+ HISTORIAL DE VENTAS
+==================================================*/
+
+.historial-container {
+  height: 100%;
+
+  padding: 25px;
+
+  background: linear-gradient(180deg, #f8f4ee, #eee0cf);
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 20px;
+
+  overflow: hidden;
+}
+
+/*==================================================
+ HEADER
+==================================================*/
+
+.page-header {
+  background: white;
+
+  border-radius: 22px;
+
+  padding: 25px 30px;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.header-info {
+  display: flex;
+
+  align-items: center;
+
+  gap: 20px;
+}
+
+.header-icon {
+  width: 70px;
+
+  height: 70px;
+
+  border-radius: 20px;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  color: white;
+
+  font-size: 30px;
+
+  background: linear-gradient(180deg, #9d7045, #684323);
+}
+
+.bread {
+  color: #a17d57;
+
+  font-size: 12px;
+
+  font-weight: bold;
+
+  text-transform: uppercase;
+
+  letter-spacing: 1px;
+}
+
+.page-header h1 {
+  margin: 5px 0;
+
+  color: #4b2e18;
+
+  font-weight: 900;
+}
+
+.page-header p {
+  margin: 0;
+
+  color: #777;
+}
+
+/*==================================================
+ BUSCADOR
+==================================================*/
+
+.busqueda-card {
+  background: white;
+
+  border-radius: 22px;
+
+  padding: 25px;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: end;
+
+  gap: 20px;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.busqueda-input {
+  flex: 1;
+}
+
+.busqueda-input label {
+  display: block;
+
+  color: #4b2e18;
+
+  font-weight: 800;
+
+  margin-bottom: 8px;
+}
+
+.busqueda-input label i {
+  color: #8b5a2b;
+
+  margin-right: 8px;
+}
+
+.busqueda-input input {
+  width: 100%;
+
+  height: 48px;
+
+  border-radius: 14px;
+
+  border: 1px solid #d8c8b8;
+
+  padding: 0 18px;
+}
+
+.busqueda-input input:focus {
+  outline: none;
+
+  border-color: #8b5a2b;
+
+  box-shadow: 0 0 0 4px rgba(139, 90, 43, 0.15);
+}
+
+.acciones-busqueda {
+  display: flex;
+
+  gap: 12px;
+}
+
+.acciones-busqueda button {
+  height: 48px;
+
+  padding: 0 25px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.btn-buscar {
+  background: #8b5a2b;
+
+  color: white;
+}
+
+.btn-buscar:hover {
+  background: #684323;
+}
+
+.btn-limpiar {
+  background: #ddd0c0;
+
+  color: #4b2e18;
+}
+
+/*==================================================
+ LOADING
+==================================================*/
+
+.loading {
+  flex: 1;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  align-items: center;
+
+  color: #684323;
+}
+
+.loading .spinner-border {
+  width: 45px;
+
+  height: 45px;
+
+  color: #8b5a2b;
+}
+
+/*==================================================
+ TABLA
+==================================================*/
+
+.tabla-card {
+  flex: 1;
+
+  background: white;
+
+  border-radius: 22px;
+
+  overflow: hidden;
+
+  display: flex;
+
+  flex-direction: column;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.tabla-header {
+  padding: 22px 25px;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  border-bottom: 1px solid #eee;
+}
+
+.tabla-header h2 {
+  margin: 0;
+
+  color: #4b2e18;
+
+  font-size: 22px;
+}
+
+.tabla-header h2 i {
+  color: #8b5a2b;
+}
+
+.tabla-header span {
+  color: #888;
+
+  font-size: 14px;
+}
+
+.contador {
+  background: #efe1d0;
+
+  color: #684323;
+
+  padding: 8px 15px;
+
+  border-radius: 20px;
+
+  font-weight: bold;
+}
+
+.tabla-container {
+  flex: 1;
+
+  overflow: auto;
+}
+
+table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+thead {
+  position: sticky;
+
+  top: 0;
+}
+
+thead th {
+  background: #684323;
+
+  color: white;
+
+  padding: 15px;
+
+  text-align: left;
+
+  font-size: 14px;
+}
+
+tbody td {
+  padding: 15px;
+
+  border-bottom: 1px solid #eee;
+}
+
+tbody tr:hover {
+  background: #faf3ea;
+}
+
+/*==================================================
+ ELEMENTOS TABLA
+==================================================*/
+
+.numero-venta {
+  background: #efe1d0;
+
+  color: #684323;
+
+  padding: 8px 14px;
+
+  border-radius: 20px;
+
+  font-weight: 800;
+}
+
+.pago {
+  background: #f5efe6;
+
+  color: #684323;
+
+  padding: 7px 12px;
+
+  border-radius: 15px;
+
+  font-size: 13px;
+}
+
+.total {
+  color: #4b8b3b;
+
+  font-size: 17px;
+}
+
+.estado {
+  padding: 8px 14px;
+
+  border-radius: 20px;
+
+  font-size: 12px;
+
+  font-weight: 800;
+}
+
+.completada {
+  background: #dff3df;
+
+  color: #267238;
+}
+
+.anulada {
+  background: #ffdede;
+
+  color: #a52828;
+}
+
+.acciones {
+  display: flex;
+
+  gap: 8px;
+}
+
+.acciones button {
+  width: 38px;
+
+  height: 38px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  color: white;
+
+  cursor: pointer;
+}
+
+.btn-detalle {
+  background: #8b5a2b;
+}
+
+.btn-anular {
+  background: #b53b32;
+}
+
+/*==================================================
+ SIN DATOS
+==================================================*/
+
+.sin-datos {
+  flex: 1;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  align-items: center;
+
+  color: #999;
+}
+
+.sin-datos i {
+  font-size: 50px;
+
+  margin-bottom: 15px;
+}
+
+/*==================================================
+ MODAL
+==================================================*/
+
+.modal-fondo {
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(50, 30, 15, 0.55);
+
+  backdrop-filter: blur(5px);
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  z-index: 9999;
+
+  padding: 20px;
+}
+
+.modal-detalle {
+  background: #fffaf3;
+
+  width: 800px;
+
+  max-width: 100%;
+
+  max-height: 90vh;
+
+  overflow: auto;
+
+  border-radius: 25px;
+
+  padding: 30px;
+
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.modal-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+}
+
+.modal-header span {
+  color: #9d7045;
+
+  font-size: 13px;
+
+  font-weight: bold;
+}
+
+.modal-header h2 {
+  color: #4b2e18;
+}
+
+.cerrar {
+  width: 40px;
+
+  height: 40px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: #ead8c3;
+
+  color: #684323;
+
+  cursor: pointer;
+}
+
+.datos-venta {
+  background: #efe1d0;
+
+  border-radius: 15px;
+
+  padding: 15px;
+
+  margin: 20px 0;
+}
+
+.detalle-tabla table th {
+  background: #684323;
+
+  color: white;
+}
+
+.total-modal {
+  margin-top: 20px;
+
+  padding: 20px;
+
+  background: #efe1d0;
+
+  border-radius: 18px;
+
+  text-align: right;
+
+  font-size: 25px;
+
+  font-weight: 900;
+
+  color: #684323;
+}
+
+.btn-cerrar-modal {
+  margin-top: 20px;
+
+  width: 100%;
+
+  height: 48px;
+
+  border: none;
+
+  border-radius: 14px;
+
+  background: #684323;
+
+  color: white;
+
+  font-weight: bold;
+}
+
+/*==================================================
+ RESPONSIVE
+==================================================*/
+
+@media (max-width: 900px) {
+  .busqueda-card {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .acciones-busqueda button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .historial-container {
+    padding: 15px;
+  }
+
+  .header-info {
+    flex-direction: column;
+
+    text-align: center;
+  }
+}
+

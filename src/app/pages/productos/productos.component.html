@@ -1,0 +1,232 @@
+<div class="productos-container">
+  <!--====================================-->
+  <!-- HEADER -->
+  <!--====================================-->
+
+  <section class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="fa-solid fa-boxes-stacked"></i>
+      </div>
+
+      <div class="header-text">
+        <span class="bread"> Inventario / Productos </span>
+
+        <h1>Productos</h1>
+
+        <p>Administración completa del inventario</p>
+      </div>
+    </div>
+
+    <button class="btn-nuevo" (click)="nuevoProducto()">
+      <i class="fa-solid fa-plus"></i>
+
+      Nuevo Producto
+    </button>
+  </section>
+
+  <!--====================================-->
+  <!-- BUSCADOR -->
+  <!--====================================-->
+
+  <section class="search-card">
+    <div class="search-box">
+      <i class="fa-solid fa-magnifying-glass"></i>
+
+      <input
+        type="text"
+        placeholder="Buscar por código, nombre o modelo..."
+        [(ngModel)]="textoBusqueda"
+        (keyup)="buscar()"
+      />
+    </div>
+
+    <div class="total-productos">
+      <i class="fa-solid fa-box-open"></i>
+
+      {{ productos.length }}
+
+      Productos
+    </div>
+  </section>
+
+  <!--====================================-->
+  <!-- TABLA -->
+  <!--====================================-->
+
+  <section class="tabla-card">
+    <div class="table-header">
+      <div>
+        <h2>Inventario</h2>
+
+        <span> Productos registrados </span>
+      </div>
+    </div>
+
+    <div class="tabla-container">
+      <table class="table-premium">
+        <thead>
+          <tr>
+            <th>Código</th>
+
+            <th>Producto</th>
+
+            <th>Modelo</th>
+
+            <th>Precio</th>
+
+            <th>Stock</th>
+
+            <th>Categoría</th>
+
+            <th>Estado</th>
+
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <!-- LOADING STATE -->
+          <tr *ngIf="cargando">
+            <td colspan="8" class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+            </td>
+          </tr>
+
+          <!-- EMPTY STATE -->
+          <tr *ngIf="!cargando && productos.length === 0">
+            <td colspan="8" class="text-center py-4 text-muted">
+              No se encontraron productos.
+            </td>
+          </tr>
+
+          <tr *ngFor="let producto of productos" [class.d-none]="cargando">
+            <td>
+              <span class="codigo">
+                {{ producto.codigoProducto }}
+              </span>
+            </td>
+
+            <td>
+              <div class="producto-info">
+                <div class="producto-avatar">
+                  <i class="fa-solid fa-cube"></i>
+                </div>
+
+                <div>
+                  <strong>
+                    {{ producto.nombre }}
+                  </strong>
+                </div>
+              </div>
+            </td>
+
+            <td>
+              {{ producto.modelo }}
+            </td>
+
+            <td>
+              <strong>
+                {{ producto.precioEfectivo | currency: 'ARS' }}
+              </strong>
+            </td>
+
+            <td>
+              <span
+                class="stock"
+                [ngClass]="{
+                  bajo: producto.stock <= producto.stockMinimo,
+
+                  normal: producto.stock > producto.stockMinimo,
+                }"
+              >
+                {{ producto.stock }}
+              </span>
+            </td>
+
+            <td>
+              {{ producto.categoria }}
+            </td>
+
+            <td>
+              <span
+                class="estado"
+                [ngClass]="{
+                  activo: producto.activo,
+
+                  inactivo: !producto.activo,
+                }"
+              >
+                {{ producto.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+
+            <td>
+              <div class="acciones">
+                <button class="accion editar" (click)="editar(producto)" title="Editar">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+
+                <button class="accion eliminar" (click)="eliminar(producto)" title="Desactivar">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!--====================================-->
+    <!-- PAGINACION (Preparada) -->
+    <!--====================================-->
+
+    <div class="table-footer d-flex justify-content-between align-items-center mt-3">
+      <span>
+        Total de productos: <strong>{{ totalElements }}</strong>
+      </span>
+      <div class="pagination-controls" *ngIf="totalPages > 1">
+        <button class="btn btn-sm btn-outline-secondary me-2" [disabled]="currentPage === 0" (click)="cambiarPagina(currentPage - 1)">
+          <i class="fa-solid fa-chevron-left"></i> Anterior
+        </button>
+        <span class="mx-2">Página {{ currentPage + 1 }} de {{ totalPages }}</span>
+        <button class="btn btn-sm btn-outline-secondary ms-2" [disabled]="currentPage === totalPages - 1" (click)="cambiarPagina(currentPage + 1)">
+          Siguiente <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!--====================================-->
+<!-- MODAL -->
+<!--====================================-->
+
+<div class="modal-fondo" *ngIf="mostrarModal">
+  <div class="modal-contenido">
+    <div class="modal-header">
+      <div>
+        <span class="modal-subtitulo"> Gestión de Inventario </span>
+
+        <h2>
+          {{ modoEdicion ? 'Editar Producto' : 'Nuevo Producto' }}
+        </h2>
+      </div>
+
+      <button class="cerrar" (click)="cerrarModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <app-producto-form
+        [productoEditar]="productoSeleccionado"
+        (guardar)="guardar($event)"
+        (cancelar)="cerrarModal()"
+      >
+      </app-producto-form>
+    </div>
+  </div>
+</div>

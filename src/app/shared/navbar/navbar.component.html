@@ -1,0 +1,35 @@
+<nav class="navbar-top px-4 py-3 bg-surface border-bottom d-flex align-items-center justify-content-between shadow-sm">
+  
+  <!-- Móvil: Logo -->
+  <div class="d-md-none d-flex align-items-center gap-2">
+    <img src="logo.png?v=2" alt="Logo" class="rounded" style="width: 32px; height: 32px; object-fit: contain; background: var(--bg-sidebar);">
+    <span class="fw-bold text-main">Mael</span>
+  </div>
+
+  <!-- Búsqueda o Espacio vacío (Desktop) -->
+  <div class="d-none d-md-flex text-muted small fw-semibold">
+    Gestión de Ventas e Inventario
+  </div>
+
+  <!-- Zona de Usuario -->
+  <div class="d-flex align-items-center gap-3">
+    
+    <div class="d-flex align-items-center gap-2 text-end">
+      <div class="d-none d-sm-block">
+        <div class="fw-bold text-main" style="font-size: 0.9rem; line-height: 1;">{{ usuario?.nombre || 'Usuario' }}</div>
+        <div class="text-muted" style="font-size: 0.75rem;">{{ usuario?.rol || 'Sin rol' }}</div>
+      </div>
+      <div class="avatar bg-primary-light text-primary d-flex align-items-center justify-content-center rounded-circle ms-2" style="width: 40px; height: 40px; font-size: 1.2rem;">
+        <i class="fa-solid fa-user"></i>
+      </div>
+    </div>
+
+    <div class="vr mx-1 d-none d-sm-block"></div>
+
+    <button type="button" class="btn btn-light text-danger border-0 rounded-circle" (click)="cerrarSesion()" title="Cerrar Sesión" style="width: 40px; height: 40px;">
+      <i class="fa-solid fa-arrow-right-from-bracket"></i>
+    </button>
+    
+  </div>
+
+</nav>

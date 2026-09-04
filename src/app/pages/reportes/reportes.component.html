@@ -1,0 +1,105 @@
+<div class="reportes-container">
+  <!--====================================-->
+  <!-- HEADER -->
+  <!--====================================-->
+
+  <section class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="fa-solid fa-chart-column"></i>
+      </div>
+
+      <div>
+        <span class="bread"> Sistema / Reportes </span>
+
+        <h1>Reportes del Sistema</h1>
+
+        <p>Exportación de información en formato PDF</p>
+      </div>
+    </div>
+
+    <div class="contador">
+      <i class="fa-solid fa-file-pdf"></i>
+
+      4 Reportes
+    </div>
+  </section>
+
+  <!--====================================-->
+  <!-- TARJETAS -->
+  <!--====================================-->
+
+  <section class="reportes-grid">
+    <!-- PRODUCTOS -->
+
+    <div class="reporte-card">
+      <div class="icono productos">
+        <i class="fa-solid fa-boxes-stacked"></i>
+      </div>
+
+      <h3>Productos</h3>
+
+      <p>Listado completo de productos, precios, categorías y stock.</p>
+
+      <button class="btn-reporte" (click)="productos()">
+        <i class="fa-solid fa-file-pdf"></i>
+
+        Generar PDF
+      </button>
+    </div>
+
+    <!-- VENTAS -->
+
+    <div class="reporte-card">
+      <div class="icono ventas">
+        <i class="fa-solid fa-cart-shopping"></i>
+      </div>
+
+      <h3>Ventas</h3>
+
+      <p>Historial completo de ventas registradas en el sistema.</p>
+
+      <button class="btn-reporte" (click)="ventas()">
+        <i class="fa-solid fa-file-pdf"></i>
+
+        Generar PDF
+      </button>
+    </div>
+
+    <!-- STOCK -->
+
+    <div class="reporte-card">
+      <div class="icono stock">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+
+      <h3>Stock Bajo</h3>
+
+      <p>Productos que requieren reposición inmediata.</p>
+
+      <button class="btn-reporte" (click)="stock()">
+        <i class="fa-solid fa-file-pdf"></i>
+
+        Generar PDF
+      </button>
+    </div>
+
+    <!-- AUDITORIA -->
+
+    <div class="reporte-card">
+      <div class="icono auditoria">
+        <i class="fa-solid fa-user-shield"></i>
+      </div>
+
+      <h3>Auditoría</h3>
+
+      <p>Registro completo de acciones realizadas por los usuarios.</p>
+
+      <button class="btn-reporte" (click)="auditoria()">
+        <i class="fa-solid fa-file-pdf"></i>
+
+        Generar PDF
+      </button>
+    </div>
+  </section>
+</div>

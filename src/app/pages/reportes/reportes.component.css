@@ -1,0 +1,268 @@
+﻿/*======================================================
+REPORTES
+======================================================*/
+
+.reportes-container {
+  height: 100%;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 20px;
+
+  padding: 25px;
+
+  background: linear-gradient(180deg, #f8f4ee, #efe3d4);
+
+  overflow: hidden;
+}
+
+/*======================================================
+HEADER
+======================================================*/
+
+.page-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  background: white;
+
+  border-radius: 22px;
+
+  padding: 22px 30px;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.header-left {
+  display: flex;
+
+  align-items: center;
+
+  gap: 18px;
+}
+
+.header-icon {
+  width: 70px;
+
+  height: 70px;
+
+  border-radius: 20px;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  color: white;
+
+  font-size: 30px;
+
+  background: linear-gradient(180deg, #9d7045, #694323);
+}
+
+.bread {
+  display: block;
+
+  font-size: 12px;
+
+  color: #a07b57;
+
+  text-transform: uppercase;
+
+  letter-spacing: 1px;
+}
+
+.page-header h1 {
+  margin: 5px 0;
+
+  color: #4b2e18;
+
+  font-size: 30px;
+}
+
+.page-header p {
+  margin: 0;
+
+  color: #777;
+}
+
+.contador {
+  background: #efe2d2;
+
+  color: #694323;
+
+  padding: 12px 20px;
+
+  border-radius: 20px;
+
+  font-weight: 700;
+}
+
+.contador i {
+  margin-right: 8px;
+}
+
+/*======================================================
+GRID
+======================================================*/
+
+.reportes-grid {
+  flex: 1;
+
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 20px;
+}
+
+/*======================================================
+CARD
+======================================================*/
+
+.reporte-card {
+  background: white;
+
+  border-radius: 22px;
+
+  padding: 30px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  text-align: center;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+
+  transition: 0.25s;
+}
+
+.reporte-card:hover {
+  transform: translateY(-5px);
+
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+}
+
+.icono {
+  width: 90px;
+
+  height: 90px;
+
+  border-radius: 24px;
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  color: white;
+
+  font-size: 38px;
+
+  margin-bottom: 20px;
+}
+
+.productos {
+  background: #8b5a2b;
+}
+
+.ventas {
+  background: #4b8b3b;
+}
+
+.stock {
+  background: #d69b2d;
+}
+
+.auditoria {
+  background: #5b4b8b;
+}
+
+.reporte-card h3 {
+  color: #4b2e18;
+
+  margin-bottom: 15px;
+}
+
+.reporte-card p {
+  color: #777;
+
+  line-height: 1.6;
+
+  min-height: 70px;
+}
+
+.btn-reporte {
+  width: 100%;
+
+  border: none;
+
+  border-radius: 14px;
+
+  padding: 14px;
+
+  background: linear-gradient(180deg, #9d7045, #694323);
+
+  color: white;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.25s;
+}
+
+.btn-reporte:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn-reporte i {
+  margin-right: 8px;
+}
+
+/*======================================================
+RESPONSIVE
+======================================================*/
+
+@media (max-width: 1200px) {
+  .reportes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .reportes-container {
+    height: auto;
+
+    overflow: auto;
+
+    padding: 15px;
+  }
+
+  .page-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 20px;
+  }
+
+  .reportes-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

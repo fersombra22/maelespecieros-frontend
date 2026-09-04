@@ -1,0 +1,130 @@
+<form [formGroup]="formulario" (ngSubmit)="enviar()">
+  <!-- DATOS PRINCIPALES -->
+
+  <div class="form-section">
+    <h4>
+      <i class="fa-solid fa-box"></i>
+
+      Información del producto
+    </h4>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label> Nombre del producto </label>
+
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Ej: Especiero giratorio"
+          formControlName="nombre"
+        />
+
+        <small
+          class="error"
+          *ngIf="formulario.get('nombre')?.invalid && formulario.get('nombre')?.touched"
+        >
+          El nombre es obligatorio.
+        </small>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label> Modelo </label>
+
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Ej: Modelo 3 niveles"
+          formControlName="modelo"
+        />
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label> Descripción </label>
+
+      <textarea
+        rows="3"
+        class="form-control"
+        placeholder="Detalle del producto..."
+        formControlName="descripcion"
+      >
+      </textarea>
+    </div>
+  </div>
+
+  <!-- PRECIOS -->
+
+  <div class="form-section">
+    <h4>
+      <i class="fa-solid fa-money-bill-wave"></i>
+
+      Valores
+    </h4>
+
+    <div class="row">
+      <div class="col-md-4 mb-3">
+        <label> Precio efectivo </label>
+
+        <input type="number" class="form-control" formControlName="precioEfectivo" />
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <label> Costo </label>
+
+        <input type="number" class="form-control" formControlName="costo" />
+      </div>
+
+      <div class="col-md-4 mb-3">
+        <label> Categoría </label>
+
+        <select class="form-select" formControlName="categoriaId">
+          <option [ngValue]="null">Seleccione categoría...</option>
+
+          <option *ngFor="let categoria of categorias" [ngValue]="categoria.id">
+            {{ categoria.nombre }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- STOCK -->
+
+  <div class="form-section">
+    <h4>
+      <i class="fa-solid fa-warehouse"></i>
+
+      Inventario
+    </h4>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label> Stock actual </label>
+
+        <input type="number" class="form-control" formControlName="stock" />
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label> Stock mínimo </label>
+
+        <input type="number" class="form-control" formControlName="stockMinimo" />
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTONES -->
+
+  <div class="acciones-form">
+    <button type="button" class="btn-cancelar" (click)="cerrar()">
+      <i class="fa-solid fa-xmark"></i>
+
+      Cancelar
+    </button>
+
+    <button type="submit" class="btn-guardar">
+      <i class="fa-solid fa-floppy-disk"></i>
+
+      {{ productoEditar ? 'Actualizar Producto' : 'Crear Producto' }}
+    </button>
+  </div>
+</form>

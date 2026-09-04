@@ -1,0 +1,212 @@
+<div class="movimientos-container">
+  <!-- HEADER -->
+
+  <section class="page-header">
+    <div class="header-info">
+      <div class="header-icon">
+        <i class="fa-solid fa-arrow-right-arrow-left"></i>
+      </div>
+
+      <div>
+        <span class="breadcrumb"> Inventario / Control </span>
+
+        <h1>Movimientos de Stock</h1>
+
+        <p>Control de trazabilidad e historial del inventario</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FORMULARIO -->
+
+  <section class="movimiento-form-card">
+    <div class="card-title">
+      <i class="fa-solid fa-plus"></i>
+
+      Registrar Movimiento
+    </div>
+
+    <div class="form-grid">
+      <div class="campo">
+        <label> Producto </label>
+
+        <select [(ngModel)]="movimiento.productoId">
+          <option [value]="0">Seleccione producto</option>
+
+          <option *ngFor="let producto of productos" [value]="producto.id">
+            {{ producto.codigoProducto }}
+
+            -
+
+            {{ producto.nombre }}
+          </option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label> Tipo Movimiento </label>
+
+        <select [(ngModel)]="movimiento.tipoMovimiento">
+          <option value="ENTRADA">Entrada</option>
+
+          <option value="VENTA">Venta</option>
+
+          <option value="AJUSTE">Ajuste</option>
+
+          <option value="DEVOLUCION">Devolución</option>
+
+          <option value="ANULACION_VENTA">Anulación de venta</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label> Cantidad </label>
+
+        <input type="number" min="1" [(ngModel)]="movimiento.cantidad" />
+      </div>
+
+      <div class="campo">
+        <label> Motivo </label>
+
+        <input type="text" placeholder="Ej: Compra proveedor" [(ngModel)]="movimiento.motivo" />
+      </div>
+    </div>
+
+    <button class="btn-guardar" (click)="guardar()">
+      <i class="fa-solid fa-floppy-disk"></i>
+
+      Guardar Movimiento
+    </button>
+  </section>
+
+  <!-- HISTORIAL -->
+
+  <section class="historial-card">
+    <div class="historial-header">
+      <div class="card-title">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+
+        Historial de Movimientos
+      </div>
+
+      <span class="contador"> {{ totalRegistros }} registros </span>
+    </div>
+
+    <div *ngIf="cargando" class="loading">
+      <div class="spinner-border"></div>
+
+      <p>Cargando movimientos...</p>
+    </div>
+
+    <div *ngIf="!cargando && movimientos.length === 0" class="sin-datos">
+      No existen movimientos registrados.
+    </div>
+
+    <div class="tabla-container" *ngIf="!cargando && movimientos.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+
+            <th>Código</th>
+
+            <th>Producto</th>
+
+            <th>Acción</th>
+
+            <th>Cantidad</th>
+
+            <th>Stock Anterior</th>
+
+            <th>Stock Nuevo</th>
+
+            <th>Motivo</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let movimiento of movimientos">
+            <td>
+              <span class="fecha">
+                {{ movimiento.fecha | date: 'dd/MM/yyyy HH:mm' }}
+              </span>
+            </td>
+
+            <td>
+              <span class="codigo">
+                {{ movimiento.codigoProducto }}
+              </span>
+            </td>
+
+            <td>
+              <strong>
+                {{ movimiento.producto }}
+              </strong>
+            </td>
+
+            <td>
+              <span
+                class="tipo"
+                [ngClass]="{
+                  ingreso: movimiento.tipoMovimiento === 'ENTRADA' || movimiento.tipoMovimiento === 'DEVOLUCION',
+
+                  venta: movimiento.tipoMovimiento === 'VENTA' || movimiento.tipoMovimiento === 'ANULACION_VENTA',
+
+                  positivo: movimiento.tipoMovimiento === 'AJUSTE',
+
+                  negativo: false,
+                }"
+              >
+                {{ movimiento.tipoMovimiento }}
+              </span>
+            </td>
+
+            <td>
+              {{ movimiento.cantidad }}
+            </td>
+
+            <td>
+              {{ movimiento.stockAnterior }}
+            </td>
+
+            <td>
+              {{ movimiento.stockNuevo }}
+            </td>
+
+            <td>
+              {{ movimiento.motivo || '-' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PAGINACION -->
+
+    <div class="paginacion" *ngIf="!cargando && totalPaginas > 1">
+      <button (click)="irPrimeraPagina()" [disabled]="paginaActual === 1">
+        <i class="fa-solid fa-angles-left"></i>
+      </button>
+
+      <button (click)="paginaAnterior()" [disabled]="paginaActual === 1">Anterior</button>
+
+      <span>
+        Página {{ paginaActual }}
+
+        /
+
+        {{ totalPaginas }}
+
+        <small> {{ totalRegistros }} registros </small>
+      </span>
+
+      <button (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas">
+        Siguiente
+      </button>
+
+      <button (click)="irUltimaPagina()" [disabled]="paginaActual === totalPaginas">
+        <i class="fa-solid fa-angles-right"></i>
+      </button>
+    </div>
+  </section>
+</div>

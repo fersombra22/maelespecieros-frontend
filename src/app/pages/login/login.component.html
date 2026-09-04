@@ -1,0 +1,109 @@
+<div class="login-wrapper d-flex align-items-center justify-content-center min-vh-100 w-100">
+  
+  <!-- Imagen de fondo, opcional, con opacidad baja desde CSS para no estorbar -->
+  <div class="login-bg-image" style="background-image: url('fondo-login.png?v=2');" aria-hidden="true"></div>
+
+  <!-- Contenedor principal del Login -->
+  <main class="login-card shadow-lg">
+    
+    <div class="row g-0 h-100">
+      
+      <!-- Panel Izquierdo: Branding / Logo -->
+      <div class="col-md-5 d-none d-md-flex flex-column align-items-center justify-content-center brand-panel p-5 text-center position-relative overflow-hidden">
+        <div class="brand-overlay"></div>
+        <div class="position-relative z-1">
+          <div class="logo-box bg-white p-3 rounded-circle shadow-sm mb-4 mx-auto" style="width: 130px; height: 130px;">
+            <img src="login.png?v=2" class="img-fluid w-100 h-100 object-fit-contain" alt="Mael Especieros Logo" />
+          </div>
+          <h2 class="text-white fw-bold mb-2">Mael Especieros</h2>
+          <p class="text-white-50 mb-0">Gestión de Ventas e Inventario</p>
+          <span class="badge bg-white text-primary mt-3 px-3 py-2 rounded-pill">Versión 2.0</span>
+        </div>
+      </div>
+
+      <!-- Panel Derecho: Formulario -->
+      <div class="col-md-7 d-flex flex-column justify-content-center p-4 p-md-5 bg-surface">
+        
+        <div class="text-center d-md-none mb-4">
+           <img src="login.png?v=2" class="img-fluid rounded-circle shadow-sm bg-white p-2" style="width: 100px; height: 100px; object-fit: contain;" alt="Mael Especieros Logo" />
+        </div>
+
+        <div class="mb-4 text-center text-md-start">
+          <h3 class="fw-bold text-main mb-1">Bienvenido de nuevo</h3>
+          <p class="text-muted">Ingresa tus credenciales para acceder</p>
+        </div>
+
+        <form (ngSubmit)="iniciarSesion()" autocomplete="on" class="login-form">
+          
+          <!-- Usuario -->
+          <div class="mb-3">
+            <label for="username" class="form-label fw-semibold text-main">Usuario</label>
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0 text-muted">
+                <i class="fa-solid fa-user"></i>
+              </span>
+              <input
+                id="username"
+                type="text"
+                class="form-control border-start-0 ps-0 form-control-lg"
+                placeholder="Ingresa tu usuario"
+                [(ngModel)]="loginRequest.username"
+                name="username"
+                autocomplete="username"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- Contraseña -->
+          <div class="mb-4">
+            <label for="password" class="form-label fw-semibold text-main">Contraseña</label>
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0 text-muted">
+                <i class="fa-solid fa-lock"></i>
+              </span>
+              <input
+                id="password"
+                [type]="mostrarPassword ? 'text' : 'password'"
+                class="form-control border-start-0 border-end-0 px-0 form-control-lg"
+                placeholder="Ingresa tu contraseña"
+                [(ngModel)]="loginRequest.password"
+                name="password"
+                autocomplete="current-password"
+                required
+              />
+              <button
+                class="btn btn-outline-secondary bg-white border-start-0 border text-muted"
+                type="button"
+                (click)="mostrarPassword = !mostrarPassword"
+                [attr.title]="mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
+              >
+                <i class="fa-solid" [class.fa-eye]="!mostrarPassword" [class.fa-eye-slash]="mostrarPassword"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Botón de Login -->
+          <button class="btn btn-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm fw-semibold" type="submit" [disabled]="cargando">
+            <ng-container *ngIf="!cargando">
+              <i class="fa-solid fa-right-to-bracket"></i>
+              <span>Ingresar al Sistema</span>
+            </ng-container>
+            <ng-container *ngIf="cargando">
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <span>Validando...</span>
+            </ng-container>
+          </button>
+          
+        </form>
+
+        <div class="mt-4 text-center text-muted small">
+          <i class="fa-solid fa-shield-halved me-1 text-success"></i>
+          Sistema protegido y encriptado
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+</div>

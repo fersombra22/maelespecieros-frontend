@@ -1,0 +1,15 @@
+.navbar-top {
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+  min-height: 70px;
+}
+
+.avatar {
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.btn-light:hover {
+  background-color: var(--danger-light);
+  color: var(--danger) !important;
+}

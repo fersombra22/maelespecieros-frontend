@@ -1,0 +1,70 @@
+﻿.blockchain-container {
+  padding: 25px;
+
+  background: #f8f4ee;
+
+  min-height: 100%;
+}
+
+.header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  background: white;
+
+  padding: 25px;
+
+  border-radius: 20px;
+
+  margin-bottom: 20px;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.header h2 {
+  color: #4b2e18;
+
+  font-weight: 800;
+}
+
+.header p {
+  color: #777;
+}
+
+.card {
+  border: none;
+
+  border-radius: 20px;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+table {
+  margin: 0;
+}
+
+thead {
+  background: #4b2e18;
+
+  color: white;
+}
+
+td {
+  vertical-align: middle;
+}
+
+.paginacion {
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  gap: 20px;
+
+  margin-top: 25px;
+}
+
