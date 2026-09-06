@@ -1,105 +1,85 @@
-<div class="reportes-container">
+<div class="bento-container">
   <!--====================================-->
   <!-- HEADER -->
   <!--====================================-->
 
-  <section class="page-header">
-    <div class="header-left">
-      <div class="header-icon">
-        <i class="fa-solid fa-chart-column"></i>
-      </div>
-
-      <div>
-        <span class="bread"> Sistema / Reportes </span>
-
-        <h1>Reportes del Sistema</h1>
-
-        <p>Exportación de información en formato PDF</p>
+  <header class="bento-header">
+    <div class="welcome-text">
+      <span class="eyebrow">Sistema / Reportes</span>
+      <h1>Centro de <span>Análisis & Exportación</span></h1>
+      <p>Generación de reportes PDF y estadísticas clave del sistema.</p>
+    </div>
+    <div class="header-actions">
+      <div class="user-badge">
+        <i class="fa-solid fa-file-pdf"></i> 4 Reportes Disponibles
       </div>
     </div>
-
-    <div class="contador">
-      <i class="fa-solid fa-file-pdf"></i>
-
-      4 Reportes
-    </div>
-  </section>
+  </header>
 
   <!--====================================-->
-  <!-- TARJETAS -->
+  <!-- BENTO GRID PARA REPORTES -->
   <!--====================================-->
 
-  <section class="reportes-grid">
-    <!-- PRODUCTOS -->
-
-    <div class="reporte-card">
-      <div class="icono productos">
-        <i class="fa-solid fa-boxes-stacked"></i>
+  <div class="bento-grid">
+    
+    <!-- TARJETA: VENTAS (Main Action) -->
+    <div class="bento-card bento-revenue reporte-card main-report">
+      <div class="revenue-bg"></div>
+      <div class="revenue-content">
+        <span><i class="fa-solid fa-cart-shopping"></i> REPORTE DE VENTAS</span>
+        <h2>Historial Comercial</h2>
+        <p>Exporta el registro completo de ventas y movimientos financieros de la empresa.</p>
+        <button class="btn btn-secondary mt-3" (click)="ventas()">
+          <i class="fa-solid fa-download"></i> Descargar PDF
+        </button>
       </div>
-
-      <h3>Productos</h3>
-
-      <p>Listado completo de productos, precios, categorías y stock.</p>
-
-      <button class="btn-reporte" (click)="productos()">
-        <i class="fa-solid fa-file-pdf"></i>
-
-        Generar PDF
-      </button>
+      <i class="fa-solid fa-chart-line revenue-icon"></i>
     </div>
 
-    <!-- VENTAS -->
-
-    <div class="reporte-card">
-      <div class="icono ventas">
-        <i class="fa-solid fa-cart-shopping"></i>
+    <!-- TARJETA: PRODUCTOS -->
+    <div class="bento-card bento-metric reporte-card">
+      <div class="metric-header">
+        <i class="fa-solid fa-boxes-stacked icon-primary"></i>
+        <span>Catálogo</span>
       </div>
-
-      <h3>Ventas</h3>
-
-      <p>Historial completo de ventas registradas en el sistema.</p>
-
-      <button class="btn-reporte" (click)="ventas()">
-        <i class="fa-solid fa-file-pdf"></i>
-
-        Generar PDF
-      </button>
+      <div class="metric-body">
+        <h2>Productos</h2>
+        <span class="trend neutral">Listado completo, precios y categorías.</span>
+        <button class="btn btn-sm btn-primary mt-3 w-100" (click)="productos()">
+          <i class="fa-solid fa-file-pdf"></i> Generar
+        </button>
+      </div>
     </div>
 
-    <!-- STOCK -->
-
-    <div class="reporte-card">
-      <div class="icono stock">
-        <i class="fa-solid fa-triangle-exclamation"></i>
+    <!-- TARJETA: STOCK -->
+    <div class="bento-card bento-metric metric-alert reporte-card">
+      <div class="metric-header">
+        <i class="fa-solid fa-triangle-exclamation icon-warning"></i>
+        <span>Inventario</span>
       </div>
-
-      <h3>Stock Bajo</h3>
-
-      <p>Productos que requieren reposición inmediata.</p>
-
-      <button class="btn-reporte" (click)="stock()">
-        <i class="fa-solid fa-file-pdf"></i>
-
-        Generar PDF
-      </button>
+      <div class="metric-body">
+        <h2>Stock Bajo</h2>
+        <span class="trend negative">Productos que requieren reposición.</span>
+        <button class="btn btn-sm btn-warning mt-3 w-100" (click)="stock()" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4);">
+          <i class="fa-solid fa-file-pdf"></i> Generar
+        </button>
+      </div>
     </div>
 
-    <!-- AUDITORIA -->
-
-    <div class="reporte-card">
-      <div class="icono auditoria">
-        <i class="fa-solid fa-user-shield"></i>
+    <!-- TARJETA: AUDITORIA -->
+    <div class="bento-card bento-metric reporte-card">
+      <div class="metric-header">
+        <i class="fa-solid fa-shield-halved icon-secondary"></i>
+        <span>Seguridad</span>
       </div>
-
-      <h3>Auditoría</h3>
-
-      <p>Registro completo de acciones realizadas por los usuarios.</p>
-
-      <button class="btn-reporte" (click)="auditoria()">
-        <i class="fa-solid fa-file-pdf"></i>
-
-        Generar PDF
-      </button>
+      <div class="metric-body">
+        <h2>Auditoría</h2>
+        <span class="trend neutral">Registro de acciones y logs del sistema.</span>
+        <button class="btn btn-sm btn-secondary mt-3 w-100" (click)="auditoria()">
+          <i class="fa-solid fa-file-pdf"></i> Generar
+        </button>
+      </div>
     </div>
-  </section>
+
+  </div>
 </div>

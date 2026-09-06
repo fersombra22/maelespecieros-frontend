@@ -1,8 +1,10 @@
 :host {
   display: block;
-  width: 280px;
-  background-color: var(--bg-sidebar); /* Color oscuro institucional definido en styles.css */
-  border-right: 1px solid var(--border-color);
+  width: 240px;
+  background: rgba(9, 9, 11, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
   transition: width var(--transition-fast);
 }
 

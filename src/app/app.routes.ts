@@ -52,7 +52,7 @@ export const routes: Routes = [
       {
         path: 'usuarios',
         loadComponent: () => import('./pages/usuarios/usuarios.component').then(m => m.UsuariosComponent),
-        canActivate: [roleGuard([Rol.SUPER_ADMIN])]
+        canActivate: [roleGuard([Rol.SUPER_ADMIN, Rol.ADMIN])]
       },
       {
         path: 'reportes',

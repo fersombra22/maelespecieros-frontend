@@ -1,371 +1,116 @@
-<div class="dashboard-container">
-  <!-- =========================================================
-       ENCABEZADO PRINCIPAL
-       ========================================================= -->
-  <section class="dashboard-header">
-    <div class="dashboard-header__main">
-      <div class="brand-mark">
-        <div class="brand-mark__inner">
-          <img src="assets/logo.png" alt="Mael Especieros" />
+<div class="bento-container">
+  
+  <header class="bento-header">
+    <div class="welcome-text">
+      <span class="eyebrow">SISTEMA ERP & INVENTARIO</span>
+      <h1>Bienvenido, <span>{{ usuario?.nombre || 'Usuario' }}</span></h1>
+    </div>
+    <div class="header-actions">
+      <div class="user-badge">
+        <i class="fa-solid fa-user-shield"></i> {{ usuario?.rol || 'Sin Rol' }}
+      </div>
+    </div>
+  </header>
+
+  <div class="bento-grid">
+    
+    <!-- Métrica: Productos Activos -->
+    <div class="bento-card bento-metric">
+      <div class="metric-header">
+        <i class="fa-solid fa-boxes-stacked icon-primary"></i>
+        <span>Productos Activos</span>
+      </div>
+      <div class="metric-body">
+        <h2>{{ dashboard?.productosActivos ?? 0 }}</h2>
+        <span class="trend positive"><i class="fa-solid fa-arrow-up"></i> Catálogo Total: {{ dashboard?.totalProductos ?? 0 }}</span>
+      </div>
+    </div>
+
+    <!-- Métrica: Ventas -->
+    <div class="bento-card bento-metric">
+      <div class="metric-header">
+        <i class="fa-solid fa-cart-shopping icon-secondary"></i>
+        <span>Total Ventas</span>
+      </div>
+      <div class="metric-body">
+        <h2>{{ dashboard?.totalVentas ?? 0 }}</h2>
+        <span class="trend neutral">Operaciones registradas</span>
+      </div>
+    </div>
+
+    <!-- Métrica: Alertas de Stock -->
+    <div class="bento-card bento-metric metric-alert">
+      <div class="metric-header">
+        <i class="fa-solid fa-triangle-exclamation icon-warning"></i>
+        <span>Alertas de Stock</span>
+      </div>
+      <div class="metric-body">
+        <h2 [class.text-danger]="(dashboard?.productosStockBajo ?? 0) > 0">{{ dashboard?.productosStockBajo ?? 0 }}</h2>
+        <span class="trend negative" *ngIf="(dashboard?.productosStockBajo ?? 0) > 0">Requiere reposición urgente</span>
+        <span class="trend neutral" *ngIf="(dashboard?.productosStockBajo ?? 0) === 0">Niveles óptimos</span>
+      </div>
+    </div>
+
+    <!-- Facturación Total (Ocupa 2 columnas en pantallas grandes) -->
+    <div class="bento-card bento-revenue">
+      <div class="revenue-bg"></div>
+      <div class="revenue-content">
+        <span>FACTURACIÓN TOTAL</span>
+        <h2>{{ dashboard?.totalFacturado ?? 0 | currency: 'ARS' }}</h2>
+      </div>
+      <i class="fa-solid fa-sack-dollar revenue-icon"></i>
+    </div>
+
+    <!-- Gráfico Principal (Ocupa 2 columnas y 2 filas) -->
+    <div class="bento-card bento-chart" *ngIf="chartOptions">
+      <apx-chart
+        [series]="chartOptions.series"
+        [chart]="chartOptions.chart"
+        [xaxis]="chartOptions.xaxis"
+        [title]="chartOptions.title"
+        [colors]="chartOptions.colors"
+        [plotOptions]="chartOptions.plotOptions"
+        [dataLabels]="chartOptions.dataLabels"
+      ></apx-chart>
+    </div>
+
+    <!-- Smart AI Assistant Widget -->
+    <div class="bento-card bento-ai" *ngIf="usuario?.rol !== Rol.EMPLEADO">
+      <div class="ai-header">
+        <div class="ai-icon-container">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <div>
+          <h3>Smart AI Assistant</h3>
+          <span>Intelligent Insights</span>
         </div>
       </div>
-
-      <div class="welcome-content">
-        <span class="eyebrow"> SISTEMA DE GESTIÓN </span>
-
-        <h1>
-          Bienvenido,
-          <span>{{ usuario?.nombre || 'Usuario' }}</span>
-        </h1>
-
-        <p class="welcome-description">
-          Administración central de inventario, ventas, seguridad y auditoría.
+      
+      <div class="ai-body">
+        <div class="ai-loading" *ngIf="!aiInsight && !systemAltered">
+           <div class="pulse-ring"></div>
+           <span>Analizando el sistema...</span>
+        </div>
+        
+        <p *ngIf="aiInsight" class="ai-text">
+          <i class="fa-solid fa-sparkles text-primary"></i> 
+          {{ aiInsight }}
         </p>
-      </div>
-    </div>
 
-    <div class="profile-card">
-      <div class="profile-card__icon">
-        <i class="fa-solid fa-user-shield"></i>
-      </div>
-
-      <div class="profile-card__content">
-        <span>PERFIL</span>
-
-        <strong>
-          {{ usuario?.rol || 'Sin Rol' }}
-        </strong>
-      </div>
-    </div>
-  </section>
-
-  <!-- =========================================================
-       MÉTRICAS PRINCIPALES
-       ========================================================= -->
-  <section class="metrics-section">
-    <div class="section-heading">
-      <div>
-        <span class="section-heading__eyebrow"> RESUMEN OPERATIVO </span>
-
-        <h2>Estado general</h2>
-      </div>
-    </div>
-
-    <div class="metrics-grid">
-      <!-- PRODUCTOS -->
-      <article class="metric-card">
-        <div class="metric-card__icon metric-card__icon--primary">
-          <i class="fa-solid fa-boxes-stacked"></i>
-        </div>
-
-        <div class="metric-card__content">
-          <span class="metric-card__label"> Productos </span>
-
-          <strong class="metric-card__value">
-            {{ dashboard?.totalProductos ?? 0 }}
-          </strong>
-
-          <span class="metric-card__description"> Catálogo registrado </span>
-        </div>
-      </article>
-
-      <!-- PRODUCTOS ACTIVOS -->
-      <article class="metric-card">
-        <div class="metric-card__icon metric-card__icon--success">
-          <i class="fa-solid fa-circle-check"></i>
-        </div>
-
-        <div class="metric-card__content">
-          <span class="metric-card__label"> Productos activos </span>
-
-          <strong class="metric-card__value">
-            {{ dashboard?.productosActivos ?? 0 }}
-          </strong>
-
-          <span class="metric-card__description"> Disponibles en operación </span>
-        </div>
-      </article>
-
-      <!-- STOCK BAJO -->
-      <article
-        class="metric-card metric-card--warning"
-        [class.metric-card--critical]="(dashboard?.productosStockBajo ?? 0) > 0"
-      >
-        <div class="metric-card__icon metric-card__icon--warning">
-          <i class="fa-solid fa-triangle-exclamation"></i>
-        </div>
-
-        <div class="metric-card__content">
-          <span class="metric-card__label"> Stock bajo </span>
-
-          <strong class="metric-card__value">
-            {{ dashboard?.productosStockBajo ?? 0 }}
-          </strong>
-
-          <span class="metric-card__description"> Requieren atención </span>
-        </div>
-
-        <div
-          class="metric-card__status"
-          [class.metric-card__status--alert]="(dashboard?.productosStockBajo ?? 0) > 0"
-        >
-          <i class="fa-solid fa-arrow-trend-up"></i>
-        </div>
-      </article>
-
-      <!-- VENTAS -->
-      <article class="metric-card">
-        <div class="metric-card__icon metric-card__icon--sales">
-          <i class="fa-solid fa-cart-shopping"></i>
-        </div>
-
-        <div class="metric-card__content">
-          <span class="metric-card__label"> Ventas </span>
-
-          <strong class="metric-card__value">
-            {{ dashboard?.totalVentas ?? 0 }}
-          </strong>
-
-          <span class="metric-card__description"> Registradas en el sistema </span>
-        </div>
-      </article>
-    </div>
-  </section>
-
-  <!-- =========================================================
-       FACTURACIÓN TOTAL
-       ========================================================= -->
-  <section class="revenue-card">
-    <div class="revenue-card__content">
-      <span class="revenue-card__eyebrow"> FACTURACIÓN TOTAL </span>
-
-      <div class="revenue-card__value">
-        {{ dashboard?.totalFacturado ?? 0 | currency: 'ARS' }}
-      </div>
-
-      <p>Total vendido desde el inicio del sistema</p>
-    </div>
-
-    <div class="revenue-card__decoration">
-      <div class="revenue-card__decoration-circle">
-        <i class="fa-solid fa-sack-dollar"></i>
-      </div>
-    </div>
-  </section>
-
-  <!-- =========================================================
-       INFORMACIÓN DEL SISTEMA
-       ========================================================= -->
-  <section class="system-section">
-    <div class="section-heading">
-      <div>
-        <span class="section-heading__eyebrow"> CONTROL Y SEGURIDAD </span>
-
-        <h2>Capacidades del sistema</h2>
-      </div>
-    </div>
-
-    <div class="info-grid">
-      <!-- =====================================================
-           BLOCKCHAIN
-           ===================================================== -->
-      <article class="info-card">
-        <div class="info-card__header">
-          <div class="info-card__icon">
-            <i class="fa-solid fa-link"></i>
-          </div>
-
+        <!-- Alerta de seguridad para SUPER_ADMIN -->
+        <div class="ai-alert critical" *ngIf="systemAltered && usuario?.rol === Rol.SUPER_ADMIN">
+          <i class="fa-solid fa-shield-virus"></i>
           <div>
-            <h3>Blockchain</h3>
-
-            <span> Seguridad e integridad </span>
+            <strong>ALERTA DE INTEGRIDAD:</strong>
+            <p>Se ha detectado una anomalía o alteración en los registros de auditoría (Blockchain). Verifique el sistema inmediatamente.</p>
           </div>
         </div>
-
-        <div class="info-card__divider"></div>
-
-        <ul class="feature-list">
-          <li>
-            <span class="feature-list__check">
-              <i class="fa-solid fa-check"></i>
-            </span>
-            <span> Integridad de registros </span>
-          </li>
-
-          <li>
-            <span class="feature-list__check">
-              <i class="fa-solid fa-check"></i>
-            </span>
-            <span> Cadena SHA-256 </span>
-          </li>
-
-          <li>
-            <span class="feature-list__check">
-              <i class="fa-solid fa-check"></i>
-            </span>
-            <span> Auditoría de registros </span>
-          </li>
-
-          <li>
-            <span class="feature-list__check">
-              <i class="fa-solid fa-check"></i>
-            </span>
-            <span> Registro automático </span>
-          </li>
-        </ul>
-      </article>
-
-      <!-- =====================================================
-           INVENTARIO
-           ===================================================== -->
-      <article class="info-card">
-        <div class="info-card__header">
-          <div class="info-card__icon">
-            <i class="fa-solid fa-warehouse"></i>
-          </div>
-
-          <div>
-            <h3>Inventario</h3>
-
-            <span> Control de existencias </span>
-          </div>
-        </div>
-
-        <div class="info-card__divider"></div>
-
-        <ul class="feature-list">
-          <li>
-            <span class="feature-list__check">
-              <i class="fa-solid fa-check"></i>
-            </span>
-            <span> Productos administrados </span>
-          </li>
-
-          <li>
-            <span class="feature-list__check">
-              <i class="fa-solid fa-check"></i>
-            </span>
-            <span> Movimientos automáticos </span>
-          </li>
-
-          <li>
-            <span class="feature-list__check">
-              <i class="fa-solid fa-check"></i>
-            </span>
-            <span> Stock actualizado </span>
-          </li>
-
-          <li>
-            <span class="feature-list__check">
-              <i class="fa-solid fa-check"></i>
-            </span>
-            <span> Control permanente </span>
-          </li>
-        </ul>
-      </article>
-
-      <!-- =====================================================
-           VENTAS
-           ===================================================== -->
-      <article class="info-card">
-        <div class="info-card__header">
-          <div class="info-card__icon">
-            <i class="fa-solid fa-cash-register"></i>
-          </div>
-
-          <div>
-            <h3>Ventas</h3>
-
-            <span> Operaciones comerciales </span>
-          </div>
-        </div>
-
-        <div class="info-card__divider"></div>
-
-        <ul class="feature-list">
-          <li>
-            <span class="feature-list__check">
-              <i class="fa-solid fa-check"></i>
-            </span>
-            <span> Registro completo </span>
-          </li>
-
-          <li>
-            <span class="feature-list__check">
-              <i class="fa-solid fa-check"></i>
-            </span>
-            <span> Historial permanente </span>
-          </li>
-
-          <li>
-            <span class="feature-list__check">
-              <i class="fa-solid fa-check"></i>
-            </span>
-            <span> Descuento automático </span>
-          </li>
-
-          <li>
-            <span class="feature-list__check">
-              <i class="fa-solid fa-check"></i>
-            </span>
-            <span> Auditoría Blockchain </span>
-          </li>
-        </ul>
-      </article>
-
-      <!-- =====================================================
-           ESTADO DEL SISTEMA
-           ===================================================== -->
-      <article class="info-card info-card--status">
-        <div class="info-card__header">
-          <div class="info-card__icon info-card__icon--online">
-            <i class="fa-solid fa-heart-pulse"></i>
-          </div>
-
-          <div>
-            <h3>Estado del sistema</h3>
-
-            <span> Servicios principales </span>
-          </div>
-        </div>
-
-        <div class="info-card__divider"></div>
-
-        <div class="status-list">
-          <div class="status-row">
-            <span class="status-row__label"> Backend </span>
-
-            <span class="status-badge status-badge--online">
-              <span class="status-dot"></span>
-              ONLINE
-            </span>
-          </div>
-
-          <div class="status-row">
-            <span class="status-row__label"> Base de Datos </span>
-
-            <span class="status-badge status-badge--neutral"> SQLITE </span>
-          </div>
-
-          <div class="status-row">
-            <span class="status-row__label"> Blockchain </span>
-
-            <span class="status-badge status-badge--online">
-              <span class="status-dot"></span>
-              ACTIVA
-            </span>
-          </div>
-
-          <div class="status-row">
-            <span class="status-row__label"> Auditoría </span>
-
-            <span class="status-badge status-badge--online">
-              <span class="status-dot"></span>
-              SEGURA
-            </span>
-          </div>
-        </div>
-      </article>
+      </div>
+      
+      <div class="ai-actions">
+        <button class="btn btn-secondary btn-sm" (click)="cargarInsights()">Actualizar Análisis</button>
+      </div>
     </div>
-  </section>
+
+  </div>
 </div>

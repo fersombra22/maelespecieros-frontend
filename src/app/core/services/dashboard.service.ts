@@ -21,4 +21,8 @@ export class DashboardService {
   obtenerDashboard(): Observable<ApiResponse<Dashboard>> {
     return this.http.get<ApiResponse<Dashboard>>(this.api);
   }
+
+  obtenerInsights(): Observable<ApiResponse<{ insight: string, systemAltered: boolean }>> {
+    return this.http.get<ApiResponse<{ insight: string, systemAltered: boolean }>>(`${environment.apiUrl}/ai/insights`);
+  }
 }

@@ -1,268 +1,226 @@
-﻿/*======================================================
-REPORTES
+/*======================================================
+REPORTES BENTO DESIGN
 ======================================================*/
 
-.reportes-container {
-  height: 100%;
-
+.bento-container {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
   display: flex;
-
   flex-direction: column;
+  gap: 2rem;
+  padding-bottom: 2rem;
+}
 
-  gap: 20px;
+/* Header */
+.bento-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background: var(--bg-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
 
-  padding: 25px;
+.welcome-text .eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--primary);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+  display: block;
+}
 
-  background: linear-gradient(180deg, #f8f4ee, #efe3d4);
+.welcome-text h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
 
+.welcome-text h1 span {
+  color: var(--text-main);
+  background: linear-gradient(to right, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.welcome-text p {
+  margin: 5px 0 0 0;
+  color: var(--text-muted);
+}
+
+.user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.user-badge i {
+  color: var(--primary);
+}
+
+/* Grid */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(140px, auto);
+  gap: 1.5rem;
+}
+
+/* Cards */
+.bento-card {
+  background: var(--bg-surface);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  box-shadow: var(--shadow-md);
+  position: relative;
   overflow: hidden;
 }
 
-/*======================================================
-HEADER
-======================================================*/
+.bento-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: rgba(255, 255, 255, 0.15);
+}
 
-.page-header {
+/* Metrics */
+.metric-header {
   display: flex;
-
-  justify-content: space-between;
-
   align-items: center;
-
-  background: white;
-
-  border-radius: 22px;
-
-  padding: 22px 30px;
-
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
 }
 
-.header-left {
+.metric-header i {
+  font-size: 1.25rem;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.icon-primary { color: var(--primary); }
+.icon-secondary { color: var(--secondary); }
+.icon-warning { color: var(--warning); }
+
+.metric-body {
   display: flex;
-
-  align-items: center;
-
-  gap: 18px;
-}
-
-.header-icon {
-  width: 70px;
-
-  height: 70px;
-
-  border-radius: 20px;
-
-  display: flex;
-
-  justify-content: center;
-
-  align-items: center;
-
-  color: white;
-
-  font-size: 30px;
-
-  background: linear-gradient(180deg, #9d7045, #694323);
-}
-
-.bread {
-  display: block;
-
-  font-size: 12px;
-
-  color: #a07b57;
-
-  text-transform: uppercase;
-
-  letter-spacing: 1px;
-}
-
-.page-header h1 {
-  margin: 5px 0;
-
-  color: #4b2e18;
-
-  font-size: 30px;
-}
-
-.page-header p {
-  margin: 0;
-
-  color: #777;
-}
-
-.contador {
-  background: #efe2d2;
-
-  color: #694323;
-
-  padding: 12px 20px;
-
-  border-radius: 20px;
-
-  font-weight: 700;
-}
-
-.contador i {
-  margin-right: 8px;
-}
-
-/*======================================================
-GRID
-======================================================*/
-
-.reportes-grid {
-  flex: 1;
-
-  display: grid;
-
-  grid-template-columns: repeat(4, 1fr);
-
-  gap: 20px;
-}
-
-/*======================================================
-CARD
-======================================================*/
-
-.reporte-card {
-  background: white;
-
-  border-radius: 22px;
-
-  padding: 30px;
-
-  display: flex;
-
   flex-direction: column;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  text-align: center;
-
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-
-  transition: 0.25s;
+  flex: 1;
 }
 
-.reporte-card:hover {
-  transform: translateY(-5px);
-
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+.metric-body h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  line-height: 1;
 }
 
-.icono {
-  width: 90px;
-
-  height: 90px;
-
-  border-radius: 24px;
-
+.trend {
+  font-size: 0.85rem;
+  font-weight: 500;
   display: flex;
-
-  justify-content: center;
-
   align-items: center;
-
-  color: white;
-
-  font-size: 38px;
-
-  margin-bottom: 20px;
+  gap: 0.25rem;
+  margin-bottom: 15px;
+  flex: 1;
 }
 
-.productos {
-  background: #8b5a2b;
+.trend.positive { color: var(--success); }
+.trend.negative { color: var(--danger); }
+.trend.neutral { color: var(--text-muted); }
+
+/* Revenue Card (Main Report) */
+.bento-revenue {
+  grid-column: span 2;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  justify-content: center;
 }
 
-.ventas {
-  background: #4b8b3b;
+.revenue-bg {
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.4) 0%, transparent 70%);
+  filter: blur(40px);
+  z-index: 0;
 }
 
-.stock {
-  background: #d69b2d;
+.revenue-content {
+  position: relative;
+  z-index: 1;
 }
 
-.auditoria {
-  background: #5b4b8b;
+.revenue-content span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.6);
+  display: block;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
-.reporte-card h3 {
-  color: #4b2e18;
+.revenue-content h2 {
+  font-size: 2.5rem;
+  margin: 0 0 10px 0;
+  color: #fff;
+}
 
+.revenue-content p {
+  color: var(--text-muted);
+  max-width: 80%;
   margin-bottom: 15px;
 }
 
-.reporte-card p {
-  color: #777;
-
-  line-height: 1.6;
-
-  min-height: 70px;
+.revenue-icon {
+  position: absolute;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 5rem;
+  color: rgba(255, 255, 255, 0.05);
 }
 
-.btn-reporte {
-  width: 100%;
-
-  border: none;
-
-  border-radius: 14px;
-
-  padding: 14px;
-
-  background: linear-gradient(180deg, #9d7045, #694323);
-
-  color: white;
-
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition: 0.25s;
-}
-
-.btn-reporte:hover {
-  transform: translateY(-2px);
-
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-}
-
-.btn-reporte i {
-  margin-right: 8px;
-}
-
-/*======================================================
-RESPONSIVE
-======================================================*/
-
+/* Responsive */
 @media (max-width: 1200px) {
-  .reportes-grid {
+  .bento-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 700px) {
-  .reportes-container {
-    height: auto;
-
-    overflow: auto;
-
-    padding: 15px;
-  }
-
-  .page-header {
-    flex-direction: column;
-
-    align-items: flex-start;
-
-    gap: 20px;
-  }
-
-  .reportes-grid {
+@media (max-width: 768px) {
+  .bento-grid {
     grid-template-columns: 1fr;
   }
+  .bento-revenue {
+    grid-column: span 1;
+  }
+  .revenue-content p {
+    max-width: 100%;
+  }
 }
+
 
