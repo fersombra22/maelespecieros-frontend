@@ -39,7 +39,7 @@
     </div>
 
     <!-- Métrica: Alertas de Stock -->
-    <div class="bento-card bento-metric metric-alert">
+    <div class="bento-card bento-metric metric-alert" style="cursor: pointer;" routerLink="/productos">
       <div class="metric-header">
         <i class="fa-solid fa-triangle-exclamation icon-warning"></i>
         <span>Alertas de Stock</span>
@@ -57,6 +57,10 @@
       <div class="revenue-content">
         <span>FACTURACIÓN TOTAL</span>
         <h2>{{ dashboard?.totalFacturado ?? 0 | currency: 'ARS' }}</h2>
+        <span class="trend" [ngClass]="(dashboard?.porcentajeVariacionMensual ?? 0) >= 0 ? 'positive' : 'negative'" style="font-size: 0.9rem; margin-top: 5px; display: inline-block;">
+          <i class="fa-solid" [ngClass]="(dashboard?.porcentajeVariacionMensual ?? 0) >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'"></i>
+          {{ (dashboard?.porcentajeVariacionMensual ?? 0) > 0 ? '+' : '' }}{{ dashboard?.porcentajeVariacionMensual ?? 0 | number:'1.0-2' }}% vs mes anterior
+        </span>
       </div>
       <i class="fa-solid fa-sack-dollar revenue-icon"></i>
     </div>
@@ -71,6 +75,32 @@
         [colors]="chartOptions.colors"
         [plotOptions]="chartOptions.plotOptions"
         [dataLabels]="chartOptions.dataLabels"
+      ></apx-chart>
+    </div>
+    
+    <!-- Gráfico Top Productos -->
+    <div class="bento-card bento-chart" *ngIf="topChartOptions && dashboard?.topProductos?.length">
+      <apx-chart
+        [series]="topChartOptions.series"
+        [chart]="topChartOptions.chart"
+        [xaxis]="topChartOptions.xaxis"
+        [title]="topChartOptions.title"
+        [colors]="topChartOptions.colors"
+        [plotOptions]="topChartOptions.plotOptions"
+        [dataLabels]="topChartOptions.dataLabels"
+      ></apx-chart>
+    </div>
+
+    <!-- Gráfico Medios de Pago -->
+    <div class="bento-card bento-chart" *ngIf="payChartOptions && dashboard?.ventasPorMetodoPago?.length">
+      <apx-chart
+        [series]="payChartOptions.series"
+        [chart]="payChartOptions.chart"
+        [labels]="payChartOptions.labels"
+        [title]="payChartOptions.title"
+        [colors]="payChartOptions.colors"
+        [stroke]="payChartOptions.stroke"
+        [dataLabels]="payChartOptions.dataLabels"
       ></apx-chart>
     </div>
 

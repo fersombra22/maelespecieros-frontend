@@ -59,4 +59,15 @@ export class ProductoService {
   eliminar(id: number): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(`${this.api}/${id}`);
   }
+
+  aumentoMasivo(ids: number[], porcentaje: number): Observable<ApiResponse<void>> {
+    return this.http.put<ApiResponse<void>>(`${this.api}/aumento-masivo`, {
+      ids: ids,
+      porcentaje: porcentaje
+    });
+  }
+
+  exportarExcel(): Observable<Blob> {
+    return this.http.get(`${environment.apiUrl}/reportes/productos/excel`, { responseType: 'blob' });
+  }
 }

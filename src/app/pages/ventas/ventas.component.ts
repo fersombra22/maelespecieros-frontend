@@ -131,6 +131,17 @@ export class VentasComponent implements OnInit {
     this.carritoService.eliminar(id);
   }
 
+  setCantidad(id: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = parseInt(input.value, 10);
+    if (!isNaN(value) && value > 0) {
+      this.carritoService.actualizarCantidad(id, value);
+    } else {
+      input.value = '1';
+      this.carritoService.actualizarCantidad(id, 1);
+    }
+  }
+
   precioActual(producto: ProductoCarrito): number {
     if (this.formaPago() === 'DEBITO' || this.formaPago() === 'CREDITO') {
       return producto.precioEfectivo / 0.8;

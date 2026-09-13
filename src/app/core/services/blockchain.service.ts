@@ -96,7 +96,7 @@ export class BlockchainService {
   // VERIFICAR CADENA
   // ===================================================
 
-  verificar(): Observable<boolean> {
-    return this.http.get<boolean>(this.url + '/verificar');
+  verificar(): Observable<{valida: boolean; anomalias: any[]}> {
+    return this.http.get<{valida: boolean; anomalias: any[]}>(this.url + '/verificar');
   }
 }

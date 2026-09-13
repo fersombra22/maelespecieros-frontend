@@ -31,14 +31,14 @@
       fuera del sistema
     </div>
     <div class="card-body">
-      <table class="table table-sm table-striped">
+      <table>
         <thead>
           <tr>
             <th>Entidad</th>
-            <th>Referencia / ID</th>
-            <th>Campo</th>
-            <th>Original / Seguro</th>
-            <th>Actual / Alterado</th>
+            <th>ID / Ref</th>
+            <th>Campo Afectado</th>
+            <th>Mecanismo</th>
+            <th>Tipo de Anomalía</th>
             <th>Descripción</th>
           </tr>
         </thead>
@@ -47,11 +47,11 @@
             <td>
               <span class="badge bg-danger">{{ a.entidad }}</span>
             </td>
-            <td>{{ a.referenciaId }}</td>
-            <td>{{ a.campoAfectado }}</td>
-            <td>{{ a.valorOriginal }}</td>
-            <td class="fw-bold text-danger">{{ a.valorAlterado }}</td>
-            <td>{{ a.mensajeAlerta }}</td>
+            <td>{{ a.identificador }}</td>
+            <td>{{ a.camposAfectados }}</td>
+            <td>{{ a.mecanismoSeguridad }}</td>
+            <td class="fw-bold text-danger">{{ a.tipoAnomalia }}</td>
+            <td>{{ a.descripcion }}</td>
           </tr>
         </tbody>
       </table>
@@ -60,59 +60,63 @@
 
   <div class="card">
     <div class="card-body">
-      <div *ngIf="cargando" class="text-center">
-        <div class="spinner-border"></div>
-        <p>Cargando bloques...</p>
+      <div *ngIf="cargando" class="text-center p-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-2 text-muted">Cargando bloques...</p>
       </div>
 
-      <table *ngIf="!cargando" class="table table-hover">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Fecha</th>
-            <th>Usuario</th>
-            <th>Acción</th>
-            <th>Descripción</th>
-            <th>Hash</th>
-            <th class="text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let bloque of bloques">
-            <td>{{ bloque.id }}</td>
-            <td>{{ bloque.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
-            <td>{{ bloque.usuario }}</td>
-            <td>
-              <span class="badge bg-primary">{{ bloque.accion }}</span>
-            </td>
-            <td>{{ bloque.descripcion }}</td>
-            <td>
-              <small>{{ bloque.hashActual ? bloque.hashActual.substring(0, 20) : '' }}...</small>
-            </td>
-            <td class="text-center">
-              <button
-                class="btn btn-sm btn-outline-info"
-                (click)="verDetalles(bloque)"
-                title="Ver autopsia completa"
-              >
-                <i class="fa-solid fa-eye"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-responsive" *ngIf="!cargando">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Fecha</th>
+              <th>Usuario</th>
+              <th>Acción</th>
+              <th>Descripción</th>
+              <th>Hash</th>
+              <th class="text-center" style="width: 80px;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let bloque of bloques">
+              <td class="fw-bold">#{{ bloque.id }}</td>
+              <td><span class="badge bg-dark border text-muted">{{ bloque.fecha | date: 'dd/MM/yyyy HH:mm' }}</span></td>
+              <td>{{ bloque.usuario }}</td>
+              <td>
+                <span class="badge" [ngClass]="{'bg-primary': bloque.accion === 'CREACION', 'bg-warning': bloque.accion === 'ACTUALIZACION', 'bg-danger': bloque.accion === 'ELIMINACION', 'bg-info': bloque.accion === 'LOGIN'}">{{ bloque.accion }}</span>
+              </td>
+              <td>{{ bloque.descripcion }}</td>
+              <td>
+                <small class="font-monospace text-muted">{{ bloque.hashActual ? bloque.hashActual.substring(0, 15) : '' }}...</small>
+              </td>
+              <td class="text-center">
+                <div class="hover-actions">
+                  <button
+                    class="btn btn-sm btn-outline-info"
+                    (click)="verDetalles(bloque)"
+                    title="Ver autopsia completa"
+                  >
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-      <div class="paginacion">
-        <button class="btn btn-secondary" (click)="anterior()" [disabled]="pagina === 0">
-          Anterior
+      <div class="paginacion" *ngIf="!cargando">
+        <button class="btn btn-sm btn-secondary" (click)="anterior()" [disabled]="pagina === 0">
+          <i class="fa-solid fa-chevron-left"></i> Anterior
         </button>
         <span>Página {{ pagina + 1 }} / {{ totalPaginas || 1 }}</span>
         <button
-          class="btn btn-secondary"
+          class="btn btn-sm btn-secondary"
           (click)="siguiente()"
           [disabled]="pagina >= totalPaginas - 1"
         >
-          Siguiente
+          Siguiente <i class="fa-solid fa-chevron-right"></i>
         </button>
       </div>
     </div>

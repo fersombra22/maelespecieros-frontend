@@ -1,65 +1,64 @@
 <div class="productos-container">
-  <!--====================================-->
   <!-- HEADER -->
-  <!--====================================-->
-
   <section class="page-header">
     <div class="header-left">
       <div class="header-icon">
         <i class="fa-solid fa-boxes-stacked"></i>
       </div>
-
       <div class="header-text">
-        <span class="bread"> Inventario / Productos </span>
-
+        <span class="breadcrumb"> Inventario / Productos </span>
         <h1>Productos</h1>
-
         <p>Administración completa del inventario</p>
       </div>
     </div>
-
-    <button class="btn-nuevo" (click)="nuevoProducto()">
-      <i class="fa-solid fa-plus"></i>
-
-      Nuevo Producto
-    </button>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="exportarExcel()">
+        <i class="fa-solid fa-file-excel text-success"></i> Exportar
+      </button>
+      <button class="btn-premium" (click)="nuevoProducto()">
+        <i class="fa-solid fa-plus"></i> Nuevo Producto
+      </button>
+    </div>
   </section>
 
-  <!--====================================-->
-  <!-- BUSCADOR -->
-  <!--====================================-->
+  <!-- FLOATING BULK ACTIONS -->
+  <div class="bulk-actions" *ngIf="seleccionados.size > 0">
+    <span>{{ seleccionados.size }} productos seleccionados</span>
+    <button class="btn-warning" (click)="abrirAumentoMasivo()">
+      <i class="fa-solid fa-percentage"></i> Aumentar Precio
+    </button>
+  </div>
 
-  <section class="search-card">
-    <div class="search-box">
-      <i class="fa-solid fa-magnifying-glass"></i>
-
+  <!-- BUSCADOR (SPOTLIGHT) -->
+  <section class="search-section">
+    <div class="search-spotlight">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
       <input
         type="text"
         placeholder="Buscar por código, nombre o modelo..."
         [(ngModel)]="textoBusqueda"
         (keyup)="buscar()"
       />
+      <div class="search-shortcut">
+        <span>Buscar</span>
+      </div>
     </div>
-
-    <div class="total-productos">
-      <i class="fa-solid fa-box-open"></i>
-
-      {{ productos.length }}
-
-      Productos
+    
+    <div class="stats-card">
+      <div class="stat-icon"><i class="fa-solid fa-box-open"></i></div>
+      <div class="stat-info">
+        <h3>{{ productos.length }}</h3>
+        <p>Productos Totales</p>
+      </div>
     </div>
   </section>
 
-  <!--====================================-->
-  <!-- TABLA -->
-  <!--====================================-->
-
-  <section class="tabla-card">
+  <!-- TABLA DATAGRID -->
+  <section class="tabla-card card-premium glass">
     <div class="table-header">
       <div>
         <h2>Inventario</h2>
-
-        <span> Productos registrados </span>
+        <span>Catálogo de productos registrados</span>
       </div>
     </div>
 
@@ -67,28 +66,25 @@
       <table class="table-premium">
         <thead>
           <tr>
+            <th style="width: 40px; text-align: center;">
+              <input type="checkbox" (change)="toggleTodos($event)" [checked]="seleccionados.size === productos.length && productos.length > 0">
+            </th>
             <th>Código</th>
-
             <th>Producto</th>
-
             <th>Modelo</th>
-
-            <th>Precio</th>
-
+            <th>Costo</th>
+            <th>Precio Final</th>
+            <th>Rentabilidad</th>
             <th>Stock</th>
-
             <th>Categoría</th>
-
             <th>Estado</th>
-
-            <th>Acciones</th>
+            <th class="text-center">Acciones</th>
           </tr>
         </thead>
-
         <tbody>
           <!-- LOADING STATE -->
           <tr *ngIf="cargando">
-            <td colspan="8" class="text-center py-4">
+            <td colspan="8" class="text-center py-5">
               <div class="spinner-border text-primary" role="status">
                 <span class="visually-hidden">Cargando...</span>
               </div>
@@ -97,79 +93,56 @@
 
           <!-- EMPTY STATE -->
           <tr *ngIf="!cargando && productos.length === 0">
-            <td colspan="8" class="text-center py-4 text-muted">
-              No se encontraron productos.
+            <td colspan="8" class="text-center py-5 empty-state">
+              <i class="fa-solid fa-box-open mb-3 opacity-25" style="font-size: 3rem;"></i>
+              <p>No se encontraron productos.</p>
             </td>
           </tr>
 
-          <tr *ngFor="let producto of productos" [class.d-none]="cargando">
+          <tr *ngFor="let producto of productos" [class.d-none]="cargando" class="table-row-hover" [class.selected]="seleccionados.has(producto.id)">
+            <td style="text-align: center;">
+              <input type="checkbox" [checked]="seleccionados.has(producto.id)" (change)="toggleSeleccion(producto.id)">
+            </td>
             <td>
-              <span class="codigo">
-                {{ producto.codigoProducto }}
+              <span class="codigo-badge">
+                <i class="fa-solid fa-barcode"></i> {{ producto.codigoProducto }}
               </span>
             </td>
-
             <td>
               <div class="producto-info">
                 <div class="producto-avatar">
                   <i class="fa-solid fa-cube"></i>
                 </div>
-
                 <div>
-                  <strong>
-                    {{ producto.nombre }}
-                  </strong>
+                  <strong>{{ producto.nombre }}</strong>
                 </div>
               </div>
             </td>
-
+            <td><span class="modelo-text">{{ producto.modelo }}</span></td>
+            <td><span class="costo-text">{{ producto.costo | currency: 'ARS' }}</span></td>
+            <td><strong class="precio-text">{{ producto.precioEfectivo | currency: 'ARS' }}</strong></td>
             <td>
-              {{ producto.modelo }}
+              <span class="badge badge-success">
+                <i class="fa-solid fa-arrow-trend-up"></i> {{ calcularRentabilidad(producto) | number:'1.0-2' }}%
+              </span>
             </td>
-
             <td>
-              <strong>
-                {{ producto.precioEfectivo | currency: 'ARS' }}
-              </strong>
-            </td>
-
-            <td>
-              <span
-                class="stock"
-                [ngClass]="{
-                  bajo: producto.stock <= producto.stockMinimo,
-
-                  normal: producto.stock > producto.stockMinimo,
-                }"
-              >
+              <span class="badge" [ngClass]="producto.stock <= producto.stockMinimo ? 'badge-danger glow' : 'badge-primary'">
                 {{ producto.stock }}
               </span>
             </td>
-
+            <td>{{ producto.categoria }}</td>
             <td>
-              {{ producto.categoria }}
-            </td>
-
-            <td>
-              <span
-                class="estado"
-                [ngClass]="{
-                  activo: producto.activo,
-
-                  inactivo: !producto.activo,
-                }"
-              >
+              <span class="badge" [ngClass]="producto.activo ? 'badge-success' : 'badge-secondary'">
                 {{ producto.activo ? 'Activo' : 'Inactivo' }}
               </span>
             </td>
-
-            <td>
-              <div class="acciones">
-                <button class="accion editar" (click)="editar(producto)" title="Editar">
+            <td class="text-center">
+              <div class="acciones-hover">
+                <button class="btn-action edit" (click)="editar(producto)" title="Editar">
                   <i class="fa-solid fa-pen"></i>
                 </button>
-
-                <button class="accion eliminar" (click)="eliminar(producto)" title="Desactivar">
+                <button class="btn-action delete" (click)="eliminar(producto)" title="Desactivar">
                   <i class="fa-solid fa-trash"></i>
                 </button>
               </div>
@@ -179,47 +152,34 @@
       </table>
     </div>
 
-    <!--====================================-->
-    <!-- PAGINACION (Preparada) -->
-    <!--====================================-->
-
-    <div class="table-footer d-flex justify-content-between align-items-center mt-3">
-      <span>
-        Total de productos: <strong>{{ totalElements }}</strong>
-      </span>
+    <!-- PAGINACION -->
+    <div class="table-footer">
+      <span>Total de productos: <strong>{{ totalElements }}</strong></span>
       <div class="pagination-controls" *ngIf="totalPages > 1">
-        <button class="btn btn-sm btn-outline-secondary me-2" [disabled]="currentPage === 0" (click)="cambiarPagina(currentPage - 1)">
-          <i class="fa-solid fa-chevron-left"></i> Anterior
+        <button class="btn-page" [disabled]="currentPage === 0" (click)="cambiarPagina(currentPage - 1)">
+          <i class="fa-solid fa-chevron-left"></i>
         </button>
-        <span class="mx-2">Página {{ currentPage + 1 }} de {{ totalPages }}</span>
-        <button class="btn btn-sm btn-outline-secondary ms-2" [disabled]="currentPage === totalPages - 1" (click)="cambiarPagina(currentPage + 1)">
-          Siguiente <i class="fa-solid fa-chevron-right"></i>
+        <span class="page-info">Página {{ currentPage + 1 }} de {{ totalPages }}</span>
+        <button class="btn-page" [disabled]="currentPage === totalPages - 1" (click)="cambiarPagina(currentPage + 1)">
+          <i class="fa-solid fa-chevron-right"></i>
         </button>
       </div>
     </div>
   </section>
 </div>
 
-<!--====================================-->
 <!-- MODAL -->
-<!--====================================-->
-
 <div class="modal-fondo" *ngIf="mostrarModal">
-  <div class="modal-contenido">
+  <div class="modal-contenido card-premium">
     <div class="modal-header">
       <div>
-        <span class="modal-subtitulo"> Gestión de Inventario </span>
-
-        <h2>
-          {{ modoEdicion ? 'Editar Producto' : 'Nuevo Producto' }}
-        </h2>
+        <span class="breadcrumb"> Gestión de Inventario </span>
+        <h2>{{ modoEdicion ? 'Editar Producto' : 'Nuevo Producto' }}</h2>
       </div>
-
-      <button class="cerrar" (click)="cerrarModal()">
+      <button class="cerrar btn-circle" (click)="cerrarModal()">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
-
     <div class="modal-body">
       <app-producto-form
         [productoEditar]="productoSeleccionado"

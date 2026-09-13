@@ -83,7 +83,7 @@
                 </div>
 
                 <div>
-                  <strong>
+                  <strong style="font-size: 15px;">
                     {{ categoria.nombre }}
                   </strong>
                 </div>
@@ -103,13 +103,11 @@
             <td>
               <span class="estado activa" *ngIf="categoria.activo">
                 <i class="fa-solid fa-circle-check"></i>
-
                 Activa
               </span>
 
               <span class="estado inactiva" *ngIf="!categoria.activo">
                 <i class="fa-solid fa-circle-minus"></i>
-
                 Inactiva
               </span>
             </td>
@@ -146,13 +144,13 @@
 
     <!-- Paginación -->
     <div class="table-footer d-flex justify-content-between align-items-center mt-3 p-3" *ngIf="totalPages > 1">
-      <span>Total de categorías: <strong>{{ totalElements }}</strong></span>
-      <div class="pagination-controls">
-        <button class="btn btn-sm btn-outline-secondary me-2" [disabled]="currentPage === 0" (click)="cambiarPagina(currentPage - 1)">
+      <span class="text-muted" style="font-size: 14px; font-weight: 600;">Total de categorías: <strong>{{ totalElements }}</strong></span>
+      <div class="pagination-controls d-flex align-items-center gap-2">
+        <button class="btn btn-sm btn-outline-secondary" [disabled]="currentPage === 0" (click)="cambiarPagina(currentPage - 1)">
           <i class="fa-solid fa-chevron-left"></i> Anterior
         </button>
-        <span class="mx-2">Página {{ currentPage + 1 }} de {{ totalPages }}</span>
-        <button class="btn btn-sm btn-outline-secondary ms-2" [disabled]="currentPage === totalPages - 1" (click)="cambiarPagina(currentPage + 1)">
+        <span class="mx-2 text-main" style="font-weight: 600;">Página {{ currentPage + 1 }} de {{ totalPages }}</span>
+        <button class="btn btn-sm btn-outline-secondary" [disabled]="currentPage === totalPages - 1" (click)="cambiarPagina(currentPage + 1)">
           Siguiente <i class="fa-solid fa-chevron-right"></i>
         </button>
       </div>
@@ -168,13 +166,10 @@
   <div class="modal-contenido">
     <div class="modal-header">
       <div>
-        <span class="modal-subtitulo"> Configuración </span>
-
+        <span class="modal-subtitulo">Configuración</span>
         <h2>
           {{ modoEdicion ? 'Editar Categoría' : 'Nueva Categoría' }}
         </h2>
-
-        <p>Complete la información de la categoría.</p>
       </div>
 
       <button class="cerrar" (click)="cerrarModal()">
@@ -183,27 +178,25 @@
     </div>
 
     <div class="modal-body">
-      <div class="form-group">
-        <label> Nombre </label>
-
-        <input type="text" placeholder="Ej: Especieros" [(ngModel)]="categoria.nombre" />
+      <div class="floating-label">
+        <input type="text" class="premium-input" id="cat-nombre" placeholder="Ej: Especieros" [(ngModel)]="categoria.nombre" />
+        <label for="cat-nombre">Nombre de la Categoría</label>
       </div>
 
-      <div class="form-group">
-        <label> Descripción </label>
-
+      <div class="floating-label">
         <textarea
-          rows="4"
+          class="premium-input"
+          id="cat-desc"
+          rows="3"
           placeholder="Descripción de la categoría"
           [(ngModel)]="categoria.descripcion"
-        >
-        </textarea>
+        ></textarea>
+        <label for="cat-desc">Descripción</label>
       </div>
 
-      <div class="form-group">
-        <label> Prefijo del Código </label>
-
-        <input maxlength="5" placeholder="ESP" [(ngModel)]="categoria.prefijo" />
+      <div class="floating-label">
+        <input type="text" class="premium-input" id="cat-prefijo" maxlength="5" placeholder="Ej: ESP" [(ngModel)]="categoria.prefijo" />
+        <label for="cat-prefijo">Prefijo del Código (Max 5 letras)</label>
       </div>
     </div>
 
@@ -211,9 +204,7 @@
       <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
 
       <button class="btn-guardar" (click)="guardar()">
-        <i class="fa-solid fa-floppy-disk"></i>
-
-        Guardar
+        <i class="fa-solid fa-floppy-disk"></i> Guardar
       </button>
     </div>
   </div>

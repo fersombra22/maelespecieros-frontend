@@ -30,6 +30,7 @@ export class ProductosComponent implements OnInit {
   productoSeleccionado?: Producto;
   modoEdicion: boolean = false;
   cargando: boolean = false;
+  seleccionados: Set<number> = new Set<number>();
 
   // Paginación
   currentPage: number = 0;
@@ -39,6 +40,81 @@ export class ProductosComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarProductos();
+  }
+
+  toggleSeleccion(id: number): void {
+    if (this.seleccionados.has(id)) {
+      this.seleccionados.delete(id);
+    } else {
+      this.seleccionados.add(id);
+    }
+  }
+
+  toggleTodos(event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      this.productos.forEach(p => this.seleccionados.add(p.id));
+    } else {
+      this.seleccionados.clear();
+    }
+  }
+
+  calcularRentabilidad(producto: Producto): number {
+    if (!producto.costo || producto.costo <= 0) return 100;
+    return ((producto.precioEfectivo - producto.costo) / producto.costo) * 100;
+  }
+
+  exportarExcel(): void {
+    this.productoService.exportarExcel().subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `productos_${new Date().getTime()}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      },
+      error: () => {
+        Swal.fire('Error', 'No se pudo exportar el Excel', 'error');
+      }
+    });
+  }
+
+  abrirAumentoMasivo(): void {
+    if (this.seleccionados.size === 0) return;
+
+    Swal.fire({
+      title: 'Aumento Masivo de Precios',
+      text: `Se aplicará el aumento a los ${this.seleccionados.size} productos seleccionados. (El costo no se modificará)`,
+      input: 'number',
+      inputLabel: 'Porcentaje de aumento (%)',
+      inputPlaceholder: 'Ej: 15',
+      showCancelButton: true,
+      confirmButtonText: '<i class="fa-solid fa-percentage"></i> Aplicar Aumento',
+      cancelButtonText: 'Cancelar',
+      inputValidator: (value) => {
+        if (!value || parseFloat(value) <= 0) {
+          return 'Debes ingresar un porcentaje mayor a 0';
+        }
+        return null;
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const porcentaje = parseFloat(result.value);
+        this.productoService.aumentoMasivo(Array.from(this.seleccionados), porcentaje).subscribe({
+          next: () => {
+            Swal.fire('¡Éxito!', `Precios actualizados un ${porcentaje}%. El hash de integridad se ha regenerado correctamente.`, 'success');
+            this.seleccionados.clear();
+            this.cargarProductos();
+          },
+          error: () => {
+            Swal.fire('Error', 'No se pudieron actualizar los precios', 'error');
+          }
+        });
+      }
+    });
   }
 
   cargarProductos(): void {
