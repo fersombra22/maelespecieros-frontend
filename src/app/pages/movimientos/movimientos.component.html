@@ -1,212 +1,163 @@
 <div class="movimientos-container">
   <!-- HEADER -->
-
   <section class="page-header">
     <div class="header-info">
       <div class="header-icon">
         <i class="fa-solid fa-arrow-right-arrow-left"></i>
       </div>
-
       <div>
         <span class="breadcrumb"> Inventario / Control </span>
-
         <h1>Movimientos de Stock</h1>
-
         <p>Control de trazabilidad e historial del inventario</p>
       </div>
     </div>
   </section>
 
   <!-- FORMULARIO -->
-
-  <section class="movimiento-form-card">
+  <section class="movimiento-form-card card-premium">
     <div class="card-title">
-      <i class="fa-solid fa-plus"></i>
-
+      <i class="fa-solid fa-plus-circle text-primary"></i>
       Registrar Movimiento
     </div>
 
     <div class="form-grid">
-      <div class="campo">
-        <label> Producto </label>
-
-        <select [(ngModel)]="movimiento.productoId">
+      <div class="campo floating-label">
+        <select [(ngModel)]="movimiento.productoId" class="premium-input">
           <option [value]="0">Seleccione producto</option>
-
           <option *ngFor="let producto of productos" [value]="producto.id">
-            {{ producto.codigoProducto }}
-
-            -
-
-            {{ producto.nombre }}
+            {{ producto.codigoProducto }} - {{ producto.nombre }}
           </option>
         </select>
+        <label>Producto</label>
       </div>
 
-      <div class="campo">
-        <label> Tipo Movimiento </label>
-
-        <select [(ngModel)]="movimiento.tipoMovimiento">
+      <div class="campo floating-label">
+        <select [(ngModel)]="movimiento.tipoMovimiento" class="premium-input">
           <option value="ENTRADA">Entrada</option>
-
           <option value="VENTA">Venta</option>
-
           <option value="AJUSTE">Ajuste</option>
-
           <option value="DEVOLUCION">Devolución</option>
-
           <option value="ANULACION_VENTA">Anulación de venta</option>
         </select>
+        <label>Tipo Movimiento</label>
       </div>
 
-      <div class="campo">
-        <label> Cantidad </label>
-
-        <input type="number" min="1" [(ngModel)]="movimiento.cantidad" />
+      <div class="campo floating-label">
+        <input type="number" min="1" [(ngModel)]="movimiento.cantidad" class="premium-input" placeholder=" " />
+        <label>Cantidad</label>
       </div>
 
-      <div class="campo">
-        <label> Motivo </label>
-
-        <input type="text" placeholder="Ej: Compra proveedor" [(ngModel)]="movimiento.motivo" />
+      <div class="campo floating-label">
+        <input type="text" [(ngModel)]="movimiento.motivo" class="premium-input" placeholder=" " />
+        <label>Motivo (Ej: Compra proveedor)</label>
       </div>
     </div>
 
-    <button class="btn-guardar" (click)="guardar()">
-      <i class="fa-solid fa-floppy-disk"></i>
-
-      Guardar Movimiento
-    </button>
+    <div class="form-actions">
+      <button class="btn-premium" (click)="guardar()">
+        <i class="fa-solid fa-floppy-disk"></i> Guardar Movimiento
+      </button>
+    </div>
   </section>
 
   <!-- HISTORIAL -->
-
-  <section class="historial-card">
+  <section class="historial-card card-premium glass">
     <div class="historial-header">
       <div class="card-title">
-        <i class="fa-solid fa-clock-rotate-left"></i>
-
+        <i class="fa-solid fa-clock-rotate-left text-primary"></i>
         Historial de Movimientos
       </div>
-
-      <span class="contador"> {{ totalRegistros }} registros </span>
+      <span class="badge badge-primary">{{ totalRegistros }} registros</span>
     </div>
 
-    <div *ngIf="cargando" class="loading">
-      <div class="spinner-border"></div>
-
-      <p>Cargando movimientos...</p>
+    <div *ngIf="cargando" class="loading-state py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Cargando movimientos...</span>
+      </div>
     </div>
 
-    <div *ngIf="!cargando && movimientos.length === 0" class="sin-datos">
-      No existen movimientos registrados.
+    <div *ngIf="!cargando && movimientos.length === 0" class="empty-state py-5">
+      <i class="fa-solid fa-folder-open mb-3 opacity-25" style="font-size: 3rem;"></i>
+      <p>No existen movimientos registrados.</p>
     </div>
 
     <div class="tabla-container" *ngIf="!cargando && movimientos.length > 0">
-      <table>
+      <table class="table-premium">
         <thead>
           <tr>
             <th>Fecha</th>
-
             <th>Código</th>
-
             <th>Producto</th>
-
             <th>Acción</th>
-
-            <th>Cantidad</th>
-
-            <th>Stock Anterior</th>
-
-            <th>Stock Nuevo</th>
-
+            <th class="text-center">Cant.</th>
+            <th class="text-center">Stock Ant.</th>
+            <th class="text-center">Stock Nue.</th>
             <th>Motivo</th>
           </tr>
         </thead>
-
         <tbody>
-          <tr *ngFor="let movimiento of movimientos">
+          <tr *ngFor="let movimiento of movimientos" class="table-row-hover">
             <td>
-              <span class="fecha">
-                {{ movimiento.fecha | date: 'dd/MM/yyyy HH:mm' }}
+              <span class="fecha-text">
+                <i class="fa-regular fa-calendar"></i> {{ movimiento.fecha | date: 'dd/MM/yyyy HH:mm' }}
               </span>
             </td>
-
             <td>
-              <span class="codigo">
+              <span class="codigo-badge">
                 {{ movimiento.codigoProducto }}
               </span>
             </td>
-
             <td>
-              <strong>
-                {{ movimiento.producto }}
-              </strong>
+              <strong>{{ movimiento.producto }}</strong>
             </td>
-
             <td>
               <span
-                class="tipo"
+                class="badge-icon"
                 [ngClass]="{
-                  ingreso: movimiento.tipoMovimiento === 'ENTRADA' || movimiento.tipoMovimiento === 'DEVOLUCION',
-
-                  venta: movimiento.tipoMovimiento === 'VENTA' || movimiento.tipoMovimiento === 'ANULACION_VENTA',
-
-                  positivo: movimiento.tipoMovimiento === 'AJUSTE',
-
-                  negativo: false,
+                  'badge-success': movimiento.tipoMovimiento === 'ENTRADA' || movimiento.tipoMovimiento === 'DEVOLUCION',
+                  'badge-danger': movimiento.tipoMovimiento === 'VENTA' || movimiento.tipoMovimiento === 'ANULACION_VENTA',
+                  'badge-warning': movimiento.tipoMovimiento === 'AJUSTE'
                 }"
               >
+                <i class="fa-solid" 
+                   [ngClass]="{
+                     'fa-arrow-down': movimiento.tipoMovimiento === 'ENTRADA' || movimiento.tipoMovimiento === 'DEVOLUCION',
+                     'fa-arrow-up': movimiento.tipoMovimiento === 'VENTA' || movimiento.tipoMovimiento === 'ANULACION_VENTA',
+                     'fa-sliders': movimiento.tipoMovimiento === 'AJUSTE'
+                   }">
+                </i>
                 {{ movimiento.tipoMovimiento }}
               </span>
             </td>
-
-            <td>
-              {{ movimiento.cantidad }}
-            </td>
-
-            <td>
-              {{ movimiento.stockAnterior }}
-            </td>
-
-            <td>
-              {{ movimiento.stockNuevo }}
-            </td>
-
-            <td>
-              {{ movimiento.motivo || '-' }}
-            </td>
+            <td class="text-center"><strong class="cantidad-text">{{ movimiento.cantidad }}</strong></td>
+            <td class="text-center text-muted">{{ movimiento.stockAnterior }}</td>
+            <td class="text-center"><strong>{{ movimiento.stockNuevo }}</strong></td>
+            <td><span class="motivo-text">{{ movimiento.motivo || '-' }}</span></td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <!-- PAGINACION -->
-
-    <div class="paginacion" *ngIf="!cargando && totalPaginas > 1">
-      <button (click)="irPrimeraPagina()" [disabled]="paginaActual === 1">
-        <i class="fa-solid fa-angles-left"></i>
-      </button>
-
-      <button (click)="paginaAnterior()" [disabled]="paginaActual === 1">Anterior</button>
-
-      <span>
-        Página {{ paginaActual }}
-
-        /
-
-        {{ totalPaginas }}
-
-        <small> {{ totalRegistros }} registros </small>
-      </span>
-
-      <button (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas">
-        Siguiente
-      </button>
-
-      <button (click)="irUltimaPagina()" [disabled]="paginaActual === totalPaginas">
-        <i class="fa-solid fa-angles-right"></i>
-      </button>
+    <div class="table-footer" *ngIf="!cargando && totalPaginas > 1">
+      <div class="pagination-info">
+        <span>Mostrando página <strong>{{ paginaActual }}</strong> de <strong>{{ totalPaginas }}</strong></span>
+      </div>
+      <div class="pagination-controls">
+        <button class="btn-page" (click)="irPrimeraPagina()" [disabled]="paginaActual === 1" title="Primera">
+          <i class="fa-solid fa-angles-left"></i>
+        </button>
+        <button class="btn-page" (click)="paginaAnterior()" [disabled]="paginaActual === 1" title="Anterior">
+          <i class="fa-solid fa-angle-left"></i>
+        </button>
+        
+        <button class="btn-page" (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas" title="Siguiente">
+          <i class="fa-solid fa-angle-right"></i>
+        </button>
+        <button class="btn-page" (click)="irUltimaPagina()" [disabled]="paginaActual === totalPaginas" title="Última">
+          <i class="fa-solid fa-angles-right"></i>
+        </button>
+      </div>
     </div>
   </section>
 </div>

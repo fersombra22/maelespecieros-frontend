@@ -25,4 +25,8 @@ export class DashboardService {
   obtenerInsights(): Observable<ApiResponse<{ insight: string, systemAltered: boolean }>> {
     return this.http.get<ApiResponse<{ insight: string, systemAltered: boolean }>>(`${environment.apiUrl}/ai/insights`);
   }
+
+  askChat(message: string): Observable<ApiResponse<{ reply: string }>> {
+    return this.http.post<ApiResponse<{ reply: string }>>(`${environment.apiUrl}/ai/chat`, { message });
+  }
 }

@@ -1,5 +1,6 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { NgApexchartsModule } from 'ng-apexcharts';
 import Swal from 'sweetalert2';
 
@@ -12,6 +13,7 @@ export type ChartOptions = {
   plotOptions: any;
   dataLabels: any;
   stroke: any;
+  labels: any;
 };
 
 import { DashboardService } from '../../core/services/dashboard.service';
@@ -23,7 +25,7 @@ import { Rol } from '../../core/models/rol';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, NgApexchartsModule],
+  imports: [CommonModule, NgApexchartsModule, RouterModule],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
 })
@@ -37,6 +39,9 @@ export class DashboardComponent implements OnInit {
   usuario?: LoginResponse;
   
   public chartOptions!: Partial<ChartOptions>;
+  public payChartOptions!: Partial<ChartOptions>;
+  public topChartOptions!: Partial<ChartOptions>;
+  
   public aiInsight: string = '';
   public systemAltered: boolean = false;
   public Rol = Rol;
@@ -54,7 +59,7 @@ export class DashboardComponent implements OnInit {
     this.dashboardService.obtenerDashboard().subscribe({
       next: (response: any) => {
         this.dashboard = response.data ? response.data : response;
-        this.initChart();
+        this.initCharts();
         this.cdr.detectChanges();
       },
       error: (error) => {
@@ -81,7 +86,7 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  private initChart(): void {
+  private initCharts(): void {
     this.chartOptions = {
       series: [
         {
@@ -130,6 +135,72 @@ export class DashboardComponent implements OnInit {
       },
       title: {
         text: 'Estado del Inventario',
+        align: 'left',
+        style: {
+          fontSize: '16px',
+          fontWeight: 'bold',
+          color: '#f8fafc'
+        }
+      }
+    };
+    
+    // Top 5 Products Chart
+    const topProducts = this.dashboard?.topProductos || [];
+    this.topChartOptions = {
+      series: [
+        {
+          name: 'Cantidad Vendida',
+          data: topProducts.map(p => p.cantidadVendida)
+        }
+      ],
+      chart: {
+        height: 350,
+        type: 'bar',
+        fontFamily: 'Inter, sans-serif',
+        toolbar: { show: false }
+      },
+      colors: ['#3b82f6'],
+      plotOptions: {
+        bar: {
+          horizontal: true,
+          borderRadius: 4
+        }
+      },
+      dataLabels: {
+        enabled: true
+      },
+      xaxis: {
+        categories: topProducts.map(p => p.nombre),
+        labels: {
+          style: { colors: '#a1a1aa' }
+        }
+      },
+      title: {
+        text: 'Top 5 Productos Más Vendidos',
+        align: 'left',
+        style: {
+          fontSize: '16px',
+          fontWeight: 'bold',
+          color: '#f8fafc'
+        }
+      }
+    };
+
+    // Payment Methods Pie Chart
+    const payMethods = this.dashboard?.ventasPorMetodoPago || [];
+    this.payChartOptions = {
+      series: payMethods.map(p => p.total),
+      chart: {
+        height: 350,
+        type: 'donut',
+        fontFamily: 'Inter, sans-serif'
+      },
+      labels: payMethods.map(p => p.formaPago),
+      colors: ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'],
+      stroke: { show: false },
+      dataLabels: { enabled: true },
+      title: {
+        text: 'Ingresos por Medio de Pago',
         align: 'left',
         style: {
           fontSize: '16px',

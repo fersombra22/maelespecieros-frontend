@@ -2,14 +2,13 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BlockchainService, BlockchainAuditResponse } from '../../core/services/blockchain.service';
 
-// Interface local para recibir las anomalías cruzadas desde el backend si se requiere
 interface AnomaliaAuditoriaResponse {
   entidad: string;
-  referenciaId: string;
-  campoAfectado: string;
-  valorOriginal: string;
-  valorAlterado: string;
-  mensajeAlerta: string;
+  identificador: string;
+  camposAfectados: string;
+  mecanismoSeguridad: string;
+  tipoAnomalia: string;
+  descripcion: string;
 }
 
 @Component({

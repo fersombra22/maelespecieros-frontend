@@ -1,42 +1,31 @@
 <div class="ventas-container">
-  <!--====================================-->
   <!-- HEADER -->
-  <!--====================================-->
-
   <section class="page-header">
     <div class="header-info">
       <div class="header-icon">
         <i class="fa-solid fa-cart-shopping"></i>
       </div>
-
       <div>
-        <span class="bread"> Punto de Venta </span>
-
+        <span class="breadcrumb"> Punto de Venta </span>
         <h1>Nueva Venta</h1>
-
         <p>Gestión de productos, cobros y facturación</p>
       </div>
     </div>
   </section>
 
   <div class="ventas-layout">
-    <!--================================-->
     <!-- PRODUCTOS -->
-    <!--================================-->
-
-    <section class="productos-panel">
+    <section class="productos-panel card-premium">
       <div class="panel-header">
         <div>
           <i class="fa-solid fa-boxes-stacked"></i>
-
           Productos disponibles
         </div>
       </div>
 
       <div class="panel-body">
-        <div class="buscador-container">
-          <i class="fa-solid fa-search"></i>
-
+        <div class="buscador-container spotlight-search">
+          <i class="fa-solid fa-search search-icon"></i>
           <input
             id="searchInput"
             type="text"
@@ -55,8 +44,8 @@
           </div>
 
           <!-- EMPTY STATE -->
-          <div *ngIf="!cargandoProductos() && productos().length === 0" class="w-100 text-center py-5 text-muted">
-            <i class="fa-solid fa-box-open fa-3x mb-3 opacity-50"></i>
+          <div *ngIf="!cargandoProductos() && productos().length === 0" class="empty-state">
+            <i class="fa-solid fa-box-open mb-3 opacity-50"></i>
             <p>No se encontraron productos.</p>
           </div>
 
@@ -65,18 +54,13 @@
               <div class="producto-icon">
                 <i class="fa-solid fa-box"></i>
               </div>
-
-              <span class="stock" [ngClass]="{'text-danger': producto.stock <= producto.stockMinimo}">
+              <span class="badge" [ngClass]="producto.stock <= producto.stockMinimo ? 'badge-danger glow' : 'badge-primary'">
                 Stock: {{ producto.stock }}
               </span>
             </div>
 
             <h3>{{ producto.nombre }}</h3>
-
-            <span class="codigo">
-              Código: {{ producto.codigoProducto }}
-            </span>
-
+            <span class="codigo"><i class="fa-solid fa-barcode"></i> {{ producto.codigoProducto }}</span>
             <div class="precio">
               {{ producto.precioEfectivo | currency: 'ARS' }}
             </div>
@@ -90,75 +74,55 @@
       </div>
     </section>
 
-    <!--================================-->
     <!-- CARRITO -->
-    <!--================================-->
-
-    <section class="carrito-panel">
+    <section class="carrito-panel card-premium glass">
       <div class="panel-header carrito-title">
         <div>
           <i class="fa-solid fa-basket-shopping"></i>
           Carrito
         </div>
-        <span>{{ carritoService.itemsCount() }} items</span>
+        <span class="badge badge-primary">{{ carritoService.itemsCount() }} items</span>
       </div>
 
       <div class="carrito-body">
         <div class="empty-cart" *ngIf="carritoService.carrito().length === 0">
-          <i class="fa-solid fa-cart-arrow-down"></i>
+          <i class="fa-solid fa-cart-arrow-down mb-2"></i>
           <p>No hay productos agregados</p>
         </div>
 
         <div class="carrito-item" *ngFor="let producto of carritoService.carrito()">
           <div class="item-info">
-            <strong>
-              {{ producto.nombre }}
-            </strong>
-
-            <small>
-              {{ producto.precioEfectivo | currency: 'ARS' }}
-            </small>
+            <strong>{{ producto.nombre }}</strong>
+            <small>{{ producto.precioEfectivo | currency: 'ARS' }}</small>
           </div>
 
           <div class="cantidad-control">
-            <button (click)="disminuir(producto.id)">-</button>
-
-            <span>
-              {{ producto.cantidad }}
-            </span>
-
-            <button (click)="aumentar(producto.id)">+</button>
-
-            <button class="btn-eliminar" (click)="eliminar(producto.id)">
+            <button class="btn-circle" (click)="disminuir(producto.id)"><i class="fa-solid fa-minus"></i></button>
+            <input type="number" class="cantidad-input" [value]="producto.cantidad" (change)="setCantidad(producto.id, $event)" min="1">
+            <button class="btn-circle" (click)="aumentar(producto.id)"><i class="fa-solid fa-plus"></i></button>
+            <button class="btn-eliminar-item" (click)="eliminar(producto.id)">
               <i class="fa-solid fa-trash"></i>
             </button>
           </div>
         </div>
 
         <div class="resumen-venta">
-          <div>
-            <span> Total efectivo </span>
-
-            <strong>
-              {{ totalEfectivo() | currency: 'ARS' }}
-            </strong>
+          <div class="resumen-row">
+            <span>Total efectivo</span>
+            <strong>{{ totalEfectivo() | currency: 'ARS' }}</strong>
           </div>
-
-          <h2>
-            Total:
-
-            {{ total() | currency: 'ARS' }}
+          <h2 class="total-destacado">
+            Total: {{ total() | currency: 'ARS' }}
           </h2>
         </div>
 
         <!-- PAGO -->
-
         <div class="pago-container">
           <label>
             <i class="fa-solid fa-credit-card"></i>
             Forma de pago
           </label>
-          <select [ngModel]="formaPago()" (ngModelChange)="formaPago.set($event)">
+          <select class="form-select premium-input" [ngModel]="formaPago()" (ngModelChange)="formaPago.set($event)">
             <option value="EFECTIVO">Efectivo</option>
             <option value="DEBITO">Débito</option>
             <option value="CREDITO">Crédito</option>
@@ -166,10 +130,10 @@
           </select>
 
           <label>Descuento</label>
-          <input type="number" [ngModel]="descuento()" (ngModelChange)="descuento.set($event)" placeholder="0" />
+          <input type="number" class="premium-input" [ngModel]="descuento()" (ngModelChange)="descuento.set($event)" placeholder="0" />
         </div>
 
-        <button class="btn-finalizar" (click)="finalizarVenta()">
+        <button class="btn-premium btn-finalizar" (click)="finalizarVenta()">
           <i class="fa-solid fa-check"></i>
           Finalizar Venta (F4)
         </button>

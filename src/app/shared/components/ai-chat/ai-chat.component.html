@@ -1,0 +1,42 @@
+<div class="chat-widget" *ngIf="hasAccess">
+  
+  <div class="chat-button" (click)="toggleChat()" [class.active]="isOpen">
+    <i class="fa-solid" [ngClass]="isOpen ? 'fa-xmark' : 'fa-robot'"></i>
+  </div>
+
+  <div class="chat-window" *ngIf="isOpen">
+    <div class="chat-header">
+      <div class="header-icon">
+        <i class="fa-solid fa-sparkles"></i>
+      </div>
+      <div class="header-info">
+        <h4>Mael IA</h4>
+        <p>Asistente Virtual</p>
+      </div>
+    </div>
+    
+    <div class="chat-body">
+      <div class="message" *ngFor="let msg of messages" [ngClass]="{'user-msg': msg.isUser, 'ai-msg': !msg.isUser}">
+        <div class="msg-bubble">
+          {{ msg.text }}
+        </div>
+        <span class="msg-time">{{ msg.time | date:'HH:mm' }}</span>
+      </div>
+      <div class="message ai-msg typing" *ngIf="loading">
+        <div class="msg-bubble">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-footer">
+      <input type="text" [(ngModel)]="message" (keyup.enter)="sendMessage()" placeholder="Pregunta sobre ventas o productos..." [disabled]="loading" />
+      <button class="send-btn" (click)="sendMessage()" [disabled]="loading || !message.trim()">
+        <i class="fa-solid fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+
+</div>

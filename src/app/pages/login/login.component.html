@@ -22,10 +22,12 @@
       </div>
 
       <!-- Panel Derecho: Formulario -->
-      <div class="col-md-7 d-flex flex-column justify-content-center p-4 p-md-5 bg-surface">
+      <div class="col-md-7 d-flex flex-column justify-content-center p-4 p-md-5">
         
         <div class="text-center d-md-none mb-4">
-           <img src="login.png?v=2" class="img-fluid rounded-circle shadow-sm bg-white p-2" style="width: 100px; height: 100px; object-fit: contain;" alt="Mael Especieros Logo" />
+           <div class="logo-box bg-transparent mx-auto" style="width: 100px; height: 100px; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 10px;">
+             <img src="login.png?v=2" class="img-fluid object-fit-contain" alt="Mael Especieros Logo" />
+           </div>
         </div>
 
         <div class="mb-4 text-center text-md-start">
@@ -37,9 +39,9 @@
           
           <!-- Usuario -->
           <div class="mb-3">
-            <label for="username" class="form-label fw-semibold text-main">Usuario</label>
+            <label for="username" class="form-label fw-semibold text-main mb-2">Usuario</label>
             <div class="input-group">
-              <span class="input-group-text bg-white border-end-0 text-muted">
+              <span class="input-group-text border-end-0">
                 <i class="fa-solid fa-user"></i>
               </span>
               <input
@@ -57,9 +59,9 @@
 
           <!-- Contraseña -->
           <div class="mb-4">
-            <label for="password" class="form-label fw-semibold text-main">Contraseña</label>
+            <label for="password" class="form-label fw-semibold text-main mb-2">Contraseña</label>
             <div class="input-group">
-              <span class="input-group-text bg-white border-end-0 text-muted">
+              <span class="input-group-text border-end-0">
                 <i class="fa-solid fa-lock"></i>
               </span>
               <input
@@ -73,7 +75,7 @@
                 required
               />
               <button
-                class="btn btn-outline-secondary bg-white border-start-0 border text-muted"
+                class="btn-toggle-pass px-3"
                 type="button"
                 (click)="mostrarPassword = !mostrarPassword"
                 [attr.title]="mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
@@ -84,7 +86,7 @@
           </div>
 
           <!-- Botón de Login -->
-          <button class="btn btn-primary btn-lg w-100 d-flex align-items-center justify-content-center gap-2 shadow-sm fw-semibold" type="submit" [disabled]="cargando">
+          <button class="btn-login w-100 d-flex align-items-center justify-content-center gap-2" type="submit" [disabled]="cargando">
             <ng-container *ngIf="!cargando">
               <i class="fa-solid fa-right-to-bracket"></i>
               <span>Ingresar al Sistema</span>

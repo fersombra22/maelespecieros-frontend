@@ -59,6 +59,13 @@ export class CarritoService {
     );
   }
 
+  actualizarCantidad(id: number, cantidad: number): void {
+    if (cantidad <= 0) return;
+    this.carritoState.update(items =>
+      items.map(p => p.id === id ? { ...p, cantidad } : p)
+    );
+  }
+
   limpiar(): void {
     this.carritoState.set([]);
   }
