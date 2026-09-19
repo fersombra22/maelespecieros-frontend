@@ -25,6 +25,10 @@ export class UsuariosComponent implements OnInit {
 
   usuarios: Usuario[] = [];
 
+  trackByFn(index: number, item: any): number {
+    return item.id;
+  }
+
   cargando: boolean = true;
   mostrarFormulario: boolean = false;
   usuarioSeleccionado?: Usuario;

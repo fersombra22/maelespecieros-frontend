@@ -6,6 +6,8 @@ import Swal from 'sweetalert2';
 
 import { ProductoService } from '../../core/services/producto.service';
 import { Producto } from '../../core/models/producto';
+import { AuthService } from '../../core/services/auth.service';
+import { Rol } from '../../core/models/rol';
 
 import { ProductoFormComponent } from '../../shared/components/producto-form/producto-form.component';
 
@@ -22,7 +24,10 @@ import { ProductoFormComponent } from '../../shared/components/producto-form/pro
 })
 export class ProductosComponent implements OnInit {
   private productoService = inject(ProductoService);
+  private authService = inject(AuthService);
   private cdr = inject(ChangeDetectorRef);
+
+  isAdmin: boolean = false;
 
   productos: Producto[] = [];
   textoBusqueda: string = '';
@@ -32,6 +37,10 @@ export class ProductosComponent implements OnInit {
   cargando: boolean = false;
   seleccionados: Set<number> = new Set<number>();
 
+  trackByFn(index: number, item: any): number {
+    return item.id;
+  }
+
   // Paginación
   currentPage: number = 0;
   pageSize: number = 10;
@@ -39,6 +48,8 @@ export class ProductosComponent implements OnInit {
   totalPages: number = 0;
 
   ngOnInit(): void {
+    const usuario = this.authService.obtenerUsuario();
+    this.isAdmin = usuario?.rol === Rol.ADMIN || usuario?.rol === Rol.SUPER_ADMIN;
     this.cargarProductos();
   }
 
@@ -80,6 +91,29 @@ export class ProductosComponent implements OnInit {
         Swal.fire('Error', 'No se pudo exportar el Excel', 'error');
       }
     });
+  }
+
+  subirExcel(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.cargando = true;
+      this.cdr.markForCheck();
+      
+      this.productoService.importarExcel(file).subscribe({
+        next: () => {
+          Swal.fire('¡Éxito!', 'Productos importados y actualizados correctamente.', 'success');
+          this.currentPage = 0;
+          this.cargarProductos();
+          event.target.value = '';
+        },
+        error: (err) => {
+          this.cargando = false;
+          this.cdr.markForCheck();
+          Swal.fire('Error', 'No se pudo importar el archivo Excel.', 'error');
+          event.target.value = '';
+        }
+      });
+    }
   }
 
   abrirAumentoMasivo(): void {

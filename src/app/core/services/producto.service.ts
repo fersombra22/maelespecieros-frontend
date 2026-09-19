@@ -70,4 +70,10 @@ export class ProductoService {
   exportarExcel(): Observable<Blob> {
     return this.http.get(`${environment.apiUrl}/reportes/productos/excel`, { responseType: 'blob' });
   }
+
+  importarExcel(file: File): Observable<ApiResponse<void>> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<ApiResponse<void>>(`${this.api}/importar`, formData);
+  }
 }

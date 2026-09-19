@@ -82,4 +82,58 @@
     </div>
 
   </div>
+
+  <!--====================================-->
+  <!-- COMPARATIVA DETALLADA -->
+  <!--====================================-->
+  <div class="bento-grid mt-4" style="grid-template-columns: 1fr;">
+    <div class="bento-card w-100">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h3 class="h5 fw-bold mb-1"><i class="fa-solid fa-scale-balanced text-primary me-2"></i> Comparativa Detallada de Ventas</h3>
+          <p class="text-white-50 small mb-0">Analiza el rendimiento actual contra periodos anteriores.</p>
+        </div>
+        <div>
+          <select class="form-select bg-dark text-white border-secondary" (change)="cambiarPeriodo($event)" [value]="periodoSeleccionado">
+            <option value="DIA">Día a Día</option>
+            <option value="SEMANA">Semana a Semana</option>
+            <option value="MES">Mes a Mes</option>
+            <option value="ANO">Año a Año</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row text-center g-4" *ngIf="!cargandoComparacion && comparacionData">
+        <div class="col-md-4">
+          <div class="p-4 rounded border border-secondary border-opacity-25 bg-black bg-opacity-25 h-100 d-flex flex-column justify-content-center">
+            <span class="text-white-50 text-uppercase small fw-bold mb-2">Periodo Actual</span>
+            <h4 class="mb-0 fw-bold">{{ comparacionData.actual | currency:'ARS' }}</h4>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-4 rounded border border-secondary border-opacity-25 bg-black bg-opacity-25 h-100 d-flex flex-column justify-content-center">
+            <span class="text-white-50 text-uppercase small fw-bold mb-2">Periodo Anterior</span>
+            <h4 class="mb-0 fw-bold">{{ comparacionData.anterior | currency:'ARS' }}</h4>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="p-4 rounded border border-secondary border-opacity-25 h-100 d-flex flex-column justify-content-center"
+               [ngClass]="comparacionData.porcentajeVariacion >= 0 ? 'border-success bg-success bg-opacity-10' : 'border-danger bg-danger bg-opacity-10'">
+            <span class="text-white-50 text-uppercase small fw-bold mb-2">Variación</span>
+            <h4 class="mb-0 fw-bold" [ngClass]="comparacionData.porcentajeVariacion >= 0 ? 'text-success' : 'text-danger'">
+              <i class="fa-solid" [ngClass]="comparacionData.porcentajeVariacion >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+              {{ comparacionData.porcentajeVariacion > 0 ? '+' : '' }}{{ comparacionData.porcentajeVariacion | number:'1.0-2' }}%
+            </h4>
+          </div>
+        </div>
+      </div>
+      
+      <div class="text-center py-5" *ngIf="cargandoComparacion">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>

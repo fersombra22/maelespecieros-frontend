@@ -36,7 +36,8 @@ export class VentasComponent implements OnInit {
   public carritoService = inject(CarritoService); // Public to use its signals in template
 
   // Use Signals for local state to align with OnPush
-  productos = signal<Producto[]>([]);
+  sugerencias = signal<Producto[]>([]);
+  mostrarSugerencias = signal<boolean>(false);
   formaPago = signal<string>('EFECTIVO');
   descuento = signal<number>(0);
   buscar = signal<string>('');
@@ -46,7 +47,7 @@ export class VentasComponent implements OnInit {
   private searchTimeout: any;
 
   ngOnInit(): void {
-    this.cargarProductos();
+    // Ya no cargamos todos los productos al inicio por defecto en este modelo POS
   }
 
   // Hotkeys
@@ -65,18 +66,21 @@ export class VentasComponent implements OnInit {
     }
   }
 
-  cargarProductos(): void {
+  cargarSugerencias(termino: string): void {
     this.cargandoProductos.set(true);
-    this.productoService.listar(0, 20).subscribe({
+    this.productoService.buscarPorNombre(termino, 0, 10).subscribe({
       next: (response: any) => {
         if (response.data && response.data.content) {
-          this.productos.set(response.data.content);
+          this.sugerencias.set(response.data.content);
         } else {
-          this.productos.set([]);
+          this.sugerencias.set([]);
         }
+        this.mostrarSugerencias.set(true);
         this.cargandoProductos.set(false);
       },
       error: () => {
+        this.sugerencias.set([]);
+        this.mostrarSugerencias.set(true);
         this.cargandoProductos.set(false);
       }
     });
@@ -87,28 +91,41 @@ export class VentasComponent implements OnInit {
       clearTimeout(this.searchTimeout);
     }
     
+    const searchTerm = this.buscar().trim();
+    if (!searchTerm) {
+      this.sugerencias.set([]);
+      this.mostrarSugerencias.set(false);
+      return;
+    }
+
     this.searchTimeout = setTimeout(() => {
-      const searchTerm = this.buscar().trim();
-      if (!searchTerm) {
-        this.cargarProductos();
-        return;
-      }
-      
-      this.cargandoProductos.set(true);
-      this.productoService.buscarPorNombre(searchTerm, 0, 20).subscribe({
-        next: (response: any) => {
-          if (response.data && response.data.content) {
-            this.productos.set(response.data.content);
-          } else {
-            this.productos.set([]);
-          }
-          this.cargandoProductos.set(false);
-        },
-        error: () => {
-          this.cargandoProductos.set(false);
-        }
-      });
+      this.cargarSugerencias(searchTerm);
     }, 300);
+  }
+
+  seleccionarSugerencia(producto: Producto): void {
+    this.agregar(producto);
+    this.buscar.set('');
+    this.sugerencias.set([]);
+    this.mostrarSugerencias.set(false);
+    
+    // Devolver foco al input
+    setTimeout(() => {
+      document.getElementById('searchInput')?.focus();
+    }, 100);
+  }
+
+  ocultarSugerencias(): void {
+    // Pequeño timeout para permitir que el click en la sugerencia se registre antes de ocultar
+    setTimeout(() => {
+      this.mostrarSugerencias.set(false);
+    }, 200);
+  }
+
+  mostrarSugerenciasNuevamente(): void {
+    if (this.sugerencias().length > 0) {
+      this.mostrarSugerencias.set(true);
+    }
   }
 
   agregar(producto: Producto): void {
@@ -198,7 +215,8 @@ export class VentasComponent implements OnInit {
         this.carritoService.limpiar();
         this.descuento.set(0);
         this.buscar.set('');
-        this.cargarProductos();
+        this.sugerencias.set([]);
+        this.mostrarSugerencias.set(false);
       },
       error: () => {
         Swal.fire({

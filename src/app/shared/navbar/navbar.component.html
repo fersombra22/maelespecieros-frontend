@@ -2,13 +2,21 @@
   
   <!-- Móvil: Logo -->
   <div class="d-md-none d-flex align-items-center gap-2">
+    <button class="btn btn-sm text-muted border-0 me-2" (click)="layoutService.toggleSidebar()">
+      <i class="fa-solid fa-bars fs-5"></i>
+    </button>
     <img src="logo.png?v=2" alt="Logo" class="rounded" style="width: 32px; height: 32px; object-fit: contain; background: var(--bg-sidebar);">
     <span class="fw-bold text-main">Mael</span>
   </div>
 
   <!-- Búsqueda o Espacio vacío (Desktop) -->
-  <div class="d-none d-md-flex text-muted small fw-semibold">
-    Gestión de Ventas e Inventario
+  <div class="d-none d-md-flex align-items-center gap-3">
+    <button class="btn text-muted border-0 hover-bg-light rounded-circle p-2" (click)="layoutService.toggleSidebar()">
+      <i class="fa-solid fa-bars fs-5"></i>
+    </button>
+    <div class="text-muted small fw-semibold ms-2">
+      Gestión de Ventas e Inventario
+    </div>
   </div>
 
   <!-- Zona de Usuario -->

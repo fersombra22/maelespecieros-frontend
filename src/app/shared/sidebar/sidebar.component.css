@@ -12,6 +12,33 @@
   height: 100%;
 }
 
+:host(.collapsed) {
+  width: 80px;
+}
+
+:host(.collapsed) .brand-text,
+:host(.collapsed) .nav-section,
+:host(.collapsed) .nav-link span,
+:host(.collapsed) .sidebar-footer span {
+  display: none !important;
+}
+
+:host(.collapsed) .brand {
+  justify-content: center !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+:host(.collapsed) .nav-link {
+  justify-content: center;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+:host(.collapsed) .sidebar-footer {
+  justify-content: center;
+}
+
 /* Enlaces del menú */
 .nav-link {
   transition: all var(--transition-fast);

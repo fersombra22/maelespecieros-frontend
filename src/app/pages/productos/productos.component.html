@@ -12,9 +12,15 @@
       </div>
     </div>
     <div class="header-actions">
-      <button class="btn-secondary" (click)="exportarExcel()">
-        <i class="fa-solid fa-file-excel text-success"></i> Exportar
-      </button>
+      <ng-container *ngIf="isAdmin">
+        <input type="file" #fileInput style="display: none" accept=".xlsx, .xls" (change)="subirExcel($event)">
+        <button class="btn-secondary" (click)="fileInput.click()" [disabled]="cargando">
+          <i class="fa-solid fa-file-arrow-up text-primary"></i> Importar
+        </button>
+        <button class="btn-secondary" (click)="exportarExcel()" [disabled]="cargando">
+          <i class="fa-solid fa-file-excel text-success"></i> Exportar
+        </button>
+      </ng-container>
       <button class="btn-premium" (click)="nuevoProducto()">
         <i class="fa-solid fa-plus"></i> Nuevo Producto
       </button>
@@ -24,7 +30,7 @@
   <!-- FLOATING BULK ACTIONS -->
   <div class="bulk-actions" *ngIf="seleccionados.size > 0">
     <span>{{ seleccionados.size }} productos seleccionados</span>
-    <button class="btn-warning" (click)="abrirAumentoMasivo()">
+    <button class="btn-warning" *ngIf="isAdmin" (click)="abrirAumentoMasivo()">
       <i class="fa-solid fa-percentage"></i> Aumentar Precio
     </button>
   </div>
@@ -38,6 +44,7 @@
         placeholder="Buscar por código, nombre o modelo..."
         [(ngModel)]="textoBusqueda"
         (keyup)="buscar()"
+        autofocus
       />
       <div class="search-shortcut">
         <span>Buscar</span>
@@ -99,7 +106,7 @@
             </td>
           </tr>
 
-          <tr *ngFor="let producto of productos" [class.d-none]="cargando" class="table-row-hover" [class.selected]="seleccionados.has(producto.id)">
+          <tr *ngFor="let producto of productos; trackBy: trackByFn" [class.d-none]="cargando" class="table-row-hover" [class.selected]="seleccionados.has(producto.id)">
             <td style="text-align: center;">
               <input type="checkbox" [checked]="seleccionados.has(producto.id)" (change)="toggleSeleccion(producto.id)">
             </td>
@@ -142,7 +149,7 @@
                 <button class="btn-action edit" (click)="editar(producto)" title="Editar">
                   <i class="fa-solid fa-pen"></i>
                 </button>
-                <button class="btn-action delete" (click)="eliminar(producto)" title="Desactivar">
+                <button class="btn-action delete" *ngIf="isAdmin" (click)="eliminar(producto)" title="Desactivar">
                   <i class="fa-solid fa-trash"></i>
                 </button>
               </div>

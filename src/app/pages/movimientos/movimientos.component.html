@@ -24,7 +24,7 @@
       <div class="campo floating-label">
         <select [(ngModel)]="movimiento.productoId" class="premium-input">
           <option [value]="0">Seleccione producto</option>
-          <option *ngFor="let producto of productos" [value]="producto.id">
+          <option *ngFor="let producto of productos()" [value]="producto.id">
             {{ producto.codigoProducto }} - {{ producto.nombre }}
           </option>
         </select>
@@ -67,21 +67,16 @@
         <i class="fa-solid fa-clock-rotate-left text-primary"></i>
         Historial de Movimientos
       </div>
-      <span class="badge badge-primary">{{ totalRegistros }} registros</span>
+      <span class="badge badge-primary">{{ totalRegistros() }} registros</span>
     </div>
 
-    <div *ngIf="cargando" class="loading-state py-5">
+    <div *ngIf="cargando()" class="loading-state py-5">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Cargando movimientos...</span>
       </div>
     </div>
 
-    <div *ngIf="!cargando && movimientos.length === 0" class="empty-state py-5">
-      <i class="fa-solid fa-folder-open mb-3 opacity-25" style="font-size: 3rem;"></i>
-      <p>No existen movimientos registrados.</p>
-    </div>
-
-    <div class="tabla-container" *ngIf="!cargando && movimientos.length > 0">
+    <div class="tabla-container" *ngIf="!cargando()">
       <table class="table-premium">
         <thead>
           <tr>
@@ -96,7 +91,15 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let movimiento of movimientos" class="table-row-hover">
+          <!-- EMPTY STATE -->
+          <tr *ngIf="movimientos().length === 0">
+            <td colspan="8" class="text-center py-5 empty-state">
+              <i class="fa-solid fa-folder-open mb-3 opacity-25" style="font-size: 3rem;"></i>
+              <p>No existen movimientos registrados.</p>
+            </td>
+          </tr>
+
+          <tr *ngFor="let movimiento of movimientos()" class="table-row-hover">
             <td>
               <span class="fecha-text">
                 <i class="fa-regular fa-calendar"></i> {{ movimiento.fecha | date: 'dd/MM/yyyy HH:mm' }}
@@ -139,22 +142,22 @@
     </div>
 
     <!-- PAGINACION -->
-    <div class="table-footer" *ngIf="!cargando && totalPaginas > 1">
+    <div class="table-footer" *ngIf="!cargando() && totalPaginas() > 1">
       <div class="pagination-info">
-        <span>Mostrando página <strong>{{ paginaActual }}</strong> de <strong>{{ totalPaginas }}</strong></span>
+        <span>Mostrando página <strong>{{ paginaActual() }}</strong> de <strong>{{ totalPaginas() }}</strong></span>
       </div>
       <div class="pagination-controls">
-        <button class="btn-page" (click)="irPrimeraPagina()" [disabled]="paginaActual === 1" title="Primera">
+        <button class="btn-page" (click)="irPrimeraPagina()" [disabled]="paginaActual() === 1" title="Primera">
           <i class="fa-solid fa-angles-left"></i>
         </button>
-        <button class="btn-page" (click)="paginaAnterior()" [disabled]="paginaActual === 1" title="Anterior">
+        <button class="btn-page" (click)="paginaAnterior()" [disabled]="paginaActual() === 1" title="Anterior">
           <i class="fa-solid fa-angle-left"></i>
         </button>
         
-        <button class="btn-page" (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas" title="Siguiente">
+        <button class="btn-page" (click)="paginaSiguiente()" [disabled]="paginaActual() === totalPaginas()" title="Siguiente">
           <i class="fa-solid fa-angle-right"></i>
         </button>
-        <button class="btn-page" (click)="irUltimaPagina()" [disabled]="paginaActual === totalPaginas" title="Última">
+        <button class="btn-page" (click)="irUltimaPagina()" [disabled]="paginaActual() === totalPaginas()" title="Última">
           <i class="fa-solid fa-angles-right"></i>
         </button>
       </div>

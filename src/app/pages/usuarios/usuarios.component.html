@@ -87,7 +87,7 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let usuario of usuarios">
+          <tr *ngFor="let usuario of usuarios; trackBy: trackByFn" [class.d-none]="cargando" class="table-row-hover">
             <td>
               <div class="usuario-info">
                 <div class="avatar">

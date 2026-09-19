@@ -82,32 +82,28 @@
       </div>
     </div>
 
-    <div class="sin-datos" *ngIf="ventas.length === 0">
-      <i class="fa-solid fa-file-circle-xmark"></i>
-
-      <p>No existen ventas para mostrar.</p>
-    </div>
-
-    <div class="tabla-container" *ngIf="ventas.length > 0">
+    <div class="tabla-container">
       <table>
         <thead>
           <tr>
             <th>Número</th>
-
             <th>Fecha</th>
-
             <th>Forma Pago</th>
-
             <th>Total</th>
-
             <th>Estado</th>
-
             <th>Acciones</th>
           </tr>
         </thead>
-
         <tbody>
-          <tr *ngFor="let venta of ventas">
+          <!-- EMPTY STATE -->
+          <tr *ngIf="ventas.length === 0">
+            <td colspan="6" class="text-center py-5 empty-state">
+              <i class="fa-solid fa-file-circle-xmark mb-3 opacity-25" style="font-size: 3rem;"></i>
+              <p>No existen ventas para mostrar.</p>
+            </td>
+          </tr>
+
+          <tr *ngFor="let venta of ventas; trackBy: trackByFn">
             <td>
               <span class="numero-venta">
                 {{ venta.numeroVenta }}

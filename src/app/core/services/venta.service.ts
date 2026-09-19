@@ -46,4 +46,9 @@ export class VentaService {
       },
     });
   }
+
+  compararVentas(periodo: string): Observable<ApiResponse<any>> {
+    let params = new HttpParams().set('periodo', periodo);
+    return this.http.get<ApiResponse<any>>(`${this.api}/comparacion`, { params });
+  }
 }
