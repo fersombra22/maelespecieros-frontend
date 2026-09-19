@@ -54,12 +54,23 @@
     <!-- Facturación Total (Ocupa 2 columnas en pantallas grandes) -->
     <div class="bento-card bento-revenue">
       <div class="revenue-bg"></div>
-      <div class="revenue-content">
-        <span>FACTURACIÓN TOTAL</span>
-        <h2>{{ dashboard?.totalFacturado ?? 0 | currency: 'ARS' }}</h2>
-        <span class="trend" [ngClass]="(dashboard?.porcentajeVariacionMensual ?? 0) >= 0 ? 'positive' : 'negative'" style="font-size: 0.9rem; margin-top: 5px; display: inline-block;">
-          <i class="fa-solid" [ngClass]="(dashboard?.porcentajeVariacionMensual ?? 0) >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'"></i>
-          {{ (dashboard?.porcentajeVariacionMensual ?? 0) > 0 ? '+' : '' }}{{ dashboard?.porcentajeVariacionMensual ?? 0 | number:'1.0-2' }}% vs mes anterior
+      <div class="revenue-content" style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span>FACTURACIÓN TOTAL</span>
+          <select 
+            class="form-select form-select-sm bg-transparent text-white border-secondary border-opacity-50" 
+            style="width: auto; padding: 2px 24px 2px 8px; font-size: 0.8rem;"
+            (change)="cambiarPeriodoComparacion($event)">
+            <option value="DIA" style="color: black;">Día</option>
+            <option value="SEMANA" style="color: black;">Semana</option>
+            <option value="MES" style="color: black;" selected>Mes</option>
+            <option value="ANO" style="color: black;">Año</option>
+          </select>
+        </div>
+        <h2>{{ comparacionData?.actual ?? 0 | currency: 'ARS' }}</h2>
+        <span class="trend" [ngClass]="(comparacionData?.porcentajeVariacion ?? 0) >= 0 ? 'positive' : 'negative'" style="font-size: 0.9rem; display: inline-block;">
+          <i class="fa-solid" [ngClass]="(comparacionData?.porcentajeVariacion ?? 0) >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'"></i>
+          {{ (comparacionData?.porcentajeVariacion ?? 0) > 0 ? '+' : '' }}{{ comparacionData?.porcentajeVariacion ?? 0 | number:'1.0-2' }}% vs anterior
         </span>
       </div>
       <i class="fa-solid fa-sack-dollar revenue-icon"></i>

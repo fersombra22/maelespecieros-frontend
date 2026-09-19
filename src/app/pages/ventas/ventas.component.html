@@ -1,6 +1,6 @@
-<div class="ventas-container">
+<div class="ventas-container h-100 d-flex flex-column">
   <!-- HEADER -->
-  <section class="page-header">
+  <section class="page-header flex-shrink-0">
     <div class="header-info">
       <div class="header-icon">
         <i class="fa-solid fa-cart-shopping"></i>
@@ -8,135 +8,167 @@
       <div>
         <span class="breadcrumb"> Punto de Venta </span>
         <h1>Nueva Venta</h1>
-        <p>Gestión de productos, cobros y facturación</p>
+        <p>Búsqueda de productos y facturación rápida</p>
       </div>
     </div>
   </section>
 
-  <div class="ventas-layout">
-    <!-- PRODUCTOS -->
-    <section class="productos-panel card-premium">
-      <div class="panel-header">
-        <div>
-          <i class="fa-solid fa-boxes-stacked"></i>
-          Productos disponibles
-        </div>
-      </div>
-
-      <div class="panel-body">
-        <div class="buscador-container spotlight-search">
+  <div class="ventas-layout flex-grow-1 overflow-hidden">
+    
+    <!-- ÁREA PRINCIPAL: LISTA DE PRODUCTOS (HOJA A RAYAS) -->
+    <section class="lista-panel card-premium d-flex flex-column h-100">
+      
+      <!-- Buscador Flotante -->
+      <div class="search-section p-3 border-bottom border-secondary border-opacity-25 bg-black bg-opacity-25 position-relative">
+        <div class="buscador-container spotlight-search m-0">
           <i class="fa-solid fa-search search-icon"></i>
           <input
             id="searchInput"
             type="text"
-            placeholder="Buscar producto (F2)..."
+            placeholder="Buscar producto por nombre o código (F2)..."
+            autocomplete="off"
             [ngModel]="buscar()"
             (ngModelChange)="buscar.set($event); onBuscarChange()"
+            (focus)="mostrarSugerenciasNuevamente()"
+            (blur)="ocultarSugerencias()"
+            autofocus
           />
+          <div *ngIf="cargandoProductos()" class="search-spinner" style="position: absolute; right: 15px; top: 12px;">
+            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+          </div>
         </div>
 
-        <div class="productos-grid">
-          <!-- LOADING STATE -->
-          <div *ngIf="cargandoProductos()" class="w-100 text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Buscando productos...</span>
-            </div>
-          </div>
-
-          <!-- EMPTY STATE -->
-          <div *ngIf="!cargandoProductos() && productos().length === 0" class="empty-state">
-            <i class="fa-solid fa-box-open mb-3 opacity-50"></i>
-            <p>No se encontraron productos.</p>
-          </div>
-
-          <div class="producto-card" *ngFor="let producto of productos()" [class.d-none]="cargandoProductos()">
-            <div class="producto-top">
-              <div class="producto-icon">
-                <i class="fa-solid fa-box"></i>
+        <!-- Sugerencias Dropdown -->
+        <div class="suggestions-dropdown" *ngIf="mostrarSugerencias() && sugerencias().length > 0">
+          <ul class="list-unstyled mb-0">
+            <li *ngFor="let prod of sugerencias()" 
+                class="suggestion-item d-flex justify-content-between align-items-center p-3 border-bottom border-secondary border-opacity-25"
+                (click)="seleccionarSugerencia(prod)"
+                style="cursor: pointer;">
+              <div class="d-flex flex-column">
+                <span class="fw-bold">{{ prod.nombre }} <small class="text-white-50 ms-2" *ngIf="prod.modelo">({{ prod.modelo }})</small></span>
+                <span class="text-white-50 small"><i class="fa-solid fa-barcode"></i> {{ prod.codigoProducto }}</span>
               </div>
-              <span class="badge" [ngClass]="producto.stock <= producto.stockMinimo ? 'badge-danger glow' : 'badge-primary'">
-                Stock: {{ producto.stock }}
-              </span>
-            </div>
-
-            <h3>{{ producto.nombre }}</h3>
-            <span class="codigo"><i class="fa-solid fa-barcode"></i> {{ producto.codigoProducto }}</span>
-            <div class="precio">
-              {{ producto.precioEfectivo | currency: 'ARS' }}
-            </div>
-
-            <button class="btn-agregar" (click)="agregar(producto)" [disabled]="producto.stock <= 0">
-              <i class="fa-solid fa-plus"></i>
-              {{ producto.stock > 0 ? 'Agregar' : 'Sin Stock' }}
-            </button>
-          </div>
+              <div class="d-flex align-items-center gap-3">
+                <span class="fw-bold text-primary">{{ prod.precioEfectivo | currency:'ARS' }}</span>
+                <span class="badge" [ngClass]="prod.stock > 0 ? 'bg-success bg-opacity-25 text-success border border-success' : 'bg-danger bg-opacity-25 text-danger border border-danger'">
+                  Stock: {{ prod.stock }}
+                </span>
+              </div>
+            </li>
+          </ul>
         </div>
+        <div class="suggestions-dropdown p-3 text-center text-white-50 bg-dark" *ngIf="mostrarSugerencias() && sugerencias().length === 0 && buscar().length > 0 && !cargandoProductos()">
+          No se encontraron productos
+        </div>
+      </div>
+
+      <!-- Tabla Hoja a Rayas -->
+      <div class="table-responsive flex-grow-1 custom-scrollbar" style="overflow-y: auto;">
+        <table class="table table-hover table-striped table-dark mb-0 table-ticket">
+          <thead class="position-sticky top-0 bg-dark shadow-sm" style="z-index: 10;">
+            <tr>
+              <th scope="col" style="width: 15%" class="ps-4">Código</th>
+              <th scope="col" style="width: 30%">Producto</th>
+              <th scope="col" style="width: 15%">Modelo</th>
+              <th scope="col" style="width: 12%">P. Unitario</th>
+              <th scope="col" style="width: 10%">Cantidad</th>
+              <th scope="col" style="width: 13%">Subtotal</th>
+              <th scope="col" style="width: 5%" class="text-center pe-4"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="carritoService.carrito().length === 0">
+              <td colspan="7" class="text-center py-5 text-white-50">
+                <i class="fa-solid fa-cart-arrow-down fa-3x mb-3 opacity-25"></i>
+                <p class="mb-0">Aún no hay productos en la lista.</p>
+                <p class="small">Utiliza el buscador superior para agregar productos.</p>
+              </td>
+            </tr>
+            <tr *ngFor="let item of carritoService.carrito()" class="align-middle">
+              <td class="text-white-50 font-monospace small ps-4">{{ item.codigoProducto }}</td>
+              <td class="fw-bold">{{ item.nombre }}</td>
+              <td class="text-white-50">{{ item.modelo || '-' }}</td>
+              <td>{{ precioActual(item) | currency:'ARS' }}</td>
+              <td>
+                <div class="cantidad-control-mini d-flex align-items-center bg-black bg-opacity-25 rounded px-2 py-1" style="width: fit-content; border: 1px solid rgba(255,255,255,0.1);">
+                  <button class="btn btn-sm text-white-50 p-0 px-1 border-0" (click)="disminuir(item.id)"><i class="fa-solid fa-minus" style="font-size: 0.7rem;"></i></button>
+                  <input type="number" class="form-control form-control-sm bg-transparent border-0 text-white text-center p-0 fw-bold mx-2" [value]="item.cantidad" (change)="setCantidad(item.id, $event)" min="1" style="width: 30px; -moz-appearance: textfield; outline: none; box-shadow: none;">
+                  <button class="btn btn-sm text-white-50 p-0 px-1 border-0" (click)="aumentar(item.id)"><i class="fa-solid fa-plus" style="font-size: 0.7rem;"></i></button>
+                </div>
+              </td>
+              <td class="fw-bold text-success">{{ (precioActual(item) * item.cantidad) | currency:'ARS' }}</td>
+              <td class="text-center pe-4">
+                <button class="btn btn-sm btn-outline-danger border-0" (click)="eliminar(item.id)" title="Eliminar">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
-    <!-- CARRITO -->
-    <section class="carrito-panel card-premium glass">
+    <!-- PANEL DE COBRO (CHECKOUT LADO DERECHO) -->
+    <section class="carrito-panel card-premium glass flex-shrink-0">
       <div class="panel-header carrito-title">
         <div>
-          <i class="fa-solid fa-basket-shopping"></i>
-          Carrito
+          <i class="fa-solid fa-cash-register"></i>
+          Resumen de Cobro
         </div>
         <span class="badge badge-primary">{{ carritoService.itemsCount() }} items</span>
       </div>
 
-      <div class="carrito-body">
-        <div class="empty-cart" *ngIf="carritoService.carrito().length === 0">
-          <i class="fa-solid fa-cart-arrow-down mb-2"></i>
-          <p>No hay productos agregados</p>
+      <div class="carrito-body d-flex flex-column h-100 justify-content-between p-4">
+        
+        <div class="pago-config">
+          <!-- PAGO -->
+          <div class="pago-container mb-4">
+            <label class="text-white-50 fw-bold mb-2 small text-uppercase" style="letter-spacing: 1px;">
+              <i class="fa-solid fa-credit-card me-2"></i> Forma de pago
+            </label>
+            <select class="form-select premium-input bg-dark text-white border-secondary mb-4 p-3" [ngModel]="formaPago()" (ngModelChange)="formaPago.set($event)">
+              <option value="EFECTIVO">Efectivo</option>
+              <option value="DEBITO">Débito</option>
+              <option value="CREDITO">Crédito</option>
+              <option value="TRANSFERENCIA">Transferencia</option>
+            </select>
+
+            <label class="text-white-50 fw-bold mb-2 small text-uppercase" style="letter-spacing: 1px;">
+              <i class="fa-solid fa-percent me-2"></i> Descuento
+            </label>
+            <div class="input-group">
+              <span class="input-group-text bg-dark border-secondary text-white-50 px-3">$</span>
+              <input type="number" class="form-control premium-input bg-dark text-white border-secondary p-3" [ngModel]="descuento()" (ngModelChange)="descuento.set($event)" placeholder="0" />
+            </div>
+          </div>
         </div>
 
-        <div class="carrito-item" *ngFor="let producto of carritoService.carrito()">
-          <div class="item-info">
-            <strong>{{ producto.nombre }}</strong>
-            <small>{{ producto.precioEfectivo | currency: 'ARS' }}</small>
+        <div class="mt-auto">
+          <div class="resumen-venta mb-4 p-4 rounded border border-secondary border-opacity-25 bg-black bg-opacity-25">
+            <div class="d-flex justify-content-between mb-3 text-white-50 fs-5">
+              <span>Subtotal</span>
+              <span>{{ totalEfectivo() | currency: 'ARS' }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3 text-danger fs-5" *ngIf="descuento() > 0">
+              <span>Descuento</span>
+              <span>- {{ descuento() | currency: 'ARS' }}</span>
+            </div>
+            <hr class="border-secondary opacity-25 my-3">
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <span class="text-uppercase fw-bold text-white-50 small">Total a Pagar</span>
+              <h2 class="total-destacado mb-0 text-white fw-bold fs-1 text-success">
+                {{ (total() - descuento()) | currency: 'ARS' }}
+              </h2>
+            </div>
           </div>
 
-          <div class="cantidad-control">
-            <button class="btn-circle" (click)="disminuir(producto.id)"><i class="fa-solid fa-minus"></i></button>
-            <input type="number" class="cantidad-input" [value]="producto.cantidad" (change)="setCantidad(producto.id, $event)" min="1">
-            <button class="btn-circle" (click)="aumentar(producto.id)"><i class="fa-solid fa-plus"></i></button>
-            <button class="btn-eliminar-item" (click)="eliminar(producto.id)">
-              <i class="fa-solid fa-trash"></i>
-            </button>
-          </div>
+          <button class="btn-premium btn-finalizar w-100 py-3 fs-5 fw-bold d-flex justify-content-center align-items-center gap-2" (click)="finalizarVenta()" [disabled]="carritoService.carrito().length === 0">
+            <i class="fa-solid fa-check-circle"></i>
+            Finalizar Venta (F4)
+          </button>
         </div>
 
-        <div class="resumen-venta">
-          <div class="resumen-row">
-            <span>Total efectivo</span>
-            <strong>{{ totalEfectivo() | currency: 'ARS' }}</strong>
-          </div>
-          <h2 class="total-destacado">
-            Total: {{ total() | currency: 'ARS' }}
-          </h2>
-        </div>
-
-        <!-- PAGO -->
-        <div class="pago-container">
-          <label>
-            <i class="fa-solid fa-credit-card"></i>
-            Forma de pago
-          </label>
-          <select class="form-select premium-input" [ngModel]="formaPago()" (ngModelChange)="formaPago.set($event)">
-            <option value="EFECTIVO">Efectivo</option>
-            <option value="DEBITO">Débito</option>
-            <option value="CREDITO">Crédito</option>
-            <option value="TRANSFERENCIA">Transferencia</option>
-          </select>
-
-          <label>Descuento</label>
-          <input type="number" class="premium-input" [ngModel]="descuento()" (ngModelChange)="descuento.set($event)" placeholder="0" />
-        </div>
-
-        <button class="btn-premium btn-finalizar" (click)="finalizarVenta()">
-          <i class="fa-solid fa-check"></i>
-          Finalizar Venta (F4)
-        </button>
       </div>
     </section>
   </div>

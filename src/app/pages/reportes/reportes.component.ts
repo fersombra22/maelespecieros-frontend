@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 
 import { ReporteService } from '../../core/services/reporte.service';
+import { VentaService } from '../../core/services/venta.service';
 
 @Component({
   selector: 'app-reportes',
@@ -15,8 +16,41 @@ import { ReporteService } from '../../core/services/reporte.service';
 
   styleUrls: ['./reportes.component.css'],
 })
-export class ReportesComponent {
+export class ReportesComponent implements OnInit {
   private reporteService = inject(ReporteService);
+  private ventaService = inject(VentaService);
+  private cdr = inject(ChangeDetectorRef);
+
+  public periodoSeleccionado: string = 'MES';
+  public comparacionData: any = null;
+  public cargandoComparacion: boolean = false;
+
+  ngOnInit(): void {
+    this.cargarComparacion();
+  }
+
+  cargarComparacion(): void {
+    this.cargandoComparacion = true;
+    this.ventaService.compararVentas(this.periodoSeleccionado).subscribe({
+      next: (res: any) => {
+        if (res.data) {
+          this.comparacionData = res.data;
+          this.cdr.detectChanges();
+        }
+        this.cargandoComparacion = false;
+      },
+      error: (err) => {
+        console.error('Error cargando comparación', err);
+        this.cargandoComparacion = false;
+      }
+    });
+  }
+
+  cambiarPeriodo(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.periodoSeleccionado = select.value;
+    this.cargarComparacion();
+  }
 
   productos(): void {
     this.reporteService.abrirReporteProductos();

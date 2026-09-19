@@ -38,7 +38,7 @@
           <span>Categorías</span>
         </a>
       </li>
-      <li *ngIf="usuario?.rol !== Rol.EMPLEADO">
+      <li>
         <a routerLink="/movimientos" routerLinkActive="active" class="nav-link rounded px-3 py-2 d-flex align-items-center gap-3 text-white-50">
           <i class="fa-solid fa-arrow-right-arrow-left text-center" style="width: 20px;"></i>
           <span>Movimientos</span>
@@ -53,7 +53,7 @@
           <span>Nueva venta</span>
         </a>
       </li>
-      <li *ngIf="usuario?.rol !== Rol.EMPLEADO">
+      <li>
         <a routerLink="/ventas/historial" routerLinkActive="active" class="nav-link rounded px-3 py-2 d-flex align-items-center gap-3 text-white-50">
           <i class="fa-solid fa-file-invoice text-center" style="width: 20px;"></i>
           <span>Historial</span>

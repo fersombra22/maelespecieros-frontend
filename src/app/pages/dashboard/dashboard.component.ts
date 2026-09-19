@@ -21,6 +21,7 @@ import { Dashboard } from '../../core/models/dashboard';
 import { AuthService } from '../../core/services/auth.service';
 import { LoginResponse } from '../../core/models/login-response';
 import { Rol } from '../../core/models/rol';
+import { VentaService } from '../../core/services/venta.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -46,6 +47,10 @@ export class DashboardComponent implements OnInit {
   public systemAltered: boolean = false;
   public Rol = Rol;
 
+  public periodoSeleccionado: string = 'MES';
+  public comparacionData: any = null;
+  private ventaService = inject(VentaService);
+
   ngOnInit(): void {
     this.usuario = this.authService.obtenerUsuario() ?? undefined;
     this.cargarDashboard();
@@ -59,6 +64,13 @@ export class DashboardComponent implements OnInit {
     this.dashboardService.obtenerDashboard().subscribe({
       next: (response: any) => {
         this.dashboard = response.data ? response.data : response;
+        
+        // Inicializar datos de comparación con los del dashboard (que por defecto son del mes)
+        this.comparacionData = {
+          actual: this.dashboard?.totalFacturado ?? 0,
+          porcentajeVariacion: this.dashboard?.porcentajeVariacionMensual ?? 0
+        };
+
         this.initCharts();
         this.cdr.detectChanges();
       },
@@ -70,6 +82,27 @@ export class DashboardComponent implements OnInit {
           text: 'No se pudo cargar dashboard.',
         });
       },
+    });
+  }
+
+  cambiarPeriodoComparacion(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    const periodo = selectElement.value;
+    this.periodoSeleccionado = periodo;
+
+    this.ventaService.compararVentas(periodo).subscribe({
+      next: (res: any) => {
+        if (res.data) {
+          this.comparacionData = {
+            actual: res.data.actual,
+            porcentajeVariacion: res.data.porcentajeVariacion
+          };
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching sales comparison', err);
+      }
     });
   }
 

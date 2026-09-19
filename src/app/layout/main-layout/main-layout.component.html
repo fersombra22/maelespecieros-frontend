@@ -1,14 +1,14 @@
-<div class="d-flex vw-100 vh-100 overflow-hidden bg-app">
+<div class="d-flex w-100 vh-100 overflow-hidden bg-app">
   
   <!-- Sidebar, toma su propio ancho y altura completa -->
-  <app-sidebar class="flex-shrink-0 h-100 shadow-sm"></app-sidebar>
+  <app-sidebar class="flex-shrink-0 h-100 shadow-sm" [class.collapsed]="layoutService.sidebarCollapsed()"></app-sidebar>
 
   <!-- Contenedor derecho (Navbar + Contenido) -->
   <div class="flex-grow-1 d-flex flex-column h-100 overflow-hidden">
     
     <app-navbar class="flex-shrink-0"></app-navbar>
     
-    <main class="content flex-grow-1 overflow-auto">
+    <main class="content flex-grow-1 overflow-auto page-enter">
       <div class="content-wrapper">
         <router-outlet></router-outlet>
       </div>
