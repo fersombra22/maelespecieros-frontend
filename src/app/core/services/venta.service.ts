@@ -51,4 +51,18 @@ export class VentaService {
     let params = new HttpParams().set('periodo', periodo);
     return this.http.get<ApiResponse<any>>(`${this.api}/comparacion`, { params });
   }
+
+  descargarComparacionPdf(periodo: string): void {
+    let params = new HttpParams().set('periodo', periodo);
+    this.http.get(`${this.api}/comparacion/pdf`, { params, responseType: 'blob' }).subscribe({
+      next: (archivo) => {
+        const blob = new Blob([archivo], { type: 'application/pdf' });
+        const urlArchivo = window.URL.createObjectURL(blob);
+        window.open(urlArchivo, '_blank');
+      },
+      error: (error) => {
+        console.error('Error descargando PDF de comparación', error);
+      },
+    });
+  }
 }

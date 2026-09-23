@@ -52,6 +52,10 @@ export class ReportesComponent implements OnInit {
     this.cargarComparacion();
   }
 
+  imprimirComparacionPdf(): void {
+    this.ventaService.descargarComparacionPdf(this.periodoSeleccionado);
+  }
+
   productos(): void {
     this.reporteService.abrirReporteProductos();
   }

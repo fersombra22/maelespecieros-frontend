@@ -106,6 +106,10 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  imprimirComparacionPdf(): void {
+    this.ventaService.descargarComparacionPdf(this.periodoSeleccionado);
+  }
+
   cargarInsights(): void {
     this.dashboardService.obtenerInsights().subscribe({
       next: (res: any) => {
