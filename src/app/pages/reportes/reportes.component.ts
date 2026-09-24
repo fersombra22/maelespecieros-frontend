@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 
@@ -15,6 +15,8 @@ import { VentaService } from '../../core/services/venta.service';
   templateUrl: './reportes.component.html',
 
   styleUrls: ['./reportes.component.css'],
+  
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReportesComponent implements OnInit {
   private reporteService = inject(ReporteService);
@@ -35,13 +37,14 @@ export class ReportesComponent implements OnInit {
       next: (res: any) => {
         if (res.data) {
           this.comparacionData = res.data;
-          this.cdr.detectChanges();
         }
         this.cargandoComparacion = false;
+        this.cdr.markForCheck();
       },
       error: (err) => {
         console.error('Error cargando comparación', err);
         this.cargandoComparacion = false;
+        this.cdr.markForCheck();
       }
     });
   }
