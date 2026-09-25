@@ -1,0 +1,334 @@
+<div class="clientes-container">
+  <!-- ========================= -->
+  <!-- HEADER                    -->
+  <!-- ========================= -->
+  <section class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="fa-solid fa-users"></i>
+      </div>
+      <div class="header-text">
+        <span class="bread">Ventas / Clientes</span>
+        <h1>Gestión de Clientes</h1>
+        <p>Administración y seguimiento de cartera de clientes</p>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <button class="btn-nuevo" (click)="abrirNuevo()" id="btn-nuevo-cliente">
+        <i class="fa-solid fa-user-plus"></i>
+        <span>Nuevo Cliente</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ========================= -->
+  <!-- STATS CARDS               -->
+  <!-- ========================= -->
+  <section class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon stat-total">
+        <i class="fa-solid fa-users-line"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">Total Clientes</span>
+        <h3 class="stat-value">{{ totalElements }}</h3>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon stat-activos">
+        <i class="fa-solid fa-user-check"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">En Esta Vista (Activos)</span>
+        <h3 class="stat-value text-success">{{ totalActivosCount }}</h3>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon stat-inactivos">
+        <i class="fa-solid fa-user-slash"></i>
+      </div>
+      <div class="stat-info">
+        <span class="stat-label">En Esta Vista (Inactivos)</span>
+        <h3 class="stat-value text-danger">{{ totalInactivosCount }}</h3>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= -->
+  <!-- FILTROS Y BÚSQUEDA        -->
+  <!-- ========================= -->
+  <section class="search-card">
+    <div class="search-input-wrapper">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input
+        type="text"
+        [(ngModel)]="busqueda"
+        (keyup.enter)="onBuscar()"
+        placeholder="Buscar por nombre, apellido, email o teléfono..."
+        class="search-input"
+        id="input-buscar-cliente"
+      />
+      <button
+        *ngIf="busqueda"
+        class="btn-clear"
+        (click)="limpiarBusqueda()"
+        title="Limpiar búsqueda"
+      >
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="filter-actions">
+      <div class="btn-group-filtros">
+        <button
+          type="button"
+          class="btn-filtro"
+          [class.active]="filtroActivo === null"
+          (click)="cambiarFiltroActivo(null)"
+        >
+          Todos
+        </button>
+        <button
+          type="button"
+          class="btn-filtro"
+          [class.active]="filtroActivo === true"
+          (click)="cambiarFiltroActivo(true)"
+        >
+          <i class="fa-solid fa-circle text-success me-1" style="font-size: 8px;"></i>
+          Activos
+        </button>
+        <button
+          type="button"
+          class="btn-filtro"
+          [class.active]="filtroActivo === false"
+          (click)="cambiarFiltroActivo(false)"
+        >
+          <i class="fa-solid fa-circle text-danger me-1" style="font-size: 8px;"></i>
+          Inactivos
+        </button>
+      </div>
+
+      <button class="btn-buscar" (click)="onBuscar()">
+        <i class="fa-solid fa-filter"></i>
+        <span>Filtrar</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ========================= -->
+  <!-- TABLA DE CLIENTES         -->
+  <!-- ========================= -->
+  <section class="card-table">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 25%;">Cliente</th>
+            <th style="width: 25%;">Contacto</th>
+            <th style="width: 20%;">Dirección</th>
+            <th style="width: 12%;">Fecha Alta</th>
+            <th style="width: 8%;">Estado</th>
+            <th style="width: 10%; text-align: center;">Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <!-- SPINNER DE CARGA -->
+          <tr *ngIf="cargando">
+            <td colspan="6" class="py-5 text-center">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Cargando...</span>
+              </div>
+              <p class="mt-2 text-muted small">Cargando datos de clientes...</p>
+            </td>
+          </tr>
+
+          <!-- SIN RESULTADOS -->
+          <tr *ngIf="!cargando && clientes.length === 0">
+            <td colspan="6" class="py-5 text-center">
+              <div class="empty-state">
+                <i class="fa-solid fa-user-xmark empty-icon"></i>
+                <h4>No se encontraron clientes</h4>
+                <p>No existen registros que coincidan con los criterios de búsqueda.</p>
+                <button class="btn-nuevo btn-sm mt-3" (click)="abrirNuevo()">
+                  <i class="fa-solid fa-plus me-1"></i> Registrar Primer Cliente
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- FILAS DE DATOS -->
+          <tr *ngFor="let cliente of clientes; trackBy: trackByFn" [class.d-none]="cargando">
+            <!-- CLIENTE -->
+            <td>
+              <div class="cliente-info" (click)="abrirDetalle(cliente)" style="cursor: pointer;">
+                <div class="cliente-avatar">
+                  {{ getIniciales(cliente) }}
+                </div>
+                <div>
+                  <strong class="cliente-nombre">
+                    {{ cliente.apellido }}, {{ cliente.nombre }}
+                  </strong>
+                  <span class="cliente-id">ID #{{ cliente.id }}</span>
+                </div>
+              </div>
+            </td>
+
+            <!-- CONTACTO -->
+            <td>
+              <div class="contacto-col">
+                <div class="contacto-item">
+                  <i class="fa-solid fa-envelope contacto-icon text-info"></i>
+                  <span class="text-truncate" style="max-width: 220px;" [title]="cliente.email">
+                    {{ cliente.email }}
+                  </span>
+                </div>
+                <div class="contacto-item" *ngIf="cliente.telefono">
+                  <i class="fa-solid fa-phone contacto-icon text-success"></i>
+                  <span>{{ cliente.telefono }}</span>
+                </div>
+              </div>
+            </td>
+
+            <!-- DIRECCIÓN -->
+            <td>
+              <span *ngIf="cliente.direccion; else sinDireccion" class="text-muted" [title]="cliente.direccion">
+                <i class="fa-solid fa-location-dot me-1 text-warning"></i>
+                {{ cliente.direccion }}
+              </span>
+              <ng-template #sinDireccion>
+                <span class="text-muted-light fst-italic">No registrada</span>
+              </ng-template>
+            </td>
+
+            <!-- FECHA ALTA -->
+            <td>
+              <span class="fecha-text">
+                {{ cliente.fechaAlta ? (cliente.fechaAlta | date: 'dd/MM/yyyy') : 'N/A' }}
+              </span>
+            </td>
+
+            <!-- ESTADO -->
+            <td>
+              <span
+                class="badge-pill"
+                [ngClass]="cliente.activo ? 'badge-activo' : 'badge-inactivo'"
+              >
+                {{ cliente.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+
+            <!-- ACCIONES -->
+            <td>
+              <div class="acciones-wrapper">
+                <!-- VER DETALLE -->
+                <button
+                  class="btn-accion btn-ver"
+                  (click)="abrirDetalle(cliente)"
+                  title="Ver detalle del cliente"
+                >
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+
+                <!-- EDITAR -->
+                <button
+                  class="btn-accion btn-editar"
+                  (click)="abrirEditar(cliente)"
+                  title="Editar cliente"
+                >
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+
+                <!-- ACTIVAR / DESACTIVAR -->
+                <button
+                  class="btn-accion"
+                  [ngClass]="cliente.activo ? 'btn-desactivar' : 'btn-activar'"
+                  (click)="toggleEstado(cliente)"
+                  [title]="cliente.activo ? 'Desactivar cliente' : 'Activar cliente'"
+                >
+                  <i class="fa-solid" [ngClass]="cliente.activo ? 'fa-ban' : 'fa-check'"></i>
+                </button>
+
+                <!-- ELIMINAR -->
+                <button
+                  class="btn-accion btn-eliminar"
+                  (click)="eliminarCliente(cliente)"
+                  title="Eliminar definitivamente"
+                >
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PAGINACIÓN -->
+    <div class="paginacion" *ngIf="totalPages > 1 && !cargando">
+      <div class="paginacion-info">
+        Página {{ currentPage + 1 }} de {{ totalPages }} ({{ totalElements }} clientes)
+      </div>
+
+      <div class="paginacion-controles">
+        <button
+          class="btn-page"
+          [disabled]="currentPage === 0"
+          (click)="cambiarPagina(currentPage - 1)"
+        >
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <span class="current-page-badge">{{ currentPage + 1 }}</span>
+
+        <button
+          class="btn-page"
+          [disabled]="currentPage >= totalPages - 1"
+          (click)="cambiarPagina(currentPage + 1)"
+        >
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= -->
+  <!-- MODAL FORMULARIO          -->
+  <!-- ========================= -->
+  <div class="modal-backdrop-custom" *ngIf="mostrarModalFormulario">
+    <div class="modal-dialog-custom modal-dialog-lg">
+      <div class="modal-content-custom">
+        <button class="btn-cerrar-modal" (click)="cerrarModalFormulario()" title="Cerrar modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <app-cliente-form
+          [clienteEditar]="clienteEdicion"
+          (guardar)="guardarCliente($event)"
+          (cancelar)="cerrarModalFormulario()"
+        ></app-cliente-form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================= -->
+  <!-- MODAL DETALLE             -->
+  <!-- ========================= -->
+  <div class="modal-backdrop-custom" *ngIf="mostrarModalDetalle">
+    <div class="modal-dialog-custom">
+      <div class="modal-content-custom">
+        <button class="btn-cerrar-modal" (click)="cerrarModalDetalle()" title="Cerrar modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <app-cliente-detail
+          [cliente]="clienteDetalle"
+          (cerrar)="cerrarModalDetalle()"
+          (editar)="cerrarModalDetalle(); abrirEditar($event)"
+          (toggleEstado)="toggleEstado($event)"
+        ></app-cliente-detail>
+      </div>
+    </div>
+  </div>
+</div>

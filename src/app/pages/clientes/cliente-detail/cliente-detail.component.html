@@ -1,0 +1,129 @@
+<div class="cliente-detail" *ngIf="cliente">
+  <!-- HEADER -->
+  <div class="detail-header">
+    <div class="detail-avatar">
+      {{ getIniciales() }}
+    </div>
+
+    <div class="detail-titles">
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <h3>{{ cliente.apellido }}, {{ cliente.nombre }}</h3>
+        <span
+          class="badge-status"
+          [ngClass]="cliente.activo ? 'badge-activo' : 'badge-inactivo'"
+        >
+          <i
+            class="fa-solid"
+            [ngClass]="cliente.activo ? 'fa-circle-check' : 'fa-circle-xmark'"
+          ></i>
+          {{ cliente.activo ? 'Activo' : 'Inactivo' }}
+        </span>
+      </div>
+      <p class="cliente-id-tag">
+        <i class="fa-solid fa-id-card me-1"></i> ID Cliente: #{{ cliente.id }}
+      </p>
+    </div>
+  </div>
+
+  <!-- INFORMACIÓN PRINCIPAL -->
+  <div class="detail-grid">
+    <!-- EMAIL -->
+    <div class="detail-item">
+      <div class="item-icon text-info">
+        <i class="fa-solid fa-envelope"></i>
+      </div>
+      <div class="item-content">
+        <span class="item-label">Correo Electrónico</span>
+        <a [href]="'mailto:' + cliente.email" class="item-value text-break">
+          {{ cliente.email }}
+        </a>
+      </div>
+    </div>
+
+    <!-- TELÉFONO -->
+    <div class="detail-item">
+      <div class="item-icon text-success">
+        <i class="fa-solid fa-phone"></i>
+      </div>
+      <div class="item-content">
+        <span class="item-label">Teléfono</span>
+        <span class="item-value" *ngIf="cliente.telefono; else sinTelefono">
+          {{ cliente.telefono }}
+        </span>
+        <ng-template #sinTelefono>
+          <span class="item-value-empty">No registrado</span>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- DIRECCIÓN -->
+    <div class="detail-item col-span-2">
+      <div class="item-icon text-warning">
+        <i class="fa-solid fa-location-dot"></i>
+      </div>
+      <div class="item-content">
+        <span class="item-label">Dirección</span>
+        <span class="item-value" *ngIf="cliente.direccion; else sinDireccion">
+          {{ cliente.direccion }}
+        </span>
+        <ng-template #sinDireccion>
+          <span class="item-value-empty">No registrada</span>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- FECHA ALTA -->
+    <div class="detail-item">
+      <div class="item-icon text-primary">
+        <i class="fa-solid fa-calendar-plus"></i>
+      </div>
+      <div class="item-content">
+        <span class="item-label">Fecha de Alta</span>
+        <span class="item-value">
+          {{ cliente.fechaAlta ? (cliente.fechaAlta | date: 'dd/MM/yyyy HH:mm') : 'N/A' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- FECHA ACTUALIZACIÓN -->
+    <div class="detail-item">
+      <div class="item-icon text-secondary">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+      </div>
+      <div class="item-content">
+        <span class="item-label">Última Modificación</span>
+        <span class="item-value">
+          {{ cliente.fechaActualizacion ? (cliente.fechaActualizacion | date: 'dd/MM/yyyy HH:mm') : 'Sin cambios' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCIONES / FOOTER -->
+  <div class="detail-footer">
+    <button type="button" class="btn-secundario" (click)="onCerrar()">
+      <i class="fa-solid fa-xmark"></i>
+      Cerrar
+    </button>
+
+    <div class="d-flex gap-2">
+      <button
+        type="button"
+        class="btn-estado"
+        [ngClass]="cliente.activo ? 'btn-desactivar' : 'btn-activar'"
+        (click)="onToggleEstado()"
+      >
+        <i
+          class="fa-solid"
+          [ngClass]="cliente.activo ? 'fa-ban' : 'fa-check'"
+        ></i>
+        {{ cliente.activo ? 'Desactivar' : 'Activar' }}
+      </button>
+
+      <button type="button" class="btn-primario" (click)="onEditar()">
+        <i class="fa-solid fa-pen-to-square"></i>
+        Editar Datos
+      </button>
+    </div>
+  </div>
+</div>

@@ -59,6 +59,12 @@
           <span>Historial</span>
         </a>
       </li>
+      <li>
+        <a routerLink="/clientes" routerLinkActive="active" class="nav-link rounded px-3 py-2 d-flex align-items-center gap-3 text-white-50">
+          <i class="fa-solid fa-users text-center" style="width: 20px;"></i>
+          <span>Clientes</span>
+        </a>
+      </li>
 
       <!-- Administración -->
       <li *ngIf="usuario?.rol !== Rol.EMPLEADO" class="nav-section mt-4 mb-2 px-3 text-uppercase fw-bold text-white-50" style="font-size: 0.7rem; letter-spacing: 1px;">Administración</li>
