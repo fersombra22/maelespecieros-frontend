@@ -138,7 +138,7 @@ export class BlockchainComponent implements OnInit {
 
   siguiente(): void {
     if (this.pagina() < this.totalPaginas() - 1) {
-      this.pagina.update(p => p + 1);
+      this.pagina.update((p) => p + 1);
       this.cargar();
     }
   }
@@ -149,7 +149,7 @@ export class BlockchainComponent implements OnInit {
 
   anterior(): void {
     if (this.pagina() > 0) {
-      this.pagina.update(p => p - 1);
+      this.pagina.update((p) => p - 1);
       this.cargar();
     }
   }

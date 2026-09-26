@@ -1,4 +1,10 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+} from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 
@@ -17,7 +23,7 @@ import { UsuarioFormComponent } from './usuario-form/usuario-form.component';
 
   templateUrl: './usuarios.component.html',
   styleUrls: ['./usuarios.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UsuariosComponent implements OnInit {
   private usuarioService = inject(UsuarioService);
@@ -60,7 +66,7 @@ export class UsuariosComponent implements OnInit {
       error: () => {
         this.cargando = false;
         this.cdr.markForCheck();
-        import('sweetalert2').then(Swal => {
+        import('sweetalert2').then((Swal) => {
           Swal.default.fire('Error', 'No se pudieron cargar los usuarios.', 'error');
         });
       },
@@ -92,7 +98,7 @@ export class UsuariosComponent implements OnInit {
     if (this.usuarioSeleccionado) {
       this.usuarioService.actualizar(this.usuarioSeleccionado.id, datos).subscribe({
         next: () => {
-          import('sweetalert2').then(Swal => {
+          import('sweetalert2').then((Swal) => {
             Swal.default.fire('Éxito', 'Usuario actualizado correctamente.', 'success');
           });
           this.mostrarFormulario = false;
@@ -100,7 +106,9 @@ export class UsuariosComponent implements OnInit {
           this.cargarUsuarios();
         },
         error: () => {
-          import('sweetalert2').then(Swal => Swal.default.fire('Error', 'No se pudo actualizar el usuario.', 'error'));
+          import('sweetalert2').then((Swal) =>
+            Swal.default.fire('Error', 'No se pudo actualizar el usuario.', 'error'),
+          );
         },
       });
       return;
@@ -109,7 +117,7 @@ export class UsuariosComponent implements OnInit {
     // CREAR USUARIO
     this.usuarioService.crear(datos).subscribe({
       next: () => {
-        import('sweetalert2').then(Swal => {
+        import('sweetalert2').then((Swal) => {
           Swal.default.fire('Éxito', 'Usuario creado correctamente.', 'success');
         });
         this.mostrarFormulario = false;
@@ -117,7 +125,9 @@ export class UsuariosComponent implements OnInit {
         this.cargarUsuarios();
       },
       error: () => {
-        import('sweetalert2').then(Swal => Swal.default.fire('Error', 'No se pudo crear el usuario.', 'error'));
+        import('sweetalert2').then((Swal) =>
+          Swal.default.fire('Error', 'No se pudo crear el usuario.', 'error'),
+        );
       },
     });
   }
@@ -129,52 +139,56 @@ export class UsuariosComponent implements OnInit {
   }
 
   eliminar(id: number): void {
-    import('sweetalert2').then(Swal => {
-      Swal.default.fire({
-        title: '¿Desactivar usuario?',
-        text: 'El usuario ya no podrá acceder al sistema',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, desactivar',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.usuarioService.eliminar(id).subscribe({
-            next: () => {
-              Swal.default.fire('Desactivado', 'Usuario desactivado correctamente.', 'success');
-              this.cargarUsuarios();
-            },
-            error: () => {
-              Swal.default.fire('Error', 'No se pudo desactivar el usuario.', 'error');
-            },
-          });
-        }
-      });
+    import('sweetalert2').then((Swal) => {
+      Swal.default
+        .fire({
+          title: '¿Desactivar usuario?',
+          text: 'El usuario ya no podrá acceder al sistema',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, desactivar',
+          cancelButtonText: 'Cancelar',
+        })
+        .then((result) => {
+          if (result.isConfirmed) {
+            this.usuarioService.eliminar(id).subscribe({
+              next: () => {
+                Swal.default.fire('Desactivado', 'Usuario desactivado correctamente.', 'success');
+                this.cargarUsuarios();
+              },
+              error: () => {
+                Swal.default.fire('Error', 'No se pudo desactivar el usuario.', 'error');
+              },
+            });
+          }
+        });
     });
   }
 
   desbloquear(id: number): void {
-    import('sweetalert2').then(Swal => {
-      Swal.default.fire({
-        title: '¿Desbloquear usuario?',
-        text: 'Se restablecerán los intentos fallidos de inicio de sesión',
-        icon: 'info',
-        showCancelButton: true,
-        confirmButtonText: 'Sí, desbloquear',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.usuarioService.desbloquear(id).subscribe({
-            next: () => {
-              Swal.default.fire('Desbloqueado', 'Usuario desbloqueado correctamente.', 'success');
-              this.cargarUsuarios();
-            },
-            error: () => {
-              Swal.default.fire('Error', 'No se pudo desbloquear el usuario.', 'error');
-            },
-          });
-        }
-      });
+    import('sweetalert2').then((Swal) => {
+      Swal.default
+        .fire({
+          title: '¿Desbloquear usuario?',
+          text: 'Se restablecerán los intentos fallidos de inicio de sesión',
+          icon: 'info',
+          showCancelButton: true,
+          confirmButtonText: 'Sí, desbloquear',
+          cancelButtonText: 'Cancelar',
+        })
+        .then((result) => {
+          if (result.isConfirmed) {
+            this.usuarioService.desbloquear(id).subscribe({
+              next: () => {
+                Swal.default.fire('Desbloqueado', 'Usuario desbloqueado correctamente.', 'success');
+                this.cargarUsuarios();
+              },
+              error: () => {
+                Swal.default.fire('Error', 'No se pudo desbloquear el usuario.', 'error');
+              },
+            });
+          }
+        });
     });
   }
 }

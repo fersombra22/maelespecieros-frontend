@@ -32,7 +32,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         } else if (typeof error.error === 'string') {
           errorMsg = error.error;
         } else if (error.message) {
-            errorMsg = error.message;
+          errorMsg = error.message;
         }
       }
 
@@ -40,10 +40,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         icon: 'error',
         title: errorTitle,
         text: errorMsg,
-        confirmButtonColor: '#3f7d3a'
+        confirmButtonColor: '#3f7d3a',
       });
 
       return throwError(() => error);
-    })
+    }),
   );
 };

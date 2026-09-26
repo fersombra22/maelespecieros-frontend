@@ -10,9 +10,7 @@
       <p>Generación de reportes PDF y estadísticas clave del sistema.</p>
     </div>
     <div class="header-actions">
-      <div class="user-badge">
-        <i class="fa-solid fa-file-pdf"></i> 4 Reportes Disponibles
-      </div>
+      <div class="user-badge"><i class="fa-solid fa-file-pdf"></i> 4 Reportes Disponibles</div>
     </div>
   </header>
 
@@ -21,7 +19,6 @@
   <!--====================================-->
 
   <div class="bento-grid">
-    
     <!-- TARJETA: VENTAS (Main Action) -->
     <div class="bento-card bento-revenue reporte-card main-report">
       <div class="revenue-bg"></div>
@@ -29,7 +26,7 @@
         <span><i class="fa-solid fa-cart-shopping"></i> REPORTE DE VENTAS</span>
         <h2>Historial Comercial</h2>
         <p>Exporta el registro completo de ventas y movimientos financieros de la empresa.</p>
-        <button class="btn-premium mt-3" style="width: fit-content;" (click)="ventas()">
+        <button class="btn-premium mt-3 btn-fit" (click)="ventas()">
           <i class="fa-solid fa-download"></i> Descargar PDF
         </button>
       </div>
@@ -60,7 +57,7 @@
       <div class="metric-body">
         <h2>Stock Bajo</h2>
         <span class="trend negative">Productos que requieren reposición.</span>
-        <button class="mt-3 w-100" style="border: none; background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.1)); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.4); border-radius: var(--radius-sm); padding: 12px; font-weight: 700; transition: 0.3s; cursor: pointer;" (click)="stock()">
+        <button class="mt-3 w-100 btn-warning-outline" (click)="stock()">
           <i class="fa-solid fa-file-pdf"></i> Generar
         </button>
       </div>
@@ -75,32 +72,44 @@
       <div class="metric-body">
         <h2>Auditoría</h2>
         <span class="trend neutral">Registro de acciones y logs del sistema.</span>
-        <button class="mt-3 w-100" style="border: none; background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-sm); padding: 12px; font-weight: 700; transition: 0.3s; cursor: pointer;" (click)="auditoria()">
+        <button class="mt-3 w-100 btn-neutral-outline" (click)="auditoria()">
           <i class="fa-solid fa-file-pdf"></i> Generar
         </button>
       </div>
     </div>
-
   </div>
 
   <!--====================================-->
   <!-- COMPARATIVA DETALLADA -->
   <!--====================================-->
-  <div class="bento-grid mt-4" style="grid-template-columns: 1fr;">
+  <div class="bento-grid mt-4 grid-1-col">
     <div class="bento-card w-100">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h3 class="h5 fw-bold mb-1"><i class="fa-solid fa-scale-balanced text-primary me-2"></i> Comparativa Detallada de Ventas</h3>
-          <p class="text-white-50 small mb-0">Analiza el rendimiento actual contra periodos anteriores.</p>
+          <h3 class="h5 fw-bold mb-1">
+            <i class="fa-solid fa-scale-balanced text-primary me-2"></i> Comparativa Detallada de
+            Ventas
+          </h3>
+          <p class="text-white-50 small mb-0">
+            Analiza el rendimiento actual contra periodos anteriores.
+          </p>
         </div>
         <div class="d-flex gap-2">
-          <select class="form-select bg-dark text-white border-secondary" (change)="cambiarPeriodo($event)" [value]="periodoSeleccionado" style="width: auto;">
+          <select
+            class="form-select bg-dark text-white border-secondary select-auto"
+            (change)="cambiarPeriodo($event)"
+            [value]="periodoSeleccionado"
+          >
             <option value="DIA">Día a Día</option>
             <option value="SEMANA">Semana a Semana</option>
             <option value="MES">Mes a Mes</option>
             <option value="ANO">Año a Año</option>
           </select>
-          <button class="btn btn-outline-light d-flex align-items-center gap-2" (click)="imprimirComparacionPdf()" [disabled]="cargandoComparacion">
+          <button
+            class="btn btn-outline-light d-flex align-items-center gap-2"
+            (click)="imprimirComparacionPdf()"
+            [disabled]="cargandoComparacion"
+          >
             <i class="fa-solid fa-print"></i> Imprimir PDF
           </button>
         </div>
@@ -108,29 +117,48 @@
 
       <div class="row text-center g-4" *ngIf="!cargandoComparacion && comparacionData">
         <div class="col-md-4">
-          <div class="p-4 rounded border border-secondary border-opacity-25 bg-black bg-opacity-25 h-100 d-flex flex-column justify-content-center">
+          <div
+            class="p-4 rounded border border-secondary border-opacity-25 bg-black bg-opacity-25 h-100 d-flex flex-column justify-content-center"
+          >
             <span class="text-white-50 text-uppercase small fw-bold mb-2">Periodo Actual</span>
-            <h4 class="mb-0 fw-bold">{{ comparacionData.actual | currency:'ARS' }}</h4>
+            <h4 class="mb-0 fw-bold">{{ comparacionData.actual | currency: 'ARS' }}</h4>
           </div>
         </div>
         <div class="col-md-4">
-          <div class="p-4 rounded border border-secondary border-opacity-25 bg-black bg-opacity-25 h-100 d-flex flex-column justify-content-center">
+          <div
+            class="p-4 rounded border border-secondary border-opacity-25 bg-black bg-opacity-25 h-100 d-flex flex-column justify-content-center"
+          >
             <span class="text-white-50 text-uppercase small fw-bold mb-2">Periodo Anterior</span>
-            <h4 class="mb-0 fw-bold">{{ comparacionData.anterior | currency:'ARS' }}</h4>
+            <h4 class="mb-0 fw-bold">{{ comparacionData.anterior | currency: 'ARS' }}</h4>
           </div>
         </div>
         <div class="col-md-4">
-          <div class="p-4 rounded border border-secondary border-opacity-25 h-100 d-flex flex-column justify-content-center"
-               [ngClass]="comparacionData.porcentajeVariacion >= 0 ? 'border-success bg-success bg-opacity-10' : 'border-danger bg-danger bg-opacity-10'">
+          <div
+            class="p-4 rounded border border-secondary border-opacity-25 h-100 d-flex flex-column justify-content-center"
+            [ngClass]="
+              comparacionData.porcentajeVariacion >= 0
+                ? 'border-success bg-success bg-opacity-10'
+                : 'border-danger bg-danger bg-opacity-10'
+            "
+          >
             <span class="text-white-50 text-uppercase small fw-bold mb-2">Variación</span>
-            <h4 class="mb-0 fw-bold" [ngClass]="comparacionData.porcentajeVariacion >= 0 ? 'text-success' : 'text-danger'">
-              <i class="fa-solid" [ngClass]="comparacionData.porcentajeVariacion >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
-              {{ comparacionData.porcentajeVariacion > 0 ? '+' : '' }}{{ comparacionData.porcentajeVariacion | number:'1.0-2' }}%
+            <h4
+              class="mb-0 fw-bold"
+              [ngClass]="comparacionData.porcentajeVariacion >= 0 ? 'text-success' : 'text-danger'"
+            >
+              <i
+                class="fa-solid"
+                [ngClass]="
+                  comparacionData.porcentajeVariacion >= 0 ? 'fa-arrow-up' : 'fa-arrow-down'
+                "
+              ></i>
+              {{ comparacionData.porcentajeVariacion > 0 ? '+' : ''
+              }}{{ comparacionData.porcentajeVariacion | number: '1.0-2' }}%
             </h4>
           </div>
         </div>
       </div>
-      
+
       <div class="text-center py-5" *ngIf="cargandoComparacion">
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Cargando...</span>
@@ -138,5 +166,4 @@
       </div>
     </div>
   </div>
-
 </div>

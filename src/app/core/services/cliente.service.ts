@@ -20,7 +20,7 @@ export class ClienteService {
     search?: string,
     activo?: boolean,
     sortBy: string = 'apellido',
-    sortDir: string = 'asc'
+    sortDir: string = 'asc',
   ): Observable<ApiResponse<Page<Cliente>>> {
     let params = new HttpParams()
       .set('page', page)

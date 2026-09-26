@@ -75,3 +75,24 @@
     display: none; /* En móviles se oculta el sidebar por ahora o requiere lógica adicional (offcanvas) */
   }
 }
+
+.logo-container {
+  width: 42px;
+  height: 42px;
+}
+.img-contain {
+  object-fit: contain;
+}
+.txt-xs {
+  font-size: 0.75rem;
+}
+.txt-sm {
+  font-size: 0.8rem;
+}
+.nav-section-title {
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+}
+.icon-sm {
+  width: 20px;
+}

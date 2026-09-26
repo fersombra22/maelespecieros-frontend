@@ -13,7 +13,13 @@
     </div>
     <div class="header-actions">
       <ng-container *ngIf="isAdmin">
-        <input type="file" #fileInput style="display: none" accept=".xlsx, .xls" (change)="subirExcel($event)">
+        <input
+          type="file"
+          #fileInput
+          class="file-hidden"
+          accept=".xlsx, .xls"
+          (change)="subirExcel($event)"
+        />
         <button class="btn-secondary" (click)="fileInput.click()" [disabled]="cargando">
           <i class="fa-solid fa-file-arrow-up text-primary"></i> Importar
         </button>
@@ -50,7 +56,7 @@
         <span>Buscar</span>
       </div>
     </div>
-    
+
     <div class="stats-card">
       <div class="stat-icon"><i class="fa-solid fa-box-open"></i></div>
       <div class="stat-info">
@@ -73,8 +79,12 @@
       <table class="table-premium">
         <thead>
           <tr>
-            <th style="width: 40px; text-align: center;">
-              <input type="checkbox" (change)="toggleTodos($event)" [checked]="seleccionados.size === productos.length && productos.length > 0">
+            <th class="col-checkbox">
+              <input
+                type="checkbox"
+                (change)="toggleTodos($event)"
+                [checked]="seleccionados.size === productos.length && productos.length > 0"
+              />
             </th>
             <th>Código</th>
             <th>Producto</th>
@@ -101,14 +111,23 @@
           <!-- EMPTY STATE -->
           <tr *ngIf="!cargando && productos.length === 0">
             <td colspan="8" class="text-center py-5 empty-state">
-              <i class="fa-solid fa-box-open mb-3 opacity-25" style="font-size: 3rem;"></i>
+              <i class="fa-solid fa-box-open mb-3 opacity-25 empty-icon"></i>
               <p>No se encontraron productos.</p>
             </td>
           </tr>
 
-          <tr *ngFor="let producto of productos; trackBy: trackByFn" [class.d-none]="cargando" class="table-row-hover" [class.selected]="seleccionados.has(producto.id)">
-            <td style="text-align: center;">
-              <input type="checkbox" [checked]="seleccionados.has(producto.id)" (change)="toggleSeleccion(producto.id)">
+          <tr
+            *ngFor="let producto of productos; trackBy: trackByFn"
+            [class.d-none]="cargando"
+            class="table-row-hover"
+            [class.selected]="seleccionados.has(producto.id)"
+          >
+            <td class="text-center">
+              <input
+                type="checkbox"
+                [checked]="seleccionados.has(producto.id)"
+                (change)="toggleSeleccion(producto.id)"
+              />
             </td>
             <td>
               <span class="codigo-badge">
@@ -125,16 +144,28 @@
                 </div>
               </div>
             </td>
-            <td><span class="modelo-text">{{ producto.modelo }}</span></td>
-            <td><span class="costo-text">{{ producto.costo | currency: 'ARS' }}</span></td>
-            <td><strong class="precio-text">{{ producto.precioEfectivo | currency: 'ARS' }}</strong></td>
+            <td>
+              <span class="modelo-text">{{ producto.modelo }}</span>
+            </td>
+            <td>
+              <span class="costo-text">{{ producto.costo | currency: 'ARS' }}</span>
+            </td>
+            <td>
+              <strong class="precio-text">{{ producto.precioEfectivo | currency: 'ARS' }}</strong>
+            </td>
             <td>
               <span class="badge badge-success">
-                <i class="fa-solid fa-arrow-trend-up"></i> {{ calcularRentabilidad(producto) | number:'1.0-2' }}%
+                <i class="fa-solid fa-arrow-trend-up"></i>
+                {{ calcularRentabilidad(producto) | number: '1.0-2' }}%
               </span>
             </td>
             <td>
-              <span class="badge" [ngClass]="producto.stock <= producto.stockMinimo ? 'badge-danger glow' : 'badge-primary'">
+              <span
+                class="badge"
+                [ngClass]="
+                  producto.stock <= producto.stockMinimo ? 'badge-danger glow' : 'badge-primary'
+                "
+              >
                 {{ producto.stock }}
               </span>
             </td>
@@ -149,7 +180,12 @@
                 <button class="btn-action edit" (click)="editar(producto)" title="Editar">
                   <i class="fa-solid fa-pen"></i>
                 </button>
-                <button class="btn-action delete" *ngIf="isAdmin" (click)="eliminar(producto)" title="Desactivar">
+                <button
+                  class="btn-action delete"
+                  *ngIf="isAdmin"
+                  (click)="eliminar(producto)"
+                  title="Desactivar"
+                >
                   <i class="fa-solid fa-trash"></i>
                 </button>
               </div>
@@ -161,13 +197,23 @@
 
     <!-- PAGINACION -->
     <div class="table-footer">
-      <span>Total de productos: <strong>{{ totalElements }}</strong></span>
+      <span
+        >Total de productos: <strong>{{ totalElements }}</strong></span
+      >
       <div class="pagination-controls" *ngIf="totalPages > 1">
-        <button class="btn-page" [disabled]="currentPage === 0" (click)="cambiarPagina(currentPage - 1)">
+        <button
+          class="btn-page"
+          [disabled]="currentPage === 0"
+          (click)="cambiarPagina(currentPage - 1)"
+        >
           <i class="fa-solid fa-chevron-left"></i>
         </button>
         <span class="page-info">Página {{ currentPage + 1 }} de {{ totalPages }}</span>
-        <button class="btn-page" [disabled]="currentPage === totalPages - 1" (click)="cambiarPagina(currentPage + 1)">
+        <button
+          class="btn-page"
+          [disabled]="currentPage === totalPages - 1"
+          (click)="cambiarPagina(currentPage + 1)"
+        >
           <i class="fa-solid fa-chevron-right"></i>
         </button>
       </div>

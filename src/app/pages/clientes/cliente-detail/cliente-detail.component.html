@@ -8,10 +8,7 @@
     <div class="detail-titles">
       <div class="d-flex align-items-center gap-2 flex-wrap">
         <h3>{{ cliente.apellido }}, {{ cliente.nombre }}</h3>
-        <span
-          class="badge-status"
-          [ngClass]="cliente.activo ? 'badge-activo' : 'badge-inactivo'"
-        >
+        <span class="badge-status" [ngClass]="cliente.activo ? 'badge-activo' : 'badge-inactivo'">
           <i
             class="fa-solid"
             [ngClass]="cliente.activo ? 'fa-circle-check' : 'fa-circle-xmark'"
@@ -93,7 +90,11 @@
       <div class="item-content">
         <span class="item-label">Última Modificación</span>
         <span class="item-value">
-          {{ cliente.fechaActualizacion ? (cliente.fechaActualizacion | date: 'dd/MM/yyyy HH:mm') : 'Sin cambios' }}
+          {{
+            cliente.fechaActualizacion
+              ? (cliente.fechaActualizacion | date: 'dd/MM/yyyy HH:mm')
+              : 'Sin cambios'
+          }}
         </span>
       </div>
     </div>
@@ -113,10 +114,7 @@
         [ngClass]="cliente.activo ? 'btn-desactivar' : 'btn-activar'"
         (click)="onToggleEstado()"
       >
-        <i
-          class="fa-solid"
-          [ngClass]="cliente.activo ? 'fa-ban' : 'fa-check'"
-        ></i>
+        <i class="fa-solid" [ngClass]="cliente.activo ? 'fa-ban' : 'fa-check'"></i>
         {{ cliente.activo ? 'Desactivar' : 'Activar' }}
       </button>
 

@@ -87,14 +87,18 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let usuario of usuarios; trackBy: trackByFn" [class.d-none]="cargando" class="table-row-hover">
+          <tr
+            *ngFor="let usuario of usuarios; trackBy: trackByFn"
+            [class.d-none]="cargando"
+            class="table-row-hover"
+          >
             <td>
               <div class="usuario-info">
                 <div class="avatar">
                   <i class="fa-solid fa-user"></i>
                 </div>
 
-                <strong style="font-size: 15px;">
+                <strong class="usuario-nombre">
                   {{ usuario.username }}
                 </strong>
               </div>
@@ -126,13 +130,21 @@
                   inactivo: !usuario.activo,
                 }"
               >
-                <i class="fa-solid me-1" [ngClass]="{'fa-circle-check': usuario.activo, 'fa-circle-minus': !usuario.activo}"></i>
+                <i
+                  class="fa-solid me-1"
+                  [ngClass]="{
+                    'fa-circle-check': usuario.activo,
+                    'fa-circle-minus': !usuario.activo,
+                  }"
+                ></i>
                 {{ usuario.activo ? 'Activo' : 'Inactivo' }}
               </span>
             </td>
 
             <td>
-              <span class="badge bg-dark border text-muted px-2 py-1">{{ usuario.fechaAlta | date: 'dd/MM/yyyy' }}</span>
+              <span class="badge bg-dark border text-muted px-2 py-1">{{
+                usuario.fechaAlta | date: 'dd/MM/yyyy'
+              }}</span>
             </td>
 
             <td>
@@ -141,11 +153,21 @@
                   <i class="fa-solid fa-user-pen"></i>
                 </button>
 
-                <button class="accion activar" title="Desbloquear" *ngIf="!usuario.activo" (click)="desbloquear(usuario.id)">
+                <button
+                  class="accion activar"
+                  title="Desbloquear"
+                  *ngIf="!usuario.activo"
+                  (click)="desbloquear(usuario.id)"
+                >
                   <i class="fa-solid fa-unlock"></i>
                 </button>
 
-                <button class="accion eliminar" title="Desactivar" *ngIf="usuario.activo" (click)="eliminar(usuario.id)">
+                <button
+                  class="accion eliminar"
+                  title="Desactivar"
+                  *ngIf="usuario.activo"
+                  (click)="eliminar(usuario.id)"
+                >
                   <i class="fa-solid fa-user-slash"></i>
                 </button>
               </div>
@@ -156,14 +178,26 @@
     </div>
 
     <div class="table-footer d-flex justify-content-between align-items-center mt-3">
-      <span class="text-muted" style="font-size: 14px; font-weight: 600;">Total de usuarios: <strong>{{ totalElements }}</strong></span>
-      
+      <span class="text-muted total-usuarios"
+        >Total de usuarios: <strong>{{ totalElements }}</strong></span
+      >
+
       <div class="pagination-controls d-flex align-items-center gap-2" *ngIf="totalPages > 1">
-        <button class="btn btn-sm btn-outline-secondary" [disabled]="currentPage === 0" (click)="cambiarPagina(currentPage - 1)">
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          [disabled]="currentPage === 0"
+          (click)="cambiarPagina(currentPage - 1)"
+        >
           <i class="fa-solid fa-chevron-left"></i> Anterior
         </button>
-        <span class="mx-2 text-main" style="font-weight: 600;">Página {{ currentPage + 1 }} de {{ totalPages }}</span>
-        <button class="btn btn-sm btn-outline-secondary" [disabled]="currentPage === totalPages - 1" (click)="cambiarPagina(currentPage + 1)">
+        <span class="mx-2 text-main pagina-actual"
+          >Página {{ currentPage + 1 }} de {{ totalPages }}</span
+        >
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          [disabled]="currentPage === totalPages - 1"
+          (click)="cambiarPagina(currentPage + 1)"
+        >
           Siguiente <i class="fa-solid fa-chevron-right"></i>
         </button>
       </div>

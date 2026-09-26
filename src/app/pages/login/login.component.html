@@ -1,19 +1,22 @@
 <div class="login-wrapper d-flex align-items-center justify-content-center min-vh-100 w-100">
-  
   <!-- Imagen de fondo, opcional, con opacidad baja desde CSS para no estorbar -->
-  <div class="login-bg-image" style="background-image: url('fondo-login.png?v=2');" aria-hidden="true"></div>
+  <div class="login-bg-image" aria-hidden="true"></div>
 
   <!-- Contenedor principal del Login -->
   <main class="login-card shadow-lg">
-    
     <div class="row g-0 h-100">
-      
       <!-- Panel Izquierdo: Branding / Logo -->
-      <div class="col-md-5 d-none d-md-flex flex-column align-items-center justify-content-center brand-panel p-5 text-center position-relative overflow-hidden">
+      <div
+        class="col-md-5 d-none d-md-flex flex-column align-items-center justify-content-center brand-panel p-5 text-center position-relative overflow-hidden"
+      >
         <div class="brand-overlay"></div>
         <div class="position-relative z-1">
-          <div class="logo-box bg-white p-3 rounded-circle shadow-sm mb-4 mx-auto" style="width: 130px; height: 130px;">
-            <img src="login.png?v=2" class="img-fluid w-100 h-100 object-fit-contain" alt="Mael Especieros Logo" />
+          <div class="logo-box logo-box-lg bg-white p-3 rounded-circle shadow-sm mb-4 mx-auto">
+            <img
+              src="login.png?v=2"
+              class="img-fluid w-100 h-100 object-fit-contain"
+              alt="Mael Especieros Logo"
+            />
           </div>
           <h2 class="text-white fw-bold mb-2">Mael Especieros</h2>
           <p class="text-white-50 mb-0">Gestión de Ventas e Inventario</p>
@@ -23,11 +26,14 @@
 
       <!-- Panel Derecho: Formulario -->
       <div class="col-md-7 d-flex flex-column justify-content-center p-4 p-md-5">
-        
         <div class="text-center d-md-none mb-4">
-           <div class="logo-box bg-transparent mx-auto" style="width: 100px; height: 100px; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 10px;">
-             <img src="login.png?v=2" class="img-fluid object-fit-contain" alt="Mael Especieros Logo" />
-           </div>
+          <div class="logo-box logo-box-sm bg-transparent mx-auto">
+            <img
+              src="login.png?v=2"
+              class="img-fluid object-fit-contain"
+              alt="Mael Especieros Logo"
+            />
+          </div>
         </div>
 
         <div class="mb-4 text-center text-md-start">
@@ -36,7 +42,6 @@
         </div>
 
         <form (ngSubmit)="iniciarSesion()" autocomplete="on" class="login-form">
-          
           <!-- Usuario -->
           <div class="mb-3">
             <label for="username" class="form-label fw-semibold text-main mb-2">Usuario</label>
@@ -80,32 +85,41 @@
                 (click)="mostrarPassword = !mostrarPassword"
                 [attr.title]="mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'"
               >
-                <i class="fa-solid" [class.fa-eye]="!mostrarPassword" [class.fa-eye-slash]="mostrarPassword"></i>
+                <i
+                  class="fa-solid"
+                  [class.fa-eye]="!mostrarPassword"
+                  [class.fa-eye-slash]="mostrarPassword"
+                ></i>
               </button>
             </div>
           </div>
 
           <!-- Botón de Login -->
-          <button class="btn-login w-100 d-flex align-items-center justify-content-center gap-2" type="submit" [disabled]="cargando">
+          <button
+            class="btn-login w-100 d-flex align-items-center justify-content-center gap-2"
+            type="submit"
+            [disabled]="cargando"
+          >
             <ng-container *ngIf="!cargando">
               <i class="fa-solid fa-right-to-bracket"></i>
               <span>Ingresar al Sistema</span>
             </ng-container>
             <ng-container *ngIf="cargando">
-              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              <span
+                class="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+              ></span>
               <span>Validando...</span>
             </ng-container>
           </button>
-          
         </form>
 
         <div class="mt-4 text-center text-muted small">
           <i class="fa-solid fa-shield-halved me-1 text-success"></i>
           Sistema protegido y encriptado
         </div>
-
       </div>
-
     </div>
   </main>
 </div>

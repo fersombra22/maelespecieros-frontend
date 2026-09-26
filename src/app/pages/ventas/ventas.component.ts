@@ -1,12 +1,22 @@
-import { Component, OnInit, inject, HostListener, ChangeDetectionStrategy, signal, computed } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  HostListener,
+  ChangeDetectionStrategy,
+  signal,
+  computed,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { ProductoService } from '../../core/services/producto.service';
 import { VentaService } from '../../core/services/venta.service';
 import { CarritoService, ProductoCarrito } from '../../core/services/carrito.service';
+import { ClienteService } from '../../core/services/cliente.service';
 
 import { Producto } from '../../core/models/producto';
+import { Cliente } from '../../core/models/cliente';
 import { VentaRequest } from '../../core/models/venta-request';
 import Swal from 'sweetalert2';
 
@@ -17,9 +27,9 @@ const Toast = Swal.mixin({
   timer: 2000,
   timerProgressBar: true,
   didOpen: (toast) => {
-    toast.addEventListener('mouseenter', Swal.stopTimer)
-    toast.addEventListener('mouseleave', Swal.resumeTimer)
-  }
+    toast.addEventListener('mouseenter', Swal.stopTimer);
+    toast.addEventListener('mouseleave', Swal.resumeTimer);
+  },
 });
 
 @Component({
@@ -33,6 +43,7 @@ const Toast = Swal.mixin({
 export class VentasComponent implements OnInit {
   private productoService = inject(ProductoService);
   private ventaService = inject(VentaService);
+  private clienteService = inject(ClienteService);
   public carritoService = inject(CarritoService); // Public to use its signals in template
 
   // Use Signals for local state to align with OnPush
@@ -43,12 +54,62 @@ export class VentasComponent implements OnInit {
   buscar = signal<string>('');
   cargandoProductos = signal<boolean>(false);
 
+  // Clientes
+  clientesActivos = signal<Cliente[]>([]);
+  clienteSeleccionadoId = signal<number | null>(null);
+
   // Search debounce timer
   private searchTimeout: any;
 
+  // Modal Nuevo Cliente
+  mostrarModalCliente = signal<boolean>(false);
+  nuevoCliente = { nombre: '', apellido: '', telefono: '', email: '' };
+
   ngOnInit(): void {
-    // Ya no cargamos todos los productos al inicio por defecto en este modelo POS
+    this.cargarClientesActivos();
   }
+
+  cargarClientesActivos(): void {
+    this.clienteService.listarActivos().subscribe({
+      next: (res) => {
+        if (res.data) {
+          this.clientesActivos.set(res.data);
+        }
+      },
+    });
+  }
+
+  // --- LOGICA MODAL NUEVO CLIENTE ---
+  abrirModalNuevoCliente(): void {
+    this.nuevoCliente = { nombre: '', apellido: '', telefono: '', email: '' };
+    this.mostrarModalCliente.set(true);
+  }
+
+  cerrarModalCliente(): void {
+    this.mostrarModalCliente.set(false);
+  }
+
+  guardarNuevoCliente(): void {
+    if (!this.nuevoCliente.nombre || !this.nuevoCliente.apellido || !this.nuevoCliente.email) {
+      Toast.fire({ icon: 'warning', title: 'Nombre, apellido y email son obligatorios' });
+      return;
+    }
+
+    this.clienteService.crear(this.nuevoCliente).subscribe({
+      next: (res) => {
+        Toast.fire({ icon: 'success', title: 'Cliente creado correctamente' });
+        this.cargarClientesActivos(); // Recargar la lista
+        if (res.data && res.data.id) {
+          this.clienteSeleccionadoId.set(res.data.id); // Seleccionarlo automáticamente
+        }
+        this.cerrarModalCliente();
+      },
+      error: () => {
+        Swal.fire('Error', 'No se pudo crear el cliente', 'error');
+      },
+    });
+  }
+  // ----------------------------------
 
   // Hotkeys
   @HostListener('window:keydown', ['$event'])
@@ -82,7 +143,7 @@ export class VentasComponent implements OnInit {
         this.sugerencias.set([]);
         this.mostrarSugerencias.set(true);
         this.cargandoProductos.set(false);
-      }
+      },
     });
   }
 
@@ -90,7 +151,7 @@ export class VentasComponent implements OnInit {
     if (this.searchTimeout) {
       clearTimeout(this.searchTimeout);
     }
-    
+
     const searchTerm = this.buscar().trim();
     if (!searchTerm) {
       this.sugerencias.set([]);
@@ -104,11 +165,25 @@ export class VentasComponent implements OnInit {
   }
 
   seleccionarSugerencia(producto: Producto): void {
+    if (producto.stock <= 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Sin stock',
+        text: `El producto ${producto.nombre} no tiene stock disponible.`,
+      });
+      return;
+    }
+    const p = this.carritoService.carrito().find((x) => x.id === producto.id);
+    if (p && p.cantidad >= producto.stock) {
+      Toast.fire({ icon: 'warning', title: 'Límite de stock alcanzado' });
+      return;
+    }
+
     this.agregar(producto);
     this.buscar.set('');
     this.sugerencias.set([]);
     this.mostrarSugerencias.set(false);
-    
+
     // Devolver foco al input
     setTimeout(() => {
       document.getElementById('searchInput')?.focus();
@@ -132,11 +207,16 @@ export class VentasComponent implements OnInit {
     this.carritoService.agregar(producto);
     Toast.fire({
       icon: 'success',
-      title: 'Producto agregado'
+      title: 'Producto agregado',
     });
   }
 
   aumentar(id: number): void {
+    const p = this.carritoService.carrito().find((x) => x.id === id);
+    if (p && p.cantidad >= p.stock) {
+      Toast.fire({ icon: 'warning', title: 'Límite de stock alcanzado' });
+      return;
+    }
     this.carritoService.aumentarCantidad(id);
   }
 
@@ -151,8 +231,16 @@ export class VentasComponent implements OnInit {
   setCantidad(id: number, event: Event): void {
     const input = event.target as HTMLInputElement;
     const value = parseInt(input.value, 10);
-    if (!isNaN(value) && value > 0) {
-      this.carritoService.actualizarCantidad(id, value);
+    const p = this.carritoService.carrito().find((x) => x.id === id);
+
+    if (p && !isNaN(value) && value > 0) {
+      if (value > p.stock) {
+        Toast.fire({ icon: 'warning', title: `Solo hay ${p.stock} en stock` });
+        input.value = p.stock.toString();
+        this.carritoService.actualizarCantidad(id, p.stock);
+      } else {
+        this.carritoService.actualizarCantidad(id, value);
+      }
     } else {
       input.value = '1';
       this.carritoService.actualizarCantidad(id, 1);
@@ -171,10 +259,9 @@ export class VentasComponent implements OnInit {
   }
 
   total(): number {
-    return this.carritoService.carrito().reduce(
-      (total, producto) => total + this.precioActual(producto) * producto.cantidad,
-      0
-    );
+    return this.carritoService
+      .carrito()
+      .reduce((total, producto) => total + this.precioActual(producto) * producto.cantidad, 0);
   }
 
   finalizarVenta(): void {
@@ -182,12 +269,14 @@ export class VentasComponent implements OnInit {
     if (currentCart.length === 0) {
       Toast.fire({
         icon: 'warning',
-        title: 'Debe agregar productos al carrito'
+        title: 'Debe agregar productos al carrito',
       });
       return;
     }
 
-    const request: VentaRequest = {
+    const request: any = {
+      // Using any temporarily as VentaRequest was modified to include clienteId in backend but maybe not frontend model yet, though we will fix it if needed. Actually let's just cast.
+      clienteId: this.clienteSeleccionadoId(),
       formaPago: this.formaPago(),
       descuento: this.descuento(),
       detalles: currentCart.map((producto) => ({
@@ -205,7 +294,7 @@ export class VentasComponent implements OnInit {
           showConfirmButton: true,
           confirmButtonText: '<i class="fa-solid fa-file-pdf"></i> Descargar Comprobante',
           showCancelButton: true,
-          cancelButtonText: 'Nueva Venta'
+          cancelButtonText: 'Nueva Venta',
         }).then((result) => {
           if (result.isConfirmed && response.data && response.data.id) {
             this.ventaService.generarComprobante(response.data.id);
@@ -214,6 +303,7 @@ export class VentasComponent implements OnInit {
 
         this.carritoService.limpiar();
         this.descuento.set(0);
+        this.clienteSeleccionadoId.set(null);
         this.buscar.set('');
         this.sugerencias.set([]);
         this.mostrarSugerencias.set(false);
