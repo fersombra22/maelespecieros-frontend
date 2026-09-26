@@ -75,20 +75,35 @@
               <th>Acción</th>
               <th>Descripción</th>
               <th>Hash</th>
-              <th class="text-center" style="width: 80px;"></th>
+              <th class="col-actions"></th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let bloque of bloques(); trackBy: trackByFn">
               <td class="fw-bold">#{{ bloque.id }}</td>
-              <td><span class="badge bg-dark border text-muted">{{ bloque.fecha | date: 'dd/MM/yyyy HH:mm' }}</span></td>
+              <td>
+                <span class="badge bg-dark border text-muted">{{
+                  bloque.fecha | date: 'dd/MM/yyyy HH:mm'
+                }}</span>
+              </td>
               <td>{{ bloque.usuario }}</td>
               <td>
-                <span class="badge" [ngClass]="{'bg-primary': bloque.accion === 'CREACION', 'bg-warning': bloque.accion === 'ACTUALIZACION', 'bg-danger': bloque.accion === 'ELIMINACION', 'bg-info': bloque.accion === 'LOGIN'}">{{ bloque.accion }}</span>
+                <span
+                  class="badge"
+                  [ngClass]="{
+                    'bg-primary': bloque.accion === 'CREACION',
+                    'bg-warning': bloque.accion === 'ACTUALIZACION',
+                    'bg-danger': bloque.accion === 'ELIMINACION',
+                    'bg-info': bloque.accion === 'LOGIN',
+                  }"
+                  >{{ bloque.accion }}</span
+                >
               </td>
               <td>{{ bloque.descripcion }}</td>
               <td>
-                <small class="font-monospace text-muted">{{ bloque.hashActual ? bloque.hashActual.substring(0, 15) : '' }}...</small>
+                <small class="font-monospace text-muted"
+                  >{{ bloque.hashActual ? bloque.hashActual.substring(0, 15) : '' }}...</small
+                >
               </td>
               <td class="text-center">
                 <div class="hover-actions">
@@ -124,12 +139,7 @@
 </div>
 
 <!-- MODAL FORENSE DE DETALLES DEL BLOQUE -->
-<div
-  class="modal fade show"
-  tabindex="-1"
-  *ngIf="bloqueSeleccionado()"
-  style="display: block; background: rgba(0, 0, 0, 0.5)"
->
+<div class="modal fade show modal-visible" tabindex="-1" *ngIf="bloqueSeleccionado()">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-dark text-white">
@@ -144,7 +154,9 @@
         <p>
           <strong>UUID:</strong> <code>{{ bloqueSeleccionado()?.uuid }}</code>
         </p>
-        <p><strong>Fecha:</strong> {{ bloqueSeleccionado()?.fecha | date: 'dd/MM/yyyy HH:mm:ss' }}</p>
+        <p>
+          <strong>Fecha:</strong> {{ bloqueSeleccionado()?.fecha | date: 'dd/MM/yyyy HH:mm:ss' }}
+        </p>
         <p><strong>Usuario:</strong> {{ bloqueSeleccionado()?.usuario }}</p>
         <p><strong>Acción:</strong> {{ bloqueSeleccionado()?.accion }}</p>
         <p><strong>Descripción:</strong> {{ bloqueSeleccionado()?.descripcion }}</p>
@@ -167,7 +179,8 @@
         </p>
         <p>
           <strong>Nonce:</strong> <code>{{ bloqueSeleccionado()?.nonce }}</code> |
-          <strong>Versión:</strong> {{ bloqueSeleccionado()?.version }} | <strong>Algoritmo:</strong>
+          <strong>Versión:</strong> {{ bloqueSeleccionado()?.version }} |
+          <strong>Algoritmo:</strong>
           {{ bloqueSeleccionado()?.algoritmo }}
         </p>
       </div>

@@ -26,8 +26,16 @@
   margin-bottom: 0;
 }
 
-.header h2 { color: var(--text-main); font-weight: 800; margin: 0; font-size: 28px;}
-.header p { color: var(--text-muted); margin: 5px 0 0 0; }
+.header h2 {
+  color: var(--text-main);
+  font-weight: 800;
+  margin: 0;
+  font-size: 28px;
+}
+.header p {
+  color: var(--text-muted);
+  margin: 5px 0 0 0;
+}
 
 .btn-success {
   background: linear-gradient(135deg, var(--success), #059669);
@@ -68,31 +76,91 @@
   overflow: auto;
 }
 
-table { margin: 0; width: 100%; border-collapse: collapse; }
-thead { position: sticky; top: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); color: var(--text-muted); z-index: 10; border-bottom: 1px solid rgba(255,255,255,0.05); }
-th { padding: 15px 20px; font-size: 11px; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; text-align: left; }
-td { vertical-align: middle; padding: 12px 20px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 14px; color: var(--text-main); }
-tbody tr { transition: all 0.2s; }
-tbody tr:hover { background: rgba(139, 92, 246, 0.05); }
+table {
+  margin: 0;
+  width: 100%;
+  border-collapse: collapse;
+}
+thead {
+  position: sticky;
+  top: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  color: var(--text-muted);
+  z-index: 10;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+th {
+  padding: 15px 20px;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-align: left;
+}
+td {
+  vertical-align: middle;
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  font-size: 14px;
+  color: var(--text-main);
+}
+tbody tr {
+  transition: all 0.2s;
+}
+tbody tr:hover {
+  background: rgba(139, 92, 246, 0.05);
+}
 
 /* Hover Actions */
-.hover-actions { opacity: 0; transition: opacity 0.2s; display: flex; gap: 8px; justify-content: center;}
-tbody tr:hover .hover-actions { opacity: 1; }
+.hover-actions {
+  opacity: 0;
+  transition: opacity 0.2s;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+tbody tr:hover .hover-actions {
+  opacity: 1;
+}
 
-.paginacion { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.2); color: var(--text-muted); font-weight: 600;}
+.paginacion {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 25px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--text-muted);
+  font-weight: 600;
+}
 
 /* Alerta crítica (Anomalías) */
 .border-danger {
   border-color: rgba(239, 68, 68, 0.5) !important;
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.2), inset 0 0 10px rgba(239, 68, 68, 0.1);
+  box-shadow:
+    0 0 20px rgba(239, 68, 68, 0.2),
+    inset 0 0 10px rgba(239, 68, 68, 0.1);
   animation: pulseDanger 2s infinite;
   flex: none; /* No grow for alert */
 }
 
 @keyframes pulseDanger {
-  0% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.2), inset 0 0 10px rgba(239, 68, 68, 0.1); }
-  50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.4), inset 0 0 15px rgba(239, 68, 68, 0.2); }
-  100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.2), inset 0 0 10px rgba(239, 68, 68, 0.1); }
+  0% {
+    box-shadow:
+      0 0 20px rgba(239, 68, 68, 0.2),
+      inset 0 0 10px rgba(239, 68, 68, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 30px rgba(239, 68, 68, 0.4),
+      inset 0 0 15px rgba(239, 68, 68, 0.2);
+  }
+  100% {
+    box-shadow:
+      0 0 20px rgba(239, 68, 68, 0.2),
+      inset 0 0 10px rgba(239, 68, 68, 0.1);
+  }
 }
 
 .bg-danger {
@@ -109,5 +177,18 @@ tbody tr:hover .hover-actions { opacity: 1; }
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   color: var(--text-main);
 }
-.modal-header { border-bottom: 1px solid rgba(255, 255, 255, 0.05); background: transparent !important;}
-.modal-footer { border-top: 1px solid rgba(255, 255, 255, 0.05); }
+.modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: transparent !important;
+}
+.modal-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+.col-actions {
+  width: 80px;
+  text-align: center;
+}
+.modal-visible {
+  display: block;
+  background: rgba(0, 0, 0, 0.5);
+}
