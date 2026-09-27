@@ -18,6 +18,11 @@ export class ProductoService {
     return this.http.get<ApiResponse<Page<Producto>>>(this.api, { params });
   }
 
+  listarInactivos(page: number = 0, size: number = 10): Observable<ApiResponse<Page<Producto>>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    return this.http.get<ApiResponse<Page<Producto>>>(`${this.api}/inactivos`, { params });
+  }
+
   obtenerPorId(id: number): Observable<ApiResponse<Producto>> {
     return this.http.get<ApiResponse<Producto>>(`${this.api}/${id}`);
   }
@@ -68,6 +73,10 @@ export class ProductoService {
 
   eliminar(id: number): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(`${this.api}/${id}`);
+  }
+
+  activar(id: number): Observable<ApiResponse<void>> {
+    return this.http.put<ApiResponse<void>>(`${this.api}/${id}/activar`, {});
   }
 
   aumentoMasivo(ids: number[], porcentaje: number): Observable<ApiResponse<void>> {

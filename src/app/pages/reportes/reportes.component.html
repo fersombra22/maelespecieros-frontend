@@ -10,7 +10,7 @@
       <p>Generación de reportes PDF y estadísticas clave del sistema.</p>
     </div>
     <div class="header-actions">
-      <div class="user-badge"><i class="fa-solid fa-file-pdf"></i> 4 Reportes Disponibles</div>
+      <div class="user-badge"><i class="fa-solid fa-file-pdf"></i> 5 Reportes Disponibles</div>
     </div>
   </header>
 
@@ -73,6 +73,21 @@
         <h2>Auditoría</h2>
         <span class="trend neutral">Registro de acciones y logs del sistema.</span>
         <button class="mt-3 w-100 btn-neutral-outline" (click)="auditoria()">
+          <i class="fa-solid fa-file-pdf"></i> Generar
+        </button>
+      </div>
+    </div>
+
+    <!-- TARJETA: HISTORIAL PRECIOS -->
+    <div class="bento-card bento-metric reporte-card">
+      <div class="metric-header">
+        <i class="fa-solid fa-tags icon-primary" style="color: #6C5CE7;"></i>
+        <span style="color: #6C5CE7;">Precios</span>
+      </div>
+      <div class="metric-body">
+        <h2>Historial</h2>
+        <span class="trend neutral">Evolución de precios del catálogo.</span>
+        <button class="mt-3 w-100 btn-neutral-outline" style="border-color: #6C5CE7; color: #6C5CE7;" (click)="historialPrecios()" onmouseover="this.style.backgroundColor='#6C5CE7'; this.style.color='#fff'" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#6C5CE7'">
           <i class="fa-solid fa-file-pdf"></i> Generar
         </button>
       </div>

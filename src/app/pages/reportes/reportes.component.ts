@@ -80,4 +80,8 @@ export class ReportesComponent implements OnInit {
   auditoria(): void {
     this.reporteService.abrirReporteAuditoria();
   }
+
+  historialPrecios(): void {
+    this.reporteService.abrirReporteHistorialPrecios();
+  }
 }

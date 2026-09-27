@@ -67,8 +67,9 @@ export class ClientesComponent implements OnInit {
         next: (response) => {
           if (response.data && response.data.content) {
             this.clientes = response.data.content;
-            this.totalElements = response.data.totalElements;
-            this.totalPages = response.data.totalPages;
+            const meta = response.data.page || response.data;
+            this.totalElements = meta.totalElements || 0;
+            this.totalPages = meta.totalPages || 0;
           } else {
             this.clientes = [];
             this.totalElements = 0;

@@ -154,21 +154,35 @@ export class ProductosComponent implements OnInit {
             this.cargarProductos();
           },
           error: () => {
-            Swal.fire('Error', 'No se pudieron actualizar los precios', 'error');
+            // Error handling is managed by error.interceptor.ts
           },
         });
       }
     });
   }
 
+  mostrarInactivos: boolean = false;
+
+  toggleInactivos(): void {
+    this.mostrarInactivos = !this.mostrarInactivos;
+    this.currentPage = 0;
+    this.cargarProductos();
+  }
+
   cargarProductos(): void {
     this.cargando = true;
-    this.productoService.listar(this.currentPage, this.pageSize).subscribe({
+    
+    const request = this.mostrarInactivos 
+      ? this.productoService.listarInactivos(this.currentPage, this.pageSize)
+      : this.productoService.listar(this.currentPage, this.pageSize);
+
+    request.subscribe({
       next: (response: any) => {
         if (response.data && response.data.content) {
           this.productos = response.data.content;
-          this.totalElements = response.data.totalElements;
-          this.totalPages = response.data.totalPages;
+          const meta = response.data.page || response.data;
+          this.totalElements = meta.totalElements || 0;
+          this.totalPages = meta.totalPages || 0;
         } else {
           this.productos = [];
         }
@@ -178,11 +192,6 @@ export class ProductosComponent implements OnInit {
       error: () => {
         this.cargando = false;
         this.cdr.markForCheck();
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'No se pudieron cargar los productos.',
-        });
       },
     });
   }
@@ -201,8 +210,9 @@ export class ProductosComponent implements OnInit {
         next: (response: any) => {
           if (response.data && response.data.content) {
             this.productos = response.data.content;
-            this.totalElements = response.data.totalElements;
-            this.totalPages = response.data.totalPages;
+            const meta = response.data.page || response.data;
+            this.totalElements = meta.totalElements || 0;
+            this.totalPages = meta.totalPages || 0;
           } else {
             this.productos = [];
           }
@@ -277,13 +287,7 @@ export class ProductosComponent implements OnInit {
           },
 
           error: () => {
-            Swal.fire({
-              icon: 'error',
-
-              title: 'Error',
-
-              text: 'No se pudo actualizar el producto.',
-            });
+            // Error handling is managed by error.interceptor.ts
           },
         });
     } else {
@@ -305,13 +309,7 @@ export class ProductosComponent implements OnInit {
           },
 
           error: () => {
-            Swal.fire({
-              icon: 'error',
-
-              title: 'Error',
-
-              text: 'No se pudo crear el producto.',
-            });
+            // Error handling is managed by error.interceptor.ts
           },
         });
     }
@@ -352,17 +350,43 @@ export class ProductosComponent implements OnInit {
                 this.cargarProductos();
               },
               error: () => {
-                Swal.fire({
-                  icon: 'error',
-
-                  title: 'Error',
-
-                  text: 'No se pudo desactivar el producto.',
-                });
+                // Error handling is managed by error.interceptor.ts
               },
             });
         }
       });
+  }
+
+  activar(producto: Producto): void {
+    Swal.fire({
+      title: '¿Reactivar producto?',
+      text: `Se reactivará ${producto.nombre}`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, reactivar',
+      cancelButtonText: 'Cancelar',
+    }).then((resultado) => {
+      if (resultado.isConfirmed) {
+        this.productoService.activar(producto.id).subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Producto reactivado',
+              timer: 1200,
+              showConfirmButton: false,
+            });
+            this.cargarProductos();
+          },
+          error: () => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo reactivar el producto.',
+            });
+          },
+        });
+      }
+    });
   }
 
   cerrarModal(): void {
