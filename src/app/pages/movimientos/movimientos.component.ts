@@ -61,10 +61,11 @@ export class MovimientosComponent implements OnInit {
 
     this.movimientoService.listar(this.paginaActual() - 1, this.cantidadPorPagina()).subscribe({
       next: (response) => {
+        const meta = response.data.page || response.data;
         this.movimientos.set(response.data.content);
-        this.totalRegistros.set(response.data.totalElements);
-        this.totalPaginas.set(response.data.totalPages);
-        this.paginaActual.set(response.data.number + 1);
+        this.totalRegistros.set(meta.totalElements || 0);
+        this.totalPaginas.set(meta.totalPages || 0);
+        this.paginaActual.set((meta.number || 0) + 1);
         this.cargando.set(false);
       },
       error: () => {

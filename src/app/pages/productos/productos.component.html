@@ -63,6 +63,15 @@
         <h3>{{ productos.length }}</h3>
         <p>Productos Totales</p>
       </div>
+      <button 
+        class="btn-secondary" 
+        style="margin-left: 20px; padding: 10px 15px;"
+        (click)="toggleInactivos()"
+        [ngClass]="{'btn-premium': mostrarInactivos}"
+      >
+        <i class="fa-solid" [ngClass]="mostrarInactivos ? 'fa-eye-slash' : 'fa-eye'"></i>
+        {{ mostrarInactivos ? 'Ocultar Inactivos' : 'Ver Inactivos' }}
+      </button>
     </div>
   </section>
 
@@ -182,11 +191,20 @@
                 </button>
                 <button
                   class="btn-action delete"
-                  *ngIf="isAdmin"
+                  *ngIf="isAdmin && producto.activo"
                   (click)="eliminar(producto)"
                   title="Desactivar"
                 >
                   <i class="fa-solid fa-trash"></i>
+                </button>
+                <button
+                  class="btn-action"
+                  style="background: linear-gradient(135deg, var(--success), #059669); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);"
+                  *ngIf="isAdmin && !producto.activo"
+                  (click)="activar(producto)"
+                  title="Reactivar"
+                >
+                  <i class="fa-solid fa-rotate-left"></i>
                 </button>
               </div>
             </td>
@@ -223,7 +241,7 @@
 
 <!-- MODAL -->
 <div class="modal-fondo" *ngIf="mostrarModal">
-  <div class="modal-contenido card-premium">
+  <div class="modal-contenido">
     <div class="modal-header">
       <div>
         <span class="breadcrumb"> Gestión de Inventario </span>

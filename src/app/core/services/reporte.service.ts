@@ -27,6 +27,10 @@ export class ReporteService {
     this.descargarPdf(`${this.api}/auditoria/pdf`, 'auditoria.pdf');
   }
 
+  abrirReporteHistorialPrecios(): void {
+    this.descargarPdf(`${this.api}/historial-precios/pdf`, 'historial_precios.pdf');
+  }
+
   private descargarPdf(url: string, nombre: string): void {
     this.http
       .get(url, {

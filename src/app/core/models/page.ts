@@ -10,6 +10,11 @@ export interface Page<T> {
   number: number;
 
   first: boolean;
-
   last: boolean;
+  page?: {
+    size: number;
+    totalElements: number;
+    totalPages: number;
+    number: number;
+  };
 }
