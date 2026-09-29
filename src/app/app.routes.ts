@@ -50,6 +50,10 @@ export const routes: Routes = [
         canActivate: [roleGuard([Rol.SUPER_ADMIN, Rol.ADMIN])]
       },
       {
+        path: 'caja',
+        loadComponent: () => import('./pages/caja/caja.component').then(m => m.CajaComponent)
+      },
+      {
         path: 'clientes',
         loadComponent: () => import('./pages/clientes/clientes.component').then(m => m.ClientesComponent)
       },
