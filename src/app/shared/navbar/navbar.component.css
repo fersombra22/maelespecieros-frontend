@@ -7,6 +7,30 @@
 .avatar {
   background-color: var(--primary-light);
   color: var(--primary);
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
+}
+
+.logo-nav {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  background: var(--bg-sidebar);
+}
+
+.user-name {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.user-role {
+  font-size: 0.75rem;
+}
+
+.btn-circle-40 {
+  width: 40px;
+  height: 40px;
 }
 
 .btn-light:hover {

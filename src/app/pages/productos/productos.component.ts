@@ -1,4 +1,10 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -20,7 +26,7 @@ import { ProductoFormComponent } from '../../shared/components/producto-form/pro
 
   templateUrl: './productos.component.html',
   styleUrls: ['./productos.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProductosComponent implements OnInit {
   private productoService = inject(ProductoService);
@@ -64,7 +70,7 @@ export class ProductosComponent implements OnInit {
   toggleTodos(event: Event): void {
     const checked = (event.target as HTMLInputElement).checked;
     if (checked) {
-      this.productos.forEach(p => this.seleccionados.add(p.id));
+      this.productos.forEach((p) => this.seleccionados.add(p.id));
     } else {
       this.seleccionados.clear();
     }
@@ -89,7 +95,7 @@ export class ProductosComponent implements OnInit {
       },
       error: () => {
         Swal.fire('Error', 'No se pudo exportar el Excel', 'error');
-      }
+      },
     });
   }
 
@@ -98,7 +104,7 @@ export class ProductosComponent implements OnInit {
     if (file) {
       this.cargando = true;
       this.cdr.markForCheck();
-      
+
       this.productoService.importarExcel(file).subscribe({
         next: () => {
           Swal.fire('¡Éxito!', 'Productos importados y actualizados correctamente.', 'success');
@@ -111,7 +117,7 @@ export class ProductosComponent implements OnInit {
           this.cdr.markForCheck();
           Swal.fire('Error', 'No se pudo importar el archivo Excel.', 'error');
           event.target.value = '';
-        }
+        },
       });
     }
   }
@@ -133,32 +139,50 @@ export class ProductosComponent implements OnInit {
           return 'Debes ingresar un porcentaje mayor a 0';
         }
         return null;
-      }
+      },
     }).then((result) => {
       if (result.isConfirmed) {
         const porcentaje = parseFloat(result.value);
         this.productoService.aumentoMasivo(Array.from(this.seleccionados), porcentaje).subscribe({
           next: () => {
-            Swal.fire('¡Éxito!', `Precios actualizados un ${porcentaje}%. El hash de integridad se ha regenerado correctamente.`, 'success');
+            Swal.fire(
+              '¡Éxito!',
+              `Precios actualizados un ${porcentaje}%. El hash de integridad se ha regenerado correctamente.`,
+              'success',
+            );
             this.seleccionados.clear();
             this.cargarProductos();
           },
           error: () => {
-            Swal.fire('Error', 'No se pudieron actualizar los precios', 'error');
-          }
+            // Error handling is managed by error.interceptor.ts
+          },
         });
       }
     });
   }
 
+  mostrarInactivos: boolean = false;
+
+  toggleInactivos(): void {
+    this.mostrarInactivos = !this.mostrarInactivos;
+    this.currentPage = 0;
+    this.cargarProductos();
+  }
+
   cargarProductos(): void {
     this.cargando = true;
-    this.productoService.listar(this.currentPage, this.pageSize).subscribe({
+    
+    const request = this.mostrarInactivos 
+      ? this.productoService.listarInactivos(this.currentPage, this.pageSize)
+      : this.productoService.listar(this.currentPage, this.pageSize);
+
+    request.subscribe({
       next: (response: any) => {
         if (response.data && response.data.content) {
           this.productos = response.data.content;
-          this.totalElements = response.data.totalElements;
-          this.totalPages = response.data.totalPages;
+          const meta = response.data.page || response.data;
+          this.totalElements = meta.totalElements || 0;
+          this.totalPages = meta.totalPages || 0;
         } else {
           this.productos = [];
         }
@@ -168,11 +192,6 @@ export class ProductosComponent implements OnInit {
       error: () => {
         this.cargando = false;
         this.cdr.markForCheck();
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'No se pudieron cargar los productos.',
-        });
       },
     });
   }
@@ -185,23 +204,26 @@ export class ProductosComponent implements OnInit {
     }
 
     this.cargando = true;
-    this.productoService.buscarPorNombre(this.textoBusqueda, this.currentPage, this.pageSize).subscribe({
-      next: (response: any) => {
-        if (response.data && response.data.content) {
-          this.productos = response.data.content;
-          this.totalElements = response.data.totalElements;
-          this.totalPages = response.data.totalPages;
-        } else {
-          this.productos = [];
-        }
-        this.cargando = false;
-        this.cdr.markForCheck();
-      },
-      error: () => {
-        this.cargando = false;
-        this.cdr.markForCheck();
-      }
-    });
+    this.productoService
+      .buscarPorNombre(this.textoBusqueda, this.currentPage, this.pageSize)
+      .subscribe({
+        next: (response: any) => {
+          if (response.data && response.data.content) {
+            this.productos = response.data.content;
+            const meta = response.data.page || response.data;
+            this.totalElements = meta.totalElements || 0;
+            this.totalPages = meta.totalPages || 0;
+          } else {
+            this.productos = [];
+          }
+          this.cargando = false;
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.cargando = false;
+          this.cdr.markForCheck();
+        },
+      });
   }
 
   cambiarPagina(page: number): void {
@@ -265,13 +287,7 @@ export class ProductosComponent implements OnInit {
           },
 
           error: () => {
-            Swal.fire({
-              icon: 'error',
-
-              title: 'Error',
-
-              text: 'No se pudo actualizar el producto.',
-            });
+            // Error handling is managed by error.interceptor.ts
           },
         });
     } else {
@@ -293,13 +309,7 @@ export class ProductosComponent implements OnInit {
           },
 
           error: () => {
-            Swal.fire({
-              icon: 'error',
-
-              title: 'Error',
-
-              text: 'No se pudo crear el producto.',
-            });
+            // Error handling is managed by error.interceptor.ts
           },
         });
     }
@@ -340,17 +350,43 @@ export class ProductosComponent implements OnInit {
                 this.cargarProductos();
               },
               error: () => {
-                Swal.fire({
-                  icon: 'error',
-
-                  title: 'Error',
-
-                  text: 'No se pudo desactivar el producto.',
-                });
+                // Error handling is managed by error.interceptor.ts
               },
             });
         }
       });
+  }
+
+  activar(producto: Producto): void {
+    Swal.fire({
+      title: '¿Reactivar producto?',
+      text: `Se reactivará ${producto.nombre}`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, reactivar',
+      cancelButtonText: 'Cancelar',
+    }).then((resultado) => {
+      if (resultado.isConfirmed) {
+        this.productoService.activar(producto.id).subscribe({
+          next: () => {
+            Swal.fire({
+              icon: 'success',
+              title: 'Producto reactivado',
+              timer: 1200,
+              showConfirmButton: false,
+            });
+            this.cargarProductos();
+          },
+          error: () => {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'No se pudo reactivar el producto.',
+            });
+          },
+        });
+      }
+    });
   }
 
   cerrarModal(): void {

@@ -22,11 +22,15 @@ export class DashboardService {
     return this.http.get<ApiResponse<Dashboard>>(this.api);
   }
 
-  obtenerInsights(): Observable<ApiResponse<{ insight: string, systemAltered: boolean }>> {
-    return this.http.get<ApiResponse<{ insight: string, systemAltered: boolean }>>(`${environment.apiUrl}/ai/insights`);
+  obtenerInsights(): Observable<ApiResponse<{ insight: string; systemAltered: boolean }>> {
+    return this.http.get<ApiResponse<{ insight: string; systemAltered: boolean }>>(
+      `${environment.apiUrl}/ai/insights`,
+    );
   }
 
   askChat(message: string): Observable<ApiResponse<{ reply: string }>> {
-    return this.http.post<ApiResponse<{ reply: string }>>(`${environment.apiUrl}/ai/chat`, { message });
+    return this.http.post<ApiResponse<{ reply: string }>>(`${environment.apiUrl}/ai/chat`, {
+      message,
+    });
   }
 }

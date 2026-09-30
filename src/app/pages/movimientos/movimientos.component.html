@@ -43,7 +43,13 @@
       </div>
 
       <div class="campo floating-label">
-        <input type="number" min="1" [(ngModel)]="movimiento.cantidad" class="premium-input" placeholder=" " />
+        <input
+          type="number"
+          min="1"
+          [(ngModel)]="movimiento.cantidad"
+          class="premium-input"
+          placeholder=" "
+        />
         <label>Cantidad</label>
       </div>
 
@@ -94,7 +100,7 @@
           <!-- EMPTY STATE -->
           <tr *ngIf="movimientos().length === 0">
             <td colspan="8" class="text-center py-5 empty-state">
-              <i class="fa-solid fa-folder-open mb-3 opacity-25" style="font-size: 3rem;"></i>
+              <i class="fa-solid fa-folder-open mb-3 opacity-25 empty-icon"></i>
               <p>No existen movimientos registrados.</p>
             </td>
           </tr>
@@ -102,7 +108,8 @@
           <tr *ngFor="let movimiento of movimientos()" class="table-row-hover">
             <td>
               <span class="fecha-text">
-                <i class="fa-regular fa-calendar"></i> {{ movimiento.fecha | date: 'dd/MM/yyyy HH:mm' }}
+                <i class="fa-regular fa-calendar"></i>
+                {{ movimiento.fecha | date: 'dd/MM/yyyy HH:mm' }}
               </span>
             </td>
             <td>
@@ -117,25 +124,41 @@
               <span
                 class="badge-icon"
                 [ngClass]="{
-                  'badge-success': movimiento.tipoMovimiento === 'ENTRADA' || movimiento.tipoMovimiento === 'DEVOLUCION',
-                  'badge-danger': movimiento.tipoMovimiento === 'VENTA' || movimiento.tipoMovimiento === 'ANULACION_VENTA',
-                  'badge-warning': movimiento.tipoMovimiento === 'AJUSTE'
+                  'badge-success':
+                    movimiento.tipoMovimiento === 'ENTRADA' ||
+                    movimiento.tipoMovimiento === 'DEVOLUCION',
+                  'badge-danger':
+                    movimiento.tipoMovimiento === 'VENTA' ||
+                    movimiento.tipoMovimiento === 'ANULACION_VENTA',
+                  'badge-warning': movimiento.tipoMovimiento === 'AJUSTE',
                 }"
               >
-                <i class="fa-solid" 
-                   [ngClass]="{
-                     'fa-arrow-down': movimiento.tipoMovimiento === 'ENTRADA' || movimiento.tipoMovimiento === 'DEVOLUCION',
-                     'fa-arrow-up': movimiento.tipoMovimiento === 'VENTA' || movimiento.tipoMovimiento === 'ANULACION_VENTA',
-                     'fa-sliders': movimiento.tipoMovimiento === 'AJUSTE'
-                   }">
+                <i
+                  class="fa-solid"
+                  [ngClass]="{
+                    'fa-arrow-down':
+                      movimiento.tipoMovimiento === 'ENTRADA' ||
+                      movimiento.tipoMovimiento === 'DEVOLUCION',
+                    'fa-arrow-up':
+                      movimiento.tipoMovimiento === 'VENTA' ||
+                      movimiento.tipoMovimiento === 'ANULACION_VENTA',
+                    'fa-sliders': movimiento.tipoMovimiento === 'AJUSTE',
+                  }"
+                >
                 </i>
                 {{ movimiento.tipoMovimiento }}
               </span>
             </td>
-            <td class="text-center"><strong class="cantidad-text">{{ movimiento.cantidad }}</strong></td>
+            <td class="text-center">
+              <strong class="cantidad-text">{{ movimiento.cantidad }}</strong>
+            </td>
             <td class="text-center text-muted">{{ movimiento.stockAnterior }}</td>
-            <td class="text-center"><strong>{{ movimiento.stockNuevo }}</strong></td>
-            <td><span class="motivo-text">{{ movimiento.motivo || '-' }}</span></td>
+            <td class="text-center">
+              <strong>{{ movimiento.stockNuevo }}</strong>
+            </td>
+            <td>
+              <span class="motivo-text">{{ movimiento.motivo || '-' }}</span>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -144,20 +167,43 @@
     <!-- PAGINACION -->
     <div class="table-footer" *ngIf="!cargando() && totalPaginas() > 1">
       <div class="pagination-info">
-        <span>Mostrando página <strong>{{ paginaActual() }}</strong> de <strong>{{ totalPaginas() }}</strong></span>
+        <span
+          >Mostrando página <strong>{{ paginaActual() }}</strong> de
+          <strong>{{ totalPaginas() }}</strong></span
+        >
       </div>
       <div class="pagination-controls">
-        <button class="btn-page" (click)="irPrimeraPagina()" [disabled]="paginaActual() === 1" title="Primera">
+        <button
+          class="btn-page"
+          (click)="irPrimeraPagina()"
+          [disabled]="paginaActual() === 1"
+          title="Primera"
+        >
           <i class="fa-solid fa-angles-left"></i>
         </button>
-        <button class="btn-page" (click)="paginaAnterior()" [disabled]="paginaActual() === 1" title="Anterior">
+        <button
+          class="btn-page"
+          (click)="paginaAnterior()"
+          [disabled]="paginaActual() === 1"
+          title="Anterior"
+        >
           <i class="fa-solid fa-angle-left"></i>
         </button>
-        
-        <button class="btn-page" (click)="paginaSiguiente()" [disabled]="paginaActual() === totalPaginas()" title="Siguiente">
+
+        <button
+          class="btn-page"
+          (click)="paginaSiguiente()"
+          [disabled]="paginaActual() === totalPaginas()"
+          title="Siguiente"
+        >
           <i class="fa-solid fa-angle-right"></i>
         </button>
-        <button class="btn-page" (click)="irUltimaPagina()" [disabled]="paginaActual() === totalPaginas()" title="Última">
+        <button
+          class="btn-page"
+          (click)="irUltimaPagina()"
+          [disabled]="paginaActual() === totalPaginas()"
+          title="Última"
+        >
           <i class="fa-solid fa-angles-right"></i>
         </button>
       </div>

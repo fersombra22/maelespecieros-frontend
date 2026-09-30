@@ -59,21 +59,20 @@ export class MovimientosComponent implements OnInit {
   cargarMovimientos(): void {
     this.cargando.set(true);
 
-    this.movimientoService
-      .listar(this.paginaActual() - 1, this.cantidadPorPagina())
-      .subscribe({
-        next: (response) => {
-          this.movimientos.set(response.data.content);
-          this.totalRegistros.set(response.data.totalElements);
-          this.totalPaginas.set(response.data.totalPages);
-          this.paginaActual.set(response.data.number + 1);
-          this.cargando.set(false);
-        },
-        error: () => {
-          this.cargando.set(false);
-          Swal.fire('Error', 'Error al cargar movimientos', 'error');
-        },
-      });
+    this.movimientoService.listar(this.paginaActual() - 1, this.cantidadPorPagina()).subscribe({
+      next: (response) => {
+        const meta = response.data.page || response.data;
+        this.movimientos.set(response.data.content);
+        this.totalRegistros.set(meta.totalElements || 0);
+        this.totalPaginas.set(meta.totalPages || 0);
+        this.paginaActual.set((meta.number || 0) + 1);
+        this.cargando.set(false);
+      },
+      error: () => {
+        this.cargando.set(false);
+        Swal.fire('Error', 'Error al cargar movimientos', 'error');
+      },
+    });
   }
 
   guardar(): void {
@@ -82,37 +81,35 @@ export class MovimientosComponent implements OnInit {
       return;
     }
 
-    this.movimientoService
-      .crear(this.movimiento)
-      .subscribe({
-        next: () => {
-          Swal.fire('Registrado', 'Movimiento registrado correctamente', 'success');
-          this.movimiento = {
-            productoId: 0,
-            tipoMovimiento: 'ENTRADA',
-            cantidad: 1,
-            motivo: '',
-          };
+    this.movimientoService.crear(this.movimiento).subscribe({
+      next: () => {
+        Swal.fire('Registrado', 'Movimiento registrado correctamente', 'success');
+        this.movimiento = {
+          productoId: 0,
+          tipoMovimiento: 'ENTRADA',
+          cantidad: 1,
+          motivo: '',
+        };
 
-          this.paginaActual.set(1);
-          this.cargarMovimientos();
-        },
-        error: () => {
-          Swal.fire('Error', 'Error al registrar movimiento', 'error');
-        },
-      });
+        this.paginaActual.set(1);
+        this.cargarMovimientos();
+      },
+      error: () => {
+        Swal.fire('Error', 'Error al registrar movimiento', 'error');
+      },
+    });
   }
 
   paginaAnterior(): void {
     if (this.paginaActual() > 1) {
-      this.paginaActual.update(p => p - 1);
+      this.paginaActual.update((p) => p - 1);
       this.cargarMovimientos();
     }
   }
 
   paginaSiguiente(): void {
     if (this.paginaActual() < this.totalPaginas()) {
-      this.paginaActual.update(p => p + 1);
+      this.paginaActual.update((p) => p + 1);
       this.cargarMovimientos();
     }
   }

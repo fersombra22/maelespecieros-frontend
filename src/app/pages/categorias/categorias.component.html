@@ -70,9 +70,7 @@
 
           <!-- EMPTY STATE -->
           <tr *ngIf="!cargando && categorias.length === 0">
-            <td colspan="5" class="text-center py-4 text-muted">
-              No se encontraron categorías.
-            </td>
+            <td colspan="5" class="text-center py-4 text-muted">No se encontraron categorías.</td>
           </tr>
 
           <tr *ngFor="let categoria of categorias" [class.d-none]="cargando">
@@ -83,7 +81,7 @@
                 </div>
 
                 <div>
-                  <strong style="font-size: 15px;">
+                  <strong class="categoria-nombre">
                     {{ categoria.nombre }}
                   </strong>
                 </div>
@@ -143,14 +141,29 @@
     </div>
 
     <!-- Paginación -->
-    <div class="table-footer d-flex justify-content-between align-items-center mt-3 p-3" *ngIf="totalPages > 1">
-      <span class="text-muted" style="font-size: 14px; font-weight: 600;">Total de categorías: <strong>{{ totalElements }}</strong></span>
+    <div
+      class="table-footer d-flex justify-content-between align-items-center mt-3 p-3"
+      *ngIf="totalPages > 1"
+    >
+      <span class="text-muted total-categorias"
+        >Total de categorías: <strong>{{ totalElements }}</strong></span
+      >
       <div class="pagination-controls d-flex align-items-center gap-2">
-        <button class="btn btn-sm btn-outline-secondary" [disabled]="currentPage === 0" (click)="cambiarPagina(currentPage - 1)">
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          [disabled]="currentPage === 0"
+          (click)="cambiarPagina(currentPage - 1)"
+        >
           <i class="fa-solid fa-chevron-left"></i> Anterior
         </button>
-        <span class="mx-2 text-main" style="font-weight: 600;">Página {{ currentPage + 1 }} de {{ totalPages }}</span>
-        <button class="btn btn-sm btn-outline-secondary" [disabled]="currentPage === totalPages - 1" (click)="cambiarPagina(currentPage + 1)">
+        <span class="mx-2 text-main pagina-actual"
+          >Página {{ currentPage + 1 }} de {{ totalPages }}</span
+        >
+        <button
+          class="btn btn-sm btn-outline-secondary"
+          [disabled]="currentPage === totalPages - 1"
+          (click)="cambiarPagina(currentPage + 1)"
+        >
           Siguiente <i class="fa-solid fa-chevron-right"></i>
         </button>
       </div>
@@ -179,7 +192,13 @@
 
     <div class="modal-body">
       <div class="floating-label">
-        <input type="text" class="premium-input" id="cat-nombre" placeholder="Ej: Especieros" [(ngModel)]="categoria.nombre" />
+        <input
+          type="text"
+          class="premium-input"
+          id="cat-nombre"
+          placeholder="Ej: Especieros"
+          [(ngModel)]="categoria.nombre"
+        />
         <label for="cat-nombre">Nombre de la Categoría</label>
       </div>
 
@@ -195,7 +214,14 @@
       </div>
 
       <div class="floating-label">
-        <input type="text" class="premium-input" id="cat-prefijo" maxlength="5" placeholder="Ej: ESP" [(ngModel)]="categoria.prefijo" />
+        <input
+          type="text"
+          class="premium-input"
+          id="cat-prefijo"
+          maxlength="5"
+          placeholder="Ej: ESP"
+          [(ngModel)]="categoria.prefijo"
+        />
         <label for="cat-prefijo">Prefijo del Código (Max 5 letras)</label>
       </div>
     </div>

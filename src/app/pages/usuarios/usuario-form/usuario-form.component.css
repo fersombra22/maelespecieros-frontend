@@ -11,12 +11,38 @@
  HEADER FORMULARIO
 ==================================================*/
 
-.form-header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+}
 
-.form-icon { width: 60px; height: 60px; display: flex; justify-content: center; align-items: center; border-radius: 18px; background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.3); color: var(--primary); font-size: 25px; }
+.form-icon {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 18px;
+  background: rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: var(--primary);
+  font-size: 25px;
+}
 
-.form-header h3 { margin: 0; color: var(--text-main); font-size: 24px; font-weight: 800; }
-.form-header p { margin: 5px 0 0; color: var(--text-muted); }
+.form-header h3 {
+  margin: 0;
+  color: var(--text-main);
+  font-size: 24px;
+  font-weight: 800;
+}
+.form-header p {
+  margin: 5px 0 0;
+  color: var(--text-muted);
+}
 
 /*==================================================
  GRID FORMULARIO
@@ -34,31 +60,97 @@
  CAMPOS
 ==================================================*/
 
-.campo { display: flex; flex-direction: column; }
-.campo label { margin-bottom: 8px; color: var(--text-muted); font-weight: 700; font-size: 14px; }
+.campo {
+  display: flex;
+  flex-direction: column;
+}
+.campo label {
+  margin-bottom: 8px;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 14px;
+}
 
-.campo input, .campo select { width: 100%; height: 48px; padding: 0 15px; border-radius: 14px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-main); outline: none; transition: 0.25s; font-size: 14px; }
-.campo input::placeholder { color: var(--text-muted); }
-.campo input:focus, .campo select:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-light); }
+.campo input,
+.campo select {
+  width: 100%;
+  height: 48px;
+  padding: 0 15px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-main);
+  outline: none;
+  transition: 0.25s;
+  font-size: 14px;
+}
+.campo input::placeholder {
+  color: var(--text-muted);
+}
+.campo input:focus,
+.campo select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-light);
+}
 
 /*==================================================
  MENSAJES
 ==================================================*/
 
-.error { margin-top: 7px; color: var(--danger); font-size: 13px; font-weight: 600; }
-.info { margin-top: 7px; color: var(--primary); font-size: 13px; }
+.error {
+  margin-top: 7px;
+  color: var(--danger);
+  font-size: 13px;
+  font-weight: 600;
+}
+.info {
+  margin-top: 7px;
+  color: var(--primary);
+  font-size: 13px;
+}
 
 /*==================================================
  BOTONES
 ==================================================*/
 
-.botones { display: flex; justify-content: flex-end; gap: 15px; margin-top: 35px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+.botones {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 35px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+}
 
-.btn-cancelar, .btn-guardar { border: none; height: 45px; padding: 0 25px; border-radius: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.25s; }
-.btn-cancelar { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--border-color); }
-.btn-cancelar:hover { background: rgba(255,255,255,0.1); }
-.btn-guardar { background: linear-gradient(135deg, var(--primary), #6d28d9); color: white; }
-.btn-guardar:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(139, 92, 246, 0.39); }
+.btn-cancelar,
+.btn-guardar {
+  border: none;
+  height: 45px;
+  padding: 0 25px;
+  border-radius: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: 0.25s;
+}
+.btn-cancelar {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+}
+.btn-cancelar:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.btn-guardar {
+  background: linear-gradient(135deg, var(--primary), #6d28d9);
+  color: white;
+}
+.btn-guardar:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.39);
+}
 
 /*==================================================
  RESPONSIVE
@@ -80,4 +172,3 @@
     justify-content: center;
   }
 }
-

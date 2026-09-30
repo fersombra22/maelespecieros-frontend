@@ -75,6 +75,8 @@
       <select formControlName="rol">
         <option value="">Seleccione un rol</option>
 
+        <option value="SUPER_ADMIN" *ngIf="usuarioEditar?.rol === 'SUPER_ADMIN'">Súper Administrador</option>
+
         <option value="ADMIN">Administrador</option>
 
         <option value="EMPLEADO">Empleado</option>

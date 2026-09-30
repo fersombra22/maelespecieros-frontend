@@ -1,9 +1,10 @@
 <div class="bento-container">
-  
   <header class="bento-header">
     <div class="welcome-text">
       <span class="eyebrow">SISTEMA ERP & INVENTARIO</span>
-      <h1>Bienvenido, <span>{{ usuario?.nombre || 'Usuario' }}</span></h1>
+      <h1>
+        Bienvenido, <span>{{ usuario?.nombre || 'Usuario' }}</span>
+      </h1>
     </div>
     <div class="header-actions">
       <div class="user-badge">
@@ -13,7 +14,6 @@
   </header>
 
   <div class="bento-grid">
-    
     <!-- Métrica: Productos Activos -->
     <div class="bento-card bento-metric">
       <div class="metric-header">
@@ -22,7 +22,10 @@
       </div>
       <div class="metric-body">
         <h2>{{ dashboard?.productosActivos ?? 0 }}</h2>
-        <span class="trend positive"><i class="fa-solid fa-arrow-up"></i> Catálogo Total: {{ dashboard?.totalProductos ?? 0 }}</span>
+        <span class="trend positive"
+          ><i class="fa-solid fa-arrow-up"></i> Catálogo Total:
+          {{ dashboard?.totalProductos ?? 0 }}</span
+        >
       </div>
     </div>
 
@@ -39,40 +42,60 @@
     </div>
 
     <!-- Métrica: Alertas de Stock -->
-    <div class="bento-card bento-metric metric-alert" style="cursor: pointer;" routerLink="/productos">
+    <div class="bento-card bento-metric metric-alert clickable-card" routerLink="/productos">
       <div class="metric-header">
         <i class="fa-solid fa-triangle-exclamation icon-warning"></i>
         <span>Alertas de Stock</span>
       </div>
       <div class="metric-body">
-        <h2 [class.text-danger]="(dashboard?.productosStockBajo ?? 0) > 0">{{ dashboard?.productosStockBajo ?? 0 }}</h2>
-        <span class="trend negative" *ngIf="(dashboard?.productosStockBajo ?? 0) > 0">Requiere reposición urgente</span>
-        <span class="trend neutral" *ngIf="(dashboard?.productosStockBajo ?? 0) === 0">Niveles óptimos</span>
+        <h2 [class.text-danger]="(dashboard?.productosStockBajo ?? 0) > 0">
+          {{ dashboard?.productosStockBajo ?? 0 }}
+        </h2>
+        <span class="trend negative" *ngIf="(dashboard?.productosStockBajo ?? 0) > 0"
+          >Requiere reposición urgente</span
+        >
+        <span class="trend neutral" *ngIf="(dashboard?.productosStockBajo ?? 0) === 0"
+          >Niveles óptimos</span
+        >
       </div>
     </div>
 
     <!-- Facturación Total (Ocupa 2 columnas en pantallas grandes) -->
     <div class="bento-card bento-revenue">
       <div class="revenue-bg"></div>
-      <div class="revenue-content" style="display: flex; flex-direction: column; gap: 8px;">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
+      <div class="revenue-content revenue-content-flex">
+        <div class="revenue-header">
           <span>FACTURACIÓN TOTAL</span>
-          <select 
-            class="form-select form-select-sm bg-transparent text-white border-secondary border-opacity-50" 
-            style="width: auto; padding: 2px 24px 2px 8px; font-size: 0.8rem;"
-            (change)="cambiarPeriodoComparacion($event)">
-            <option value="DIA" style="color: black;">Día</option>
-            <option value="SEMANA" style="color: black;">Semana</option>
-            <option value="MES" style="color: black;" selected>Mes</option>
-            <option value="ANO" style="color: black;">Año</option>
+          <select
+            class="form-select form-select-sm bg-transparent text-white border-secondary border-opacity-50 select-periodo"
+            (change)="cambiarPeriodoComparacion($event)"
+          >
+            <option value="DIA" class="option-dark">Día</option>
+            <option value="SEMANA" class="option-dark">Semana</option>
+            <option value="MES" class="option-dark" selected>Mes</option>
+            <option value="ANO" class="option-dark">Año</option>
           </select>
         </div>
         <h2>{{ comparacionData?.actual ?? 0 | currency: 'ARS' }}</h2>
-        <span class="trend" [ngClass]="(comparacionData?.porcentajeVariacion ?? 0) >= 0 ? 'positive' : 'negative'" style="font-size: 0.9rem; display: inline-block;">
-          <i class="fa-solid" [ngClass]="(comparacionData?.porcentajeVariacion ?? 0) >= 0 ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'"></i>
-          {{ (comparacionData?.porcentajeVariacion ?? 0) > 0 ? '+' : '' }}{{ comparacionData?.porcentajeVariacion ?? 0 | number:'1.0-2' }}% vs anterior
+        <span
+          class="trend trend-large"
+          [ngClass]="(comparacionData?.porcentajeVariacion ?? 0) >= 0 ? 'positive' : 'negative'"
+        >
+          <i
+            class="fa-solid"
+            [ngClass]="
+              (comparacionData?.porcentajeVariacion ?? 0) >= 0
+                ? 'fa-arrow-trend-up'
+                : 'fa-arrow-trend-down'
+            "
+          ></i>
+          {{ (comparacionData?.porcentajeVariacion ?? 0) > 0 ? '+' : ''
+          }}{{ comparacionData?.porcentajeVariacion ?? 0 | number: '1.0-2' }}% vs anterior
         </span>
-        <button class="btn btn-outline-light btn-sm mt-2 w-100 d-flex align-items-center justify-content-center gap-2" (click)="imprimirComparacionPdf()" style="border-radius: var(--radius-sm);">
+        <button
+          class="btn btn-outline-light btn-sm mt-2 w-100 d-flex align-items-center justify-content-center gap-2 btn-print-pdf"
+          (click)="imprimirComparacionPdf()"
+        >
           <i class="fa-solid fa-print"></i> Imprimir PDF
         </button>
       </div>
@@ -91,7 +114,7 @@
         [dataLabels]="chartOptions.dataLabels"
       ></apx-chart>
     </div>
-    
+
     <!-- Gráfico Top Productos -->
     <div class="bento-card bento-chart" *ngIf="topChartOptions && dashboard?.topProductos?.length">
       <apx-chart
@@ -106,7 +129,10 @@
     </div>
 
     <!-- Gráfico Medios de Pago -->
-    <div class="bento-card bento-chart" *ngIf="payChartOptions && dashboard?.ventasPorMetodoPago?.length">
+    <div
+      class="bento-card bento-chart"
+      *ngIf="payChartOptions && dashboard?.ventasPorMetodoPago?.length"
+    >
       <apx-chart
         [series]="payChartOptions.series"
         [chart]="payChartOptions.chart"
@@ -129,15 +155,15 @@
           <span>Intelligent Insights</span>
         </div>
       </div>
-      
+
       <div class="ai-body">
         <div class="ai-loading" *ngIf="!aiInsight && !systemAltered">
-           <div class="pulse-ring"></div>
-           <span>Analizando el sistema...</span>
+          <div class="pulse-ring"></div>
+          <span>Analizando el sistema...</span>
         </div>
-        
+
         <p *ngIf="aiInsight" class="ai-text">
-          <i class="fa-solid fa-sparkles text-primary"></i> 
+          <i class="fa-solid fa-sparkles text-primary"></i>
           {{ aiInsight }}
         </p>
 
@@ -146,15 +172,19 @@
           <i class="fa-solid fa-shield-virus"></i>
           <div>
             <strong>ALERTA DE INTEGRIDAD:</strong>
-            <p>Se ha detectado una anomalía o alteración en los registros de auditoría (Blockchain). Verifique el sistema inmediatamente.</p>
+            <p>
+              Se ha detectado una anomalía o alteración en los registros de auditoría (Blockchain).
+              Verifique el sistema inmediatamente.
+            </p>
           </div>
         </div>
       </div>
-      
+
       <div class="ai-actions">
-        <button class="btn btn-secondary btn-sm" (click)="cargarInsights()">Actualizar Análisis</button>
+        <button class="btn btn-secondary btn-sm" (click)="cargarInsights()">
+          Actualizar Análisis
+        </button>
       </div>
     </div>
-
   </div>
 </div>

@@ -641,13 +641,23 @@ td {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px) scale(0.96); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /*==================================================
@@ -684,4 +694,30 @@ td {
     flex-wrap: wrap;
     justify-content: space-between;
   }
+}
+
+.icon-xs {
+  font-size: 8px;
+}
+.w-25 {
+  width: 25%;
+}
+.w-20 {
+  width: 20%;
+}
+.w-12 {
+  width: 12%;
+}
+.w-8 {
+  width: 8%;
+}
+.col-acciones {
+  width: 10%;
+  text-align: center;
+}
+.clickable {
+  cursor: pointer;
+}
+.text-truncate-220 {
+  max-width: 220px;
 }

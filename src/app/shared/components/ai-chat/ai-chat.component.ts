@@ -15,7 +15,7 @@ interface ChatMessage {
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './ai-chat.component.html',
-  styleUrls: ['./ai-chat.component.css']
+  styleUrls: ['./ai-chat.component.css'],
 })
 export class AiChatComponent implements OnInit {
   private dashboardService = inject(DashboardService);
@@ -25,9 +25,13 @@ export class AiChatComponent implements OnInit {
   hasAccess = false;
   message = '';
   loading = false;
-  
+
   messages: ChatMessage[] = [
-    { text: '¡Hola! Soy Mael IA. ¿En qué te puedo ayudar hoy con el negocio?', isUser: false, time: new Date() }
+    {
+      text: '¡Hola! Soy Mael IA. ¿En qué te puedo ayudar hoy con el negocio?',
+      isUser: false,
+      time: new Date(),
+    },
   ];
 
   ngOnInit() {
@@ -44,12 +48,12 @@ export class AiChatComponent implements OnInit {
 
   sendMessage() {
     if (!this.message.trim() || this.loading) return;
-    
+
     const userMsg = this.message;
     this.messages.push({ text: userMsg, isUser: true, time: new Date() });
     this.message = '';
     this.loading = true;
-    
+
     setTimeout(() => this.scrollToBottom(), 100);
 
     this.dashboardService.askChat(userMsg).subscribe({
@@ -58,7 +62,11 @@ export class AiChatComponent implements OnInit {
         if (res.success && res.data) {
           this.messages.push({ text: res.data.reply, isUser: false, time: new Date() });
         } else {
-          this.messages.push({ text: 'Error al obtener respuesta.', isUser: false, time: new Date() });
+          this.messages.push({
+            text: 'Error al obtener respuesta.',
+            isUser: false,
+            time: new Date(),
+          });
         }
         setTimeout(() => this.scrollToBottom(), 100);
       },
@@ -66,7 +74,7 @@ export class AiChatComponent implements OnInit {
         this.loading = false;
         this.messages.push({ text: 'Error de conexión con IA.', isUser: false, time: new Date() });
         setTimeout(() => this.scrollToBottom(), 100);
-      }
+      },
     });
   }
 

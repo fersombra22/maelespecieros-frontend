@@ -1,43 +1,49 @@
-<nav class="navbar-top px-4 py-3 bg-surface border-bottom d-flex align-items-center justify-content-between shadow-sm">
-  
+<nav
+  class="navbar-top px-4 py-3 bg-surface border-bottom d-flex align-items-center justify-content-between shadow-sm"
+>
   <!-- Móvil: Logo -->
   <div class="d-md-none d-flex align-items-center gap-2">
     <button class="btn btn-sm text-muted border-0 me-2" (click)="layoutService.toggleSidebar()">
       <i class="fa-solid fa-bars fs-5"></i>
     </button>
-    <img src="logo.png?v=2" alt="Logo" class="rounded" style="width: 32px; height: 32px; object-fit: contain; background: var(--bg-sidebar);">
+    <img src="logo.png?v=2" alt="Logo" class="rounded logo-nav" />
     <span class="fw-bold text-main">Mael</span>
   </div>
 
   <!-- Búsqueda o Espacio vacío (Desktop) -->
   <div class="d-none d-md-flex align-items-center gap-3">
-    <button class="btn text-muted border-0 hover-bg-light rounded-circle p-2" (click)="layoutService.toggleSidebar()">
+    <button
+      class="btn text-muted border-0 hover-bg-light rounded-circle p-2"
+      (click)="layoutService.toggleSidebar()"
+    >
       <i class="fa-solid fa-bars fs-5"></i>
     </button>
-    <div class="text-muted small fw-semibold ms-2">
-      Gestión de Ventas e Inventario
-    </div>
+    <div class="text-muted small fw-semibold ms-2">Gestión de Ventas e Inventario</div>
   </div>
 
   <!-- Zona de Usuario -->
   <div class="d-flex align-items-center gap-3">
-    
     <div class="d-flex align-items-center gap-2 text-end">
       <div class="d-none d-sm-block">
-        <div class="fw-bold text-main" style="font-size: 0.9rem; line-height: 1;">{{ usuario?.nombre || 'Usuario' }}</div>
-        <div class="text-muted" style="font-size: 0.75rem;">{{ usuario?.rol || 'Sin rol' }}</div>
+        <div class="fw-bold text-main user-name">{{ usuario?.nombre || 'Usuario' }}</div>
+        <div class="text-muted user-role">{{ usuario?.rol || 'Sin rol' }}</div>
       </div>
-      <div class="avatar bg-primary-light text-primary d-flex align-items-center justify-content-center rounded-circle ms-2" style="width: 40px; height: 40px; font-size: 1.2rem;">
+      <div
+        class="avatar bg-primary-light text-primary d-flex align-items-center justify-content-center rounded-circle ms-2"
+      >
         <i class="fa-solid fa-user"></i>
       </div>
     </div>
 
     <div class="vr mx-1 d-none d-sm-block"></div>
 
-    <button type="button" class="btn btn-light text-danger border-0 rounded-circle" (click)="cerrarSesion()" title="Cerrar Sesión" style="width: 40px; height: 40px;">
+    <button
+      type="button"
+      class="btn btn-light text-danger border-0 rounded-circle btn-circle-40"
+      (click)="cerrarSesion()"
+      title="Cerrar Sesión"
+    >
       <i class="fa-solid fa-arrow-right-from-bracket"></i>
     </button>
-    
   </div>
-
 </nav>

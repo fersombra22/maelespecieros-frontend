@@ -108,7 +108,7 @@
   font-size: 14px;
 }
 
-.switch-label input[type="checkbox"] {
+.switch-label input[type='checkbox'] {
   cursor: pointer;
   accent-color: var(--primary);
   width: 18px;
