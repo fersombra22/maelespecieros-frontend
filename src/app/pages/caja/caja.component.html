@@ -1,0 +1,477 @@
+<div class="caja-container">
+  <!-- ========================= -->
+  <!-- HEADER                    -->
+  <!-- ========================= -->
+  <section class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="fa-solid fa-cash-register"></i>
+      </div>
+      <div class="header-text">
+        <span class="bread">Ventas / Caja y Turnos</span>
+        <h1>Control de Caja y Turnos</h1>
+        <p>Gestión de aperturas, cierres de turno y arqueo de valores</p>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <button class="btn-actualizar" (click)="cargarDatos()" [disabled]="cargando" title="Actualizar datos">
+        <i class="fa-solid fa-rotate" [class.fa-spin]="cargando"></i>
+        <span>Actualizar</span>
+      </button>
+
+      <button *ngIf="!estadoActual?.abierta" class="btn-operativo-success" (click)="abrirModalApertura()" [disabled]="cargando">
+        <i class="fa-solid fa-lock-open"></i>
+        <span>Abrir Caja</span>
+      </button>
+
+      <button *ngIf="estadoActual?.abierta" class="btn-operativo-danger" (click)="abrirModalCierre()" [disabled]="cargando">
+        <i class="fa-solid fa-lock"></i>
+        <span>Cerrar Caja</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ========================= -->
+  <!-- ESTADO ACTUAL DE CAJA     -->
+  <!-- ========================= -->
+  <section *ngIf="!cargando && estadoActual" class="caja-status-section">
+
+    <!-- CASO: CAJA ABIERTA -->
+    <div *ngIf="estadoActual.abierta && estadoActual.caja" class="card-caja-activa">
+      <!-- Barra superior de estado -->
+      <div class="status-top-bar">
+        <div class="status-left">
+          <div class="badge-caja-abierta">
+            <span class="pulse-indicator"></span>
+            <span>CAJA ABIERTA</span>
+          </div>
+          <span class="status-turno-info">
+            Turno #{{ estadoActual.caja.id }} &bull; Abierto el {{ estadoActual.caja.fechaApertura | date:'dd/MM/yyyy HH:mm' }}
+          </span>
+        </div>
+
+        <div class="status-right">
+          <div class="cajero-badge">
+            <i class="fa-solid fa-user-circle"></i>
+            <span>{{ estadoActual.caja.usuarioNombreCompleto || estadoActual.caja.usuarioUsername || 'Cajero' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Métricas del Turno (Stats Grid VIP) -->
+      <div class="stats-grid">
+        <!-- Monto Inicial -->
+        <div class="stat-card">
+          <div class="stat-icon stat-inicial">
+            <i class="fa-solid fa-wallet"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Monto Inicial</span>
+            <h3 class="stat-value">
+              ${{ estadoActual.caja.montoInicial | number:'1.2-2':'es-AR' }}
+            </h3>
+            <span class="stat-hint">Fondo inicial de cambio</span>
+          </div>
+        </div>
+
+        <!-- Ventas del Turno -->
+        <div class="stat-card">
+          <div class="stat-icon stat-ventas">
+            <i class="fa-solid fa-arrow-trend-up"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Ventas del Turno</span>
+            <h3 class="stat-value text-ventas">
+              ${{ estadoActual.montoVentasActual | number:'1.2-2':'es-AR' }}
+            </h3>
+            <span class="stat-hint text-ventas-hint">Total facturado en turno actual</span>
+          </div>
+        </div>
+
+        <!-- Total Esperado -->
+        <div class="stat-card stat-card-highlight">
+          <div class="stat-icon stat-esperado">
+            <i class="fa-solid fa-vault"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Total Esperado en Caja</span>
+            <h3 class="stat-value text-success">
+              ${{ estadoActual.montoEsperadoActual | number:'1.2-2':'es-AR' }}
+            </h3>
+            <span class="stat-hint text-success-hint">Inicial + Ventas acumuladas</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Observaciones de Apertura -->
+      <div *ngIf="estadoActual.caja.observaciones" class="caja-observaciones">
+        <i class="fa-solid fa-comment-dots observaciones-icon"></i>
+        <div class="observaciones-content">
+          <span class="observaciones-title">Observaciones de apertura:</span>
+          <p class="observaciones-text">{{ estadoActual.caja.observaciones }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CASO: CAJA CERRADA -->
+    <div *ngIf="!estadoActual.abierta" class="card-caja-cerrada">
+      <div class="cerrada-icon-wrapper">
+        <i class="fa-solid fa-lock"></i>
+      </div>
+      <h3>La caja se encuentra actualmente CERRADA</h3>
+      <p>
+        Para registrar cobros y transacciones de turno, es necesario realizar la apertura de caja indicando el monto inicial en efectivo.
+      </p>
+      <button class="btn-operativo-success btn-lg" (click)="abrirModalApertura()">
+        <i class="fa-solid fa-lock-open"></i>
+        <span>Iniciar Apertura de Caja</span>
+      </button>
+    </div>
+
+  </section>
+
+  <!-- ========================= -->
+  <!-- SPINNER DE CARGA          -->
+  <!-- ========================= -->
+  <div *ngIf="cargando" class="loading-state">
+    <div class="spinner-custom"></div>
+    <p>Cargando información de caja y turnos...</p>
+  </div>
+
+  <!-- ========================= -->
+  <!-- HISTORIAL DE TURNOS       -->
+  <!-- ========================= -->
+  <section class="card-table">
+    <div class="table-header-bar">
+      <div class="table-header-title">
+        <div class="table-header-icon">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+        </div>
+        <div>
+          <h2>Historial de Turnos y Arqueos</h2>
+          <p>Registro cronológico de aperturas, ventas y cierres de caja</p>
+        </div>
+      </div>
+      <div class="table-header-badge">
+        Total registrados: <strong>{{ totalElements }}</strong>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 7%;">ID</th>
+            <th style="width: 10%;">Estado</th>
+            <th style="width: 13%;">Apertura</th>
+            <th style="width: 13%;">Cierre</th>
+            <th style="width: 12%;">Usuario</th>
+            <th style="width: 9%; text-align: right;">Inicial</th>
+            <th style="width: 9%; text-align: right;">Ventas</th>
+            <th style="width: 9%; text-align: right;">Final</th>
+            <th style="width: 10%; text-align: center;">Diferencia</th>
+            <th style="width: 8%;">Observaciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- FILAS DE DATOS -->
+          <tr *ngFor="let item of historial">
+            <!-- ID -->
+            <td>
+              <span class="id-tag">#{{ item.id }}</span>
+            </td>
+
+            <!-- ESTADO -->
+            <td>
+              <span
+                class="badge-pill"
+                [ngClass]="item.estado === EstadoCaja.ABIERTA ? 'badge-abierta' : 'badge-cerrada'"
+              >
+                {{ item.estado }}
+              </span>
+            </td>
+
+            <!-- APERTURA -->
+            <td>
+              <div class="date-cell">
+                <span class="date-main">{{ item.fechaApertura | date:'dd/MM/yyyy' }}</span>
+                <span class="date-sub">{{ item.fechaApertura | date:'HH:mm' }} hs</span>
+              </div>
+            </td>
+
+            <!-- CIERRE -->
+            <td>
+              <div class="date-cell" *ngIf="item.fechaCierre">
+                <span class="date-main">{{ item.fechaCierre | date:'dd/MM/yyyy' }}</span>
+                <span class="date-sub">{{ item.fechaCierre | date:'HH:mm' }} hs</span>
+              </div>
+              <span *ngIf="!item.fechaCierre" class="text-en-curso">En curso...</span>
+            </td>
+
+            <!-- USUARIO -->
+            <td>
+              <div class="user-cell">
+                <i class="fa-solid fa-user user-icon"></i>
+                <span class="user-name" [title]="item.usuarioNombreCompleto || item.usuarioUsername || '-'">
+                  {{ item.usuarioNombreCompleto || item.usuarioUsername || '-' }}
+                </span>
+              </div>
+            </td>
+
+            <!-- MONTO INICIAL -->
+            <td style="text-align: right;">
+              <span class="monto-val">
+                ${{ item.montoInicial | number:'1.2-2':'es-AR' }}
+              </span>
+            </td>
+
+            <!-- VENTAS -->
+            <td style="text-align: right;">
+              <span class="monto-val text-ventas">
+                ${{ (item.montoVentas || 0) | number:'1.2-2':'es-AR' }}
+              </span>
+            </td>
+
+            <!-- MONTO FINAL -->
+            <td style="text-align: right;">
+              <span *ngIf="item.montoFinal !== null && item.montoFinal !== undefined" class="monto-val text-white">
+                ${{ item.montoFinal | number:'1.2-2':'es-AR' }}
+              </span>
+              <span *ngIf="item.montoFinal === null || item.montoFinal === undefined" class="text-muted-dash">-</span>
+            </td>
+
+            <!-- DIFERENCIA -->
+            <td style="text-align: center;">
+              <ng-container *ngIf="item.diferencia !== null && item.diferencia !== undefined && item.estado === EstadoCaja.CERRADA">
+                <span
+                  class="badge-pill"
+                  [ngClass]="item.diferencia === 0 ? 'badge-exacto' : (item.diferencia > 0 ? 'badge-sobrante' : 'badge-faltante')"
+                >
+                  {{ item.diferencia === 0 ? 'Exacto' : ((item.diferencia > 0 ? '+$' : '-$') + (item.diferencia | number:'1.2-2':'es-AR')) }}
+                </span>
+              </ng-container>
+              <span *ngIf="item.estado === EstadoCaja.ABIERTA" class="text-muted-dash">-</span>
+            </td>
+
+            <!-- OBSERVACIONES -->
+            <td>
+              <span class="obs-cell" [title]="item.observaciones || 'Sin observaciones'">
+                {{ item.observaciones || '-' }}
+              </span>
+            </td>
+          </tr>
+
+          <!-- EMPTY STATE -->
+          <tr *ngIf="historial.length === 0 && !cargando">
+            <td colspan="10" class="text-center py-5">
+              <div class="empty-state">
+                <i class="fa-solid fa-clock-rotate-left empty-icon"></i>
+                <h4>No hay turnos registrados</h4>
+                <p>No existen registros de turnos de caja en el sistema.</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PAGINACIÓN -->
+    <div class="paginacion" *ngIf="totalPages > 1 && !cargando">
+      <div class="paginacion-info">
+        Página {{ currentPage + 1 }} de {{ totalPages }} ({{ totalElements }} turnos)
+      </div>
+
+      <div class="paginacion-controles">
+        <button
+          class="btn-page"
+          [disabled]="currentPage === 0"
+          (click)="cambiarPagina(currentPage - 1)"
+          title="Página anterior"
+        >
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <span class="current-page-badge">{{ currentPage + 1 }}</span>
+
+        <button
+          class="btn-page"
+          [disabled]="currentPage >= totalPages - 1"
+          (click)="cambiarPagina(currentPage + 1)"
+          title="Página siguiente"
+        >
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- MODAL DE APERTURA DE CAJA                  -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop-custom" *ngIf="mostrarModalApertura">
+    <div class="modal-dialog-custom">
+      <div class="modal-content-custom">
+        <button class="btn-cerrar-modal" (click)="cerrarModalApertura()" [disabled]="procesando" title="Cerrar modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="modal-header-custom">
+          <div class="modal-icon-badge modal-icon-success">
+            <i class="fa-solid fa-lock-open"></i>
+          </div>
+          <div>
+            <h3>Nueva Apertura de Caja</h3>
+            <p>Inicie un nuevo turno de trabajo registrando el fondo inicial.</p>
+          </div>
+        </div>
+
+        <form [formGroup]="formApertura" (ngSubmit)="confirmarApertura()" class="modal-form">
+          <div class="form-group-custom">
+            <label class="form-label-custom">
+              Monto Inicial en Efectivo ($) <span class="required-star">*</span>
+            </label>
+            <div class="input-currency-wrapper">
+              <span class="currency-symbol">$</span>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                class="form-input-currency"
+                formControlName="montoInicial"
+                placeholder="0.00"
+                [class.has-error]="formApertura.get('montoInicial')?.invalid && formApertura.get('montoInicial')?.touched"
+              />
+            </div>
+            <div *ngIf="formApertura.get('montoInicial')?.invalid && formApertura.get('montoInicial')?.touched" class="field-error-msg">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <span>El monto inicial es obligatorio y no puede ser negativo.</span>
+            </div>
+          </div>
+
+          <div class="form-group-custom">
+            <label class="form-label-custom">Observaciones (Opcional)</label>
+            <textarea
+              rows="3"
+              class="form-textarea-custom"
+              formControlName="observaciones"
+              placeholder="Ej: Billetes de cambio provistos por administración..."
+            ></textarea>
+          </div>
+
+          <div class="modal-actions-custom">
+            <button type="button" class="btn-modal-cancel" (click)="cerrarModalApertura()" [disabled]="procesando">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-operativo-success" [disabled]="formApertura.invalid || procesando">
+              <i *ngIf="procesando" class="fa-solid fa-spinner fa-spin"></i>
+              <i *ngIf="!procesando" class="fa-solid fa-check"></i>
+              <span>Confirmar Apertura</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL DE CIERRE Y ARQUEO DE CAJA           -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop-custom" *ngIf="mostrarModalCierre">
+    <div class="modal-dialog-custom modal-dialog-cierre">
+      <div class="modal-content-custom">
+        <button class="btn-cerrar-modal" (click)="cerrarModalCierre()" [disabled]="procesando" title="Cerrar modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="modal-header-custom">
+          <div class="modal-icon-badge modal-icon-danger">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+          <div>
+            <h3>Cierre y Arqueo de Caja</h3>
+            <p>Finalización del turno operativo y balance de valores</p>
+          </div>
+        </div>
+
+        <!-- Resumen del Turno -->
+        <div class="resumen-turno-card">
+          <div class="resumen-row">
+            <span class="resumen-label">Monto Inicial:</span>
+            <span class="resumen-val">${{ (estadoActual?.caja?.montoInicial || 0) | number:'1.2-2':'es-AR' }}</span>
+          </div>
+          <div class="resumen-row">
+            <span class="resumen-label">+ Ventas en Turno:</span>
+            <span class="resumen-val text-ventas">${{ (estadoActual?.montoVentasActual || 0) | number:'1.2-2':'es-AR' }}</span>
+          </div>
+          <div class="resumen-row resumen-total">
+            <span class="resumen-label-total">Total Esperado en Caja:</span>
+            <span class="resumen-val-total text-success">${{ (estadoActual?.montoEsperadoActual || 0) | number:'1.2-2':'es-AR' }}</span>
+          </div>
+        </div>
+
+        <form [formGroup]="formCierre" (ngSubmit)="confirmarCierre()" class="modal-form">
+          <div class="form-group-custom">
+            <label class="form-label-custom">
+              Monto Real Contado en Arqueo ($) <span class="required-star">*</span>
+            </label>
+            <div class="input-currency-wrapper">
+              <span class="currency-symbol">$</span>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                class="form-input-currency"
+                formControlName="montoFinal"
+                placeholder="0.00"
+                [class.has-error]="formCierre.get('montoFinal')?.invalid && formCierre.get('montoFinal')?.touched"
+              />
+            </div>
+            <div *ngIf="formCierre.get('montoFinal')?.invalid && formCierre.get('montoFinal')?.touched" class="field-error-msg">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <span>El monto final es obligatorio y no puede ser negativo.</span>
+            </div>
+          </div>
+
+          <!-- Balance de Arqueo en vivo -->
+          <div
+            class="balance-arqueo-box"
+            [ngClass]="diferenciaCierre === 0 ? 'balance-exacto' : (diferenciaCierre > 0 ? 'balance-sobrante' : 'balance-faltante')"
+          >
+            <div class="balance-icon">
+              <i class="fa-solid" [ngClass]="diferenciaCierre === 0 ? 'fa-circle-check' : (diferenciaCierre > 0 ? 'fa-circle-plus' : 'fa-circle-minus')"></i>
+            </div>
+            <div class="balance-details">
+              <span class="balance-title">Balance de Arqueo:</span>
+              <strong class="balance-value">
+                {{ diferenciaCierre === 0 ? 'Sin diferencias (Cuadre Exacto)' : (diferenciaCierre > 0 ? 'Sobrante: +$' + (diferenciaCierre | number:'1.2-2':'es-AR') : 'Faltante: -$' + (diferenciaCierre * -1 | number:'1.2-2':'es-AR')) }}
+              </strong>
+            </div>
+          </div>
+
+          <div class="form-group-custom">
+            <label class="form-label-custom">Observaciones de Cierre (Opcional)</label>
+            <textarea
+              rows="3"
+              class="form-textarea-custom"
+              formControlName="observaciones"
+              placeholder="Detalles sobre retiro de efectivo, motivos de sobrante/faltante, etc."
+            ></textarea>
+          </div>
+
+          <div class="modal-actions-custom">
+            <button type="button" class="btn-modal-cancel" (click)="cerrarModalCierre()" [disabled]="procesando">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-operativo-danger" [disabled]="formCierre.invalid || procesando">
+              <i *ngIf="procesando" class="fa-solid fa-spinner fa-spin"></i>
+              <i *ngIf="!procesando" class="fa-solid fa-lock"></i>
+              <span>Confirmar Cierre de Turno</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
