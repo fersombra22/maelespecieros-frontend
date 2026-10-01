@@ -25,6 +25,11 @@
         <span>Abrir Caja</span>
       </button>
 
+      <button *ngIf="estadoActual?.abierta" class="btn-operativo-warning" (click)="abrirModalGasto()" [disabled]="cargando" title="Registrar gasto o egreso">
+        <i class="fa-solid fa-receipt"></i>
+        <span>Registrar Gasto</span>
+      </button>
+
       <button *ngIf="estadoActual?.abierta" class="btn-operativo-danger" (click)="abrirModalCierre()" [disabled]="cargando">
         <i class="fa-solid fa-lock"></i>
         <span>Cerrar Caja</span>
@@ -130,6 +135,45 @@
             <span class="stat-hint text-success-hint">{{ estadoActual.cantidadVentasActual || 0 }} operaciones completadas</span>
           </div>
         </div>
+
+        <!-- Egresos / Gastos del Turno -->
+        <div class="stat-card">
+          <div class="stat-icon stat-egresos">
+            <i class="fa-solid fa-arrow-down-long"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Egresos / Gastos</span>
+            <h3 class="stat-value text-danger">
+              ${{ (estadoActual.totalEgresosActual || 0) | number:'1.2-2':'es-AR' }}
+            </h3>
+            <span class="stat-hint">
+              Efectivo: ${{ (estadoActual.totalEgresosEfectivoActual || 0) | number:'1.2-2':'es-AR' }} | Digital: ${{ ((estadoActual.totalEgresosActual || 0) - (estadoActual.totalEgresosEfectivoActual || 0)) | number:'1.2-2':'es-AR' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen en vivo de Arqueo de Efectivo -->
+      <div class="gaveta-resumen-bar">
+        <div class="gaveta-item">
+          <span class="gaveta-label"><i class="fa-solid fa-wallet"></i> Fondo Inicial:</span>
+          <span class="gaveta-val">${{ (estadoActual.caja.montoInicial || 0) | number:'1.2-2':'es-AR' }}</span>
+        </div>
+        <div class="gaveta-operator">+</div>
+        <div class="gaveta-item">
+          <span class="gaveta-label"><i class="fa-solid fa-money-bill-wave text-efectivo"></i> Ventas Efectivo:</span>
+          <span class="gaveta-val text-efectivo">${{ (estadoActual.totalEfectivoActual || 0) | number:'1.2-2':'es-AR' }}</span>
+        </div>
+        <div class="gaveta-operator">-</div>
+        <div class="gaveta-item">
+          <span class="gaveta-label"><i class="fa-solid fa-arrow-down-long text-danger"></i> Egresos Efectivo:</span>
+          <span class="gaveta-val text-danger">${{ (estadoActual.totalEgresosEfectivoActual || 0) | number:'1.2-2':'es-AR' }}</span>
+        </div>
+        <div class="gaveta-operator">=</div>
+        <div class="gaveta-item gaveta-item-highlight">
+          <span class="gaveta-label"><i class="fa-solid fa-cash-register text-success"></i> Efectivo Esperado en Gaveta:</span>
+          <strong class="gaveta-val text-success">${{ efectivoEsperadoGaveta | number:'1.2-2':'es-AR' }}</strong>
+        </div>
       </div>
 
       <!-- Observaciones de Apertura -->
@@ -138,6 +182,85 @@
         <div class="observaciones-content">
           <span class="observaciones-title">Observaciones de apertura:</span>
           <p class="observaciones-text">{{ estadoActual.caja.observaciones }}</p>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- TABLA DE EGRESOS DEL TURNO                 -->
+      <!-- ========================================== -->
+      <div class="egresos-turno-section">
+        <div class="egresos-header">
+          <div class="egresos-title">
+            <i class="fa-solid fa-receipt text-warning"></i>
+            <div>
+              <h4>Egresos y Gastos del Turno</h4>
+              <p>Registro de salidas de dinero autorizadas durante la caja actual</p>
+            </div>
+          </div>
+          <button class="btn-operativo-warning btn-sm" (click)="abrirModalGasto()">
+            <i class="fa-solid fa-plus"></i>
+            <span>Nuevo Egreso</span>
+          </button>
+        </div>
+
+        <div *ngIf="cargandoEgresos" class="loading-mini">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          <span>Cargando egresos del turno...</span>
+        </div>
+
+        <div *ngIf="!cargandoEgresos && egresosTurno.length === 0" class="empty-egresos">
+          <i class="fa-solid fa-check-circle"></i>
+          <span>No se han registrado salidas de dinero en este turno.</span>
+        </div>
+
+        <div *ngIf="!cargandoEgresos && egresosTurno.length > 0" class="table-container egresos-table-wrapper">
+          <table class="table-egresos">
+            <thead>
+              <tr>
+                <th>Hora</th>
+                <th>Concepto / Motivo</th>
+                <th>Categoría</th>
+                <th>Medio de Pago</th>
+                <th>Comprobante</th>
+                <th>Registrado por</th>
+                <th class="text-right">Monto</th>
+                <th class="text-center">Estado</th>
+                <th class="text-center">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let g of egresosTurno" [class.egreso-anulado]="g.anulado">
+                <td class="text-nowrap">{{ g.fecha | date:'HH:mm' }} hs</td>
+                <td class="fw-semibold">{{ g.concepto }}</td>
+                <td>
+                  <span class="badge-categoria-gasto" [ngClass]="'cat-' + g.categoriaGasto.toLowerCase()">
+                    {{ CategoriaGastoLabels[g.categoriaGasto] || g.categoriaGasto }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge-forma-pago" [ngClass]="'fp-' + g.formaPago.toLowerCase()">
+                    <i class="fa-solid" [ngClass]="g.formaPago === 'EFECTIVO' ? 'fa-money-bill-wave' : (g.formaPago === 'TRANSFERENCIA' ? 'fa-mobile-screen-button' : 'fa-credit-card')"></i>
+                    {{ g.formaPago }}
+                  </span>
+                </td>
+                <td class="text-muted">{{ g.comprobanteNro || '-' }}</td>
+                <td>{{ g.usuarioUsername || 'Cajero' }}</td>
+                <td class="text-right fw-bold text-danger">
+                  -${{ g.monto | number:'1.2-2':'es-AR' }}
+                </td>
+                <td class="text-center">
+                  <span *ngIf="!g.anulado" class="badge-status-activo">Activo</span>
+                  <span *ngIf="g.anulado" class="badge-status-anulado">Anulado</span>
+                </td>
+                <td class="text-center">
+                  <button *ngIf="!g.anulado" class="btn-anular-gasto" (click)="anularGasto(g)" title="Anular este gasto">
+                    <i class="fa-solid fa-ban"></i>
+                  </button>
+                  <span *ngIf="g.anulado" class="text-muted small">-</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -197,6 +320,7 @@
             <th class="col-usuario">Cajero</th>
             <th class="col-inicial text-right">Inicial</th>
             <th class="col-ventas text-right">Ventas Totales</th>
+            <th class="col-egresos text-right">Egresos</th>
             <th class="col-final text-right">Rendido</th>
             <th class="col-diferencia text-center">Diferencia</th>
             <th class="col-acciones text-center">Comprobante</th>
@@ -258,6 +382,13 @@
             <td class="text-right">
               <span class="monto-val text-ventas">
                 ${{ (item.montoVentas || 0) | number:'1.2-2':'es-AR' }}
+              </span>
+            </td>
+
+            <!-- EGRESOS -->
+            <td class="text-right">
+              <span class="monto-val text-danger">
+                -${{ (item.totalEgresos || 0) | number:'1.2-2':'es-AR' }}
               </span>
             </td>
 
@@ -426,8 +557,20 @@
         <!-- Desglose Automático de Medios de Pago -->
         <div class="desglose-pagos-grid">
           <div class="desglose-item">
-            <span class="desglose-item-label"><i class="fa-solid fa-money-bill-wave text-efectivo"></i> Efectivo Ventas</span>
+            <span class="desglose-item-label"><i class="fa-solid fa-wallet"></i> Fondo Inicial</span>
+            <span class="desglose-item-val">${{ (estadoActual?.caja?.montoInicial || 0) | number:'1.2-2':'es-AR' }}</span>
+          </div>
+          <div class="desglose-item">
+            <span class="desglose-item-label"><i class="fa-solid fa-money-bill-wave text-efectivo"></i> Ventas Efectivo</span>
             <span class="desglose-item-val">${{ (estadoActual?.totalEfectivoActual || 0) | number:'1.2-2':'es-AR' }}</span>
+          </div>
+          <div class="desglose-item">
+            <span class="desglose-item-label"><i class="fa-solid fa-arrow-down-long text-danger"></i> Egresos Efectivo</span>
+            <span class="desglose-item-val text-danger">-${{ (estadoActual?.totalEgresosEfectivoActual || 0) | number:'1.2-2':'es-AR' }}</span>
+          </div>
+          <div class="desglose-item desglose-item-highlight">
+            <span class="desglose-item-label"><i class="fa-solid fa-cash-register text-success"></i> Efectivo Esperado</span>
+            <span class="desglose-item-val text-success">${{ efectivoEsperadoGaveta | number:'1.2-2':'es-AR' }}</span>
           </div>
           <div class="desglose-item">
             <span class="desglose-item-label"><i class="fa-solid fa-credit-card text-tarjeta"></i> Tarjetas (Auto)</span>
@@ -594,6 +737,10 @@
               <span>Fondo Inicial:</span>
               <span>${{ (comprobanteSeleccionado.montoInicial || 0) | number:'1.2-2':'es-AR' }}</span>
             </div>
+            <div class="ticket-row" *ngIf="comprobanteSeleccionado.totalEgresos">
+              <span>Egresos en Turno:</span>
+              <span>-${{ (comprobanteSeleccionado.totalEgresos || 0) | number:'1.2-2':'es-AR' }}</span>
+            </div>
             <div class="ticket-row">
               <span>Ventas Digitales:</span>
               <span>${{ (comprobanteSeleccionado.totalDigital || 0) | number:'1.2-2':'es-AR' }}</span>
@@ -644,6 +791,127 @@
             <span>Imprimir Comprobante</span>
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL DE REGISTRO DE GASTO OPERATIVO       -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop-custom" *ngIf="mostrarModalGasto">
+    <div class="modal-dialog-custom modal-dialog-gasto">
+      <div class="modal-content-custom">
+        <button class="btn-cerrar-modal" (click)="cerrarModalGasto()" [disabled]="procesando" title="Cerrar modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="modal-header-custom">
+          <div class="modal-icon-badge modal-icon-warning">
+            <i class="fa-solid fa-receipt"></i>
+          </div>
+          <div>
+            <h3>Registrar Gasto / Egreso de Caja</h3>
+            <p>Registra una salida de dinero justificada para el turno activo</p>
+          </div>
+        </div>
+
+        <form [formGroup]="formGasto" (ngSubmit)="confirmarGasto()" class="modal-form">
+          <!-- Monto -->
+          <div class="form-group-custom">
+            <label class="form-label-custom">
+              Monto del Egreso ($) <span class="required-star">*</span>
+            </label>
+            <div class="input-currency-wrapper">
+              <span class="currency-symbol">$</span>
+              <input
+                type="number"
+                step="0.01"
+                min="0.01"
+                class="form-input-currency"
+                formControlName="monto"
+                placeholder="0.00"
+                [class.has-error]="formGasto.get('monto')?.invalid && formGasto.get('monto')?.touched"
+              />
+            </div>
+            <div *ngIf="formGasto.get('monto')?.invalid && formGasto.get('monto')?.touched" class="field-error-msg">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <span>El monto es obligatorio y debe ser mayor a $0.00.</span>
+            </div>
+          </div>
+
+          <!-- Concepto -->
+          <div class="form-group-custom">
+            <label class="form-label-custom">
+              Concepto / Detalle del Gasto <span class="required-star">*</span>
+            </label>
+            <input
+              type="text"
+              class="form-input-custom"
+              formControlName="concepto"
+              placeholder="Ej: Pago de flete, compra artículos limpieza, etc."
+              [class.has-error]="formGasto.get('concepto')?.invalid && formGasto.get('concepto')?.touched"
+            />
+            <div *ngIf="formGasto.get('concepto')?.invalid && formGasto.get('concepto')?.touched" class="field-error-msg">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <span>El concepto es obligatorio (máx. 250 caracteres).</span>
+            </div>
+          </div>
+
+          <div class="form-row-custom">
+            <!-- Categoría -->
+            <div class="form-group-custom form-col">
+              <label class="form-label-custom">Categoría <span class="required-star">*</span></label>
+              <select class="form-input-custom form-select-custom" formControlName="categoriaGasto">
+                <option *ngFor="let cat of categoriasGastoList" [value]="cat">
+                  {{ CategoriaGastoLabels[cat] }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Medio de Pago -->
+            <div class="form-group-custom form-col">
+              <label class="form-label-custom">Forma de Pago <span class="required-star">*</span></label>
+              <select class="form-input-custom form-select-custom" formControlName="formaPago">
+                <option value="EFECTIVO">EFECTIVO (Gaveta)</option>
+                <option value="TRANSFERENCIA">TRANSFERENCIA (Bancos)</option>
+                <option value="DEBITO">DÉBITO</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Comprobante opcional -->
+          <div class="form-group-custom">
+            <label class="form-label-custom">Nº Comprobante / Recibo (Opcional)</label>
+            <input
+              type="text"
+              class="form-input-custom"
+              formControlName="comprobanteNro"
+              placeholder="Ej: FAC-00123 / REC-45"
+            />
+          </div>
+
+          <!-- Info Box explicativo -->
+          <div class="gasto-info-banner" [ngClass]="formGasto.get('formaPago')?.value === 'EFECTIVO' ? 'banner-efectivo' : 'banner-digital'">
+            <i class="fa-solid" [ngClass]="formGasto.get('formaPago')?.value === 'EFECTIVO' ? 'fa-wallet' : 'fa-circle-info'"></i>
+            <span *ngIf="formGasto.get('formaPago')?.value === 'EFECTIVO'">
+              <strong>Impacto en Gaveta:</strong> Al ser en <strong>EFECTIVO</strong>, este egreso se descontará automáticamente del efectivo físico esperado al momento de cerrar la caja.
+            </span>
+            <span *ngIf="formGasto.get('formaPago')?.value !== 'EFECTIVO'">
+              <strong>Gasto Digital:</strong> Se registra como egreso operativo del negocio, pero <strong>no afecta los billetes físicos</strong> de la gaveta.
+            </span>
+          </div>
+
+          <div class="modal-actions-custom">
+            <button type="button" class="btn-modal-cancel" (click)="cerrarModalGasto()" [disabled]="procesando">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-operativo-warning" [disabled]="formGasto.invalid || procesando">
+              <i *ngIf="procesando" class="fa-solid fa-spinner fa-spin"></i>
+              <i *ngIf="!procesando" class="fa-solid fa-check"></i>
+              <span>Registrar Egreso</span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
