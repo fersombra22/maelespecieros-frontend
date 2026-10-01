@@ -10,7 +10,7 @@
       <div class="header-text">
         <span class="bread">Ventas / Caja y Turnos</span>
         <h1>Control de Caja y Turnos</h1>
-        <p>Gestión de aperturas, cierres de turno y arqueo de valores</p>
+        <p>Gestión de aperturas, cierres de turno, arqueo de valores y emisión de comprobantes</p>
       </div>
     </div>
 
@@ -59,7 +59,7 @@
         </div>
       </div>
 
-      <!-- Métricas del Turno (Stats Grid VIP) -->
+      <!-- Métricas del Turno (Stats Grid VIP con desglose completo) -->
       <div class="stats-grid">
         <!-- Monto Inicial -->
         <div class="stat-card">
@@ -67,39 +67,67 @@
             <i class="fa-solid fa-wallet"></i>
           </div>
           <div class="stat-info">
-            <span class="stat-label">Monto Inicial</span>
+            <span class="stat-label">Fondo Inicial</span>
             <h3 class="stat-value">
               ${{ estadoActual.caja.montoInicial | number:'1.2-2':'es-AR' }}
             </h3>
-            <span class="stat-hint">Fondo inicial de cambio</span>
+            <span class="stat-hint">Cambio inicial en gaveta</span>
           </div>
         </div>
 
-        <!-- Ventas del Turno -->
+        <!-- Ventas en Efectivo -->
         <div class="stat-card">
-          <div class="stat-icon stat-ventas">
-            <i class="fa-solid fa-arrow-trend-up"></i>
+          <div class="stat-icon stat-efectivo">
+            <i class="fa-solid fa-money-bill-wave"></i>
           </div>
           <div class="stat-info">
-            <span class="stat-label">Ventas del Turno</span>
-            <h3 class="stat-value text-ventas">
-              ${{ estadoActual.montoVentasActual | number:'1.2-2':'es-AR' }}
+            <span class="stat-label">Ventas Efectivo</span>
+            <h3 class="stat-value text-efectivo">
+              ${{ (estadoActual.totalEfectivoActual || 0) | number:'1.2-2':'es-AR' }}
             </h3>
-            <span class="stat-hint text-ventas-hint">Total facturado en turno actual</span>
+            <span class="stat-hint">Dinero en billetes cobrado</span>
           </div>
         </div>
 
-        <!-- Total Esperado -->
+        <!-- Tarjetas Débito y Crédito -->
+        <div class="stat-card">
+          <div class="stat-icon stat-tarjetas">
+            <i class="fa-solid fa-credit-card"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Tarjetas (Déb/Créd)</span>
+            <h3 class="stat-value text-tarjeta">
+              ${{ ((estadoActual.totalDebitoActual || 0) + (estadoActual.totalCreditoActual || 0)) | number:'1.2-2':'es-AR' }}
+            </h3>
+            <span class="stat-hint">Débito: ${{ (estadoActual.totalDebitoActual || 0) | number:'1.2-2':'es-AR' }} | Créd: ${{ (estadoActual.totalCreditoActual || 0) | number:'1.2-2':'es-AR' }}</span>
+          </div>
+        </div>
+
+        <!-- Transferencias -->
+        <div class="stat-card">
+          <div class="stat-icon stat-transferencias">
+            <i class="fa-solid fa-mobile-screen-button"></i>
+          </div>
+          <div class="stat-info">
+            <span class="stat-label">Transferencias</span>
+            <h3 class="stat-value text-transferencia">
+              ${{ (estadoActual.totalTransferenciaActual || 0) | number:'1.2-2':'es-AR' }}
+            </h3>
+            <span class="stat-hint">Mercado Pago / Bancos</span>
+          </div>
+        </div>
+
+        <!-- Total Facturado Turno -->
         <div class="stat-card stat-card-highlight">
           <div class="stat-icon stat-esperado">
             <i class="fa-solid fa-vault"></i>
           </div>
           <div class="stat-info">
-            <span class="stat-label">Total Esperado en Caja</span>
+            <span class="stat-label">Total Ventas Turno</span>
             <h3 class="stat-value text-success">
-              ${{ estadoActual.montoEsperadoActual | number:'1.2-2':'es-AR' }}
+              ${{ estadoActual.montoVentasActual | number:'1.2-2':'es-AR' }}
             </h3>
-            <span class="stat-hint text-success-hint">Inicial + Ventas acumuladas</span>
+            <span class="stat-hint text-success-hint">{{ estadoActual.cantidadVentasActual || 0 }} operaciones completadas</span>
           </div>
         </div>
       </div>
@@ -142,7 +170,7 @@
   <!-- ========================= -->
   <!-- HISTORIAL DE TURNOS       -->
   <!-- ========================= -->
-  <section class="card-table">
+  <section class="card-table" *ngIf="puedeVerHistorial">
     <div class="table-header-bar">
       <div class="table-header-title">
         <div class="table-header-icon">
@@ -150,7 +178,7 @@
         </div>
         <div>
           <h2>Historial de Turnos y Arqueos</h2>
-          <p>Registro cronológico de aperturas, ventas y cierres de caja</p>
+          <p>Registro cronológico de aperturas, ventas, arqueos y emisión de comprobantes</p>
         </div>
       </div>
       <div class="table-header-badge">
@@ -162,16 +190,16 @@
       <table>
         <thead>
           <tr>
-            <th style="width: 7%;">ID</th>
-            <th style="width: 10%;">Estado</th>
-            <th style="width: 13%;">Apertura</th>
-            <th style="width: 13%;">Cierre</th>
-            <th style="width: 12%;">Usuario</th>
-            <th style="width: 9%; text-align: right;">Inicial</th>
-            <th style="width: 9%; text-align: right;">Ventas</th>
-            <th style="width: 9%; text-align: right;">Final</th>
-            <th style="width: 10%; text-align: center;">Diferencia</th>
-            <th style="width: 8%;">Observaciones</th>
+            <th class="col-id">Turno</th>
+            <th class="col-estado">Estado</th>
+            <th class="col-apertura">Apertura</th>
+            <th class="col-cierre">Cierre</th>
+            <th class="col-usuario">Cajero</th>
+            <th class="col-inicial text-right">Inicial</th>
+            <th class="col-ventas text-right">Ventas Totales</th>
+            <th class="col-final text-right">Rendido</th>
+            <th class="col-diferencia text-center">Diferencia</th>
+            <th class="col-acciones text-center">Comprobante</th>
           </tr>
         </thead>
         <tbody>
@@ -220,21 +248,21 @@
             </td>
 
             <!-- MONTO INICIAL -->
-            <td style="text-align: right;">
+            <td class="text-right">
               <span class="monto-val">
                 ${{ item.montoInicial | number:'1.2-2':'es-AR' }}
               </span>
             </td>
 
             <!-- VENTAS -->
-            <td style="text-align: right;">
+            <td class="text-right">
               <span class="monto-val text-ventas">
                 ${{ (item.montoVentas || 0) | number:'1.2-2':'es-AR' }}
               </span>
             </td>
 
             <!-- MONTO FINAL -->
-            <td style="text-align: right;">
+            <td class="text-right">
               <span *ngIf="item.montoFinal !== null && item.montoFinal !== undefined" class="monto-val text-white">
                 ${{ item.montoFinal | number:'1.2-2':'es-AR' }}
               </span>
@@ -242,7 +270,7 @@
             </td>
 
             <!-- DIFERENCIA -->
-            <td style="text-align: center;">
+            <td class="text-center">
               <ng-container *ngIf="item.diferencia !== null && item.diferencia !== undefined && item.estado === EstadoCaja.CERRADA">
                 <span
                   class="badge-pill"
@@ -254,11 +282,12 @@
               <span *ngIf="item.estado === EstadoCaja.ABIERTA" class="text-muted-dash">-</span>
             </td>
 
-            <!-- OBSERVACIONES -->
-            <td>
-              <span class="obs-cell" [title]="item.observaciones || 'Sin observaciones'">
-                {{ item.observaciones || '-' }}
-              </span>
+            <!-- ACCIONES / COMPROBANTE -->
+            <td class="text-center">
+              <button class="btn-ticket-action" (click)="verComprobante(item)" title="Ver e imprimir comprobante">
+                <i class="fa-solid fa-print"></i>
+                <span>Ticket</span>
+              </button>
             </td>
           </tr>
 
@@ -375,7 +404,7 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- MODAL DE CIERRE Y ARQUEO DE CAJA           -->
+  <!-- MODAL DE CIERRE Y ARQUEO INTELIGENTE       -->
   <!-- ========================================== -->
   <div class="modal-backdrop-custom" *ngIf="mostrarModalCierre">
     <div class="modal-dialog-custom modal-dialog-cierre">
@@ -390,31 +419,38 @@
           </div>
           <div>
             <h3>Cierre y Arqueo de Caja</h3>
-            <p>Finalización del turno operativo y balance de valores</p>
+            <p>Conteo físico de efectivo y consolidación automática de medios de pago</p>
           </div>
         </div>
 
-        <!-- Resumen del Turno -->
-        <div class="resumen-turno-card">
-          <div class="resumen-row">
-            <span class="resumen-label">Monto Inicial:</span>
-            <span class="resumen-val">${{ (estadoActual?.caja?.montoInicial || 0) | number:'1.2-2':'es-AR' }}</span>
+        <!-- Desglose Automático de Medios de Pago -->
+        <div class="desglose-pagos-grid">
+          <div class="desglose-item">
+            <span class="desglose-item-label"><i class="fa-solid fa-money-bill-wave text-efectivo"></i> Efectivo Ventas</span>
+            <span class="desglose-item-val">${{ (estadoActual?.totalEfectivoActual || 0) | number:'1.2-2':'es-AR' }}</span>
           </div>
-          <div class="resumen-row">
-            <span class="resumen-label">+ Ventas en Turno:</span>
-            <span class="resumen-val text-ventas">${{ (estadoActual?.montoVentasActual || 0) | number:'1.2-2':'es-AR' }}</span>
+          <div class="desglose-item">
+            <span class="desglose-item-label"><i class="fa-solid fa-credit-card text-tarjeta"></i> Tarjetas (Auto)</span>
+            <span class="desglose-item-val">${{ ((estadoActual?.totalDebitoActual || 0) + (estadoActual?.totalCreditoActual || 0)) | number:'1.2-2':'es-AR' }}</span>
           </div>
-          <div class="resumen-row resumen-total">
-            <span class="resumen-label-total">Total Esperado en Caja:</span>
-            <span class="resumen-val-total text-success">${{ (estadoActual?.montoEsperadoActual || 0) | number:'1.2-2':'es-AR' }}</span>
+          <div class="desglose-item">
+            <span class="desglose-item-label"><i class="fa-solid fa-mobile-screen-button text-transferencia"></i> Transferencias</span>
+            <span class="desglose-item-val">${{ (estadoActual?.totalTransferenciaActual || 0) | number:'1.2-2':'es-AR' }}</span>
+          </div>
+          <div class="desglose-item desglose-item-total">
+            <span class="desglose-item-label"><i class="fa-solid fa-receipt"></i> Total Ventas Turno</span>
+            <span class="desglose-item-val text-success">${{ (estadoActual?.montoVentasActual || 0) | number:'1.2-2':'es-AR' }}</span>
           </div>
         </div>
 
         <form [formGroup]="formCierre" (ngSubmit)="confirmarCierre()" class="modal-form">
           <div class="form-group-custom">
             <label class="form-label-custom">
-              Monto Real Contado en Arqueo ($) <span class="required-star">*</span>
+              Efectivo Físico Contado en el Cajón ($) <span class="required-star">*</span>
             </label>
+            <p class="form-helper-text">
+              Cuenta los billetes físicos en el cajón de dinero. Los cobros con tarjeta y transferencia ya están sumados automáticamente.
+            </p>
             <div class="input-currency-wrapper">
               <span class="currency-symbol">$</span>
               <input
@@ -422,40 +458,43 @@
                 step="0.01"
                 min="0"
                 class="form-input-currency"
-                formControlName="montoFinal"
+                formControlName="montoEfectivo"
                 placeholder="0.00"
-                [class.has-error]="formCierre.get('montoFinal')?.invalid && formCierre.get('montoFinal')?.touched"
+                [class.has-error]="formCierre.get('montoEfectivo')?.invalid && formCierre.get('montoEfectivo')?.touched"
               />
             </div>
-            <div *ngIf="formCierre.get('montoFinal')?.invalid && formCierre.get('montoFinal')?.touched" class="field-error-msg">
+            <div *ngIf="formCierre.get('montoEfectivo')?.invalid && formCierre.get('montoEfectivo')?.touched" class="field-error-msg">
               <i class="fa-solid fa-circle-exclamation"></i>
-              <span>El monto final es obligatorio y no puede ser negativo.</span>
+              <span>El efectivo contado es obligatorio y no puede ser negativo.</span>
             </div>
           </div>
 
           <!-- Balance de Arqueo en vivo -->
           <div
             class="balance-arqueo-box"
-            [ngClass]="diferenciaCierre === 0 ? 'balance-exacto' : (diferenciaCierre > 0 ? 'balance-sobrante' : 'balance-faltante')"
+            [ngClass]="diferenciaEfectivo === 0 ? 'balance-exacto' : (diferenciaEfectivo > 0 ? 'balance-sobrante' : 'balance-faltante')"
           >
             <div class="balance-icon">
-              <i class="fa-solid" [ngClass]="diferenciaCierre === 0 ? 'fa-circle-check' : (diferenciaCierre > 0 ? 'fa-circle-plus' : 'fa-circle-minus')"></i>
+              <i class="fa-solid" [ngClass]="diferenciaEfectivo === 0 ? 'fa-circle-check' : (diferenciaEfectivo > 0 ? 'fa-circle-plus' : 'fa-circle-minus')"></i>
             </div>
             <div class="balance-details">
-              <span class="balance-title">Balance de Arqueo:</span>
+              <span class="balance-title">Balance de Arqueo en Efectivo:</span>
               <strong class="balance-value">
-                {{ diferenciaCierre === 0 ? 'Sin diferencias (Cuadre Exacto)' : (diferenciaCierre > 0 ? 'Sobrante: +$' + (diferenciaCierre | number:'1.2-2':'es-AR') : 'Faltante: -$' + (diferenciaCierre * -1 | number:'1.2-2':'es-AR')) }}
+                {{ diferenciaEfectivo === 0 ? 'Sin diferencias (Cuadre Exacto)' : (diferenciaEfectivo > 0 ? 'Sobrante en Efectivo: +$' + (diferenciaEfectivo | number:'1.2-2':'es-AR') : 'Faltante en Efectivo: -$' + (diferenciaEfectivo * -1 | number:'1.2-2':'es-AR')) }}
               </strong>
+              <span class="balance-sub">
+                Total Rendido Consolidado: <strong>${{ totalRendidoCalculado | number:'1.2-2':'es-AR' }}</strong> (Efectivo Contado + Pagos Digitales)
+              </span>
             </div>
           </div>
 
           <div class="form-group-custom">
             <label class="form-label-custom">Observaciones de Cierre (Opcional)</label>
             <textarea
-              rows="3"
+              rows="2"
               class="form-textarea-custom"
               formControlName="observaciones"
-              placeholder="Detalles sobre retiro de efectivo, motivos de sobrante/faltante, etc."
+              placeholder="Detalles sobre retiro de efectivo, motivos de diferencias, etc."
             ></textarea>
           </div>
 
@@ -470,6 +509,141 @@
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL DE COMPROBANTE / TICKET DE CIERRE    -->
+  <!-- ========================================== -->
+  <div class="modal-backdrop-custom modal-backdrop-ticket" *ngIf="mostrarModalComprobante && comprobanteSeleccionado">
+    <div class="modal-dialog-custom modal-dialog-ticket">
+      <div class="modal-content-custom">
+        <button class="btn-cerrar-modal no-print" (click)="cerrarModalComprobante()" title="Cerrar comprobante">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <!-- TICKET IMPRIMIBLE -->
+        <div id="ticket-cierre-impresion" class="ticket-cierre-wrapper">
+          <div class="ticket-header">
+            <div class="ticket-brand">MAEL ESPECIEROS</div>
+            <div class="ticket-sub">SISTEMA ERP &bull; CONTROL DE CAJA Y TURNOS</div>
+            <div class="ticket-title">COMPROBANTE DE CIERRE DE TURNO (CIERRE Z)</div>
+            <div class="ticket-divider">================================</div>
+          </div>
+
+          <div class="ticket-meta">
+            <div class="ticket-row">
+              <span>TURNO N°:</span>
+              <strong>#{{ comprobanteSeleccionado.id }}</strong>
+            </div>
+            <div class="ticket-row">
+              <span>ESTADO:</span>
+              <strong>{{ comprobanteSeleccionado.estado }}</strong>
+            </div>
+            <div class="ticket-row">
+              <span>CAJERO:</span>
+              <strong>{{ comprobanteSeleccionado.usuarioNombreCompleto || comprobanteSeleccionado.usuarioUsername || 'Cajero' }}</strong>
+            </div>
+            <div class="ticket-row">
+              <span>APERTURA:</span>
+              <span>{{ comprobanteSeleccionado.fechaApertura | date:'dd/MM/yyyy HH:mm' }} hs</span>
+            </div>
+            <div class="ticket-row" *ngIf="comprobanteSeleccionado.fechaCierre">
+              <span>CIERRE:</span>
+              <span>{{ comprobanteSeleccionado.fechaCierre | date:'dd/MM/yyyy HH:mm' }} hs</span>
+            </div>
+            <div class="ticket-divider">--------------------------------</div>
+          </div>
+
+          <!-- DESGLOSE DE VENTAS -->
+          <div class="ticket-section">
+            <div class="ticket-section-title">DESGLOSE DE VENTAS POR MEDIO DE PAGO</div>
+            <div class="ticket-row">
+              <span>Efectivo:</span>
+              <span>${{ (comprobanteSeleccionado.totalEfectivo || 0) | number:'1.2-2':'es-AR' }}</span>
+            </div>
+            <div class="ticket-row">
+              <span>Tarjeta Débito:</span>
+              <span>${{ (comprobanteSeleccionado.totalDebito || 0) | number:'1.2-2':'es-AR' }}</span>
+            </div>
+            <div class="ticket-row">
+              <span>Tarjeta Crédito:</span>
+              <span>${{ (comprobanteSeleccionado.totalCredito || 0) | number:'1.2-2':'es-AR' }}</span>
+            </div>
+            <div class="ticket-row">
+              <span>Transferencia:</span>
+              <span>${{ (comprobanteSeleccionado.totalTransferencia || 0) | number:'1.2-2':'es-AR' }}</span>
+            </div>
+            <div class="ticket-divider-dot">................................</div>
+            <div class="ticket-row ticket-row-bold">
+              <span>TOTAL FACTURADO:</span>
+              <span>${{ (comprobanteSeleccionado.montoVentas || 0) | number:'1.2-2':'es-AR' }}</span>
+            </div>
+            <div class="ticket-row small-text">
+              <span>Comprobantes Emitidos:</span>
+              <span>{{ comprobanteSeleccionado.cantidadVentas || 0 }} ventas</span>
+            </div>
+            <div class="ticket-divider">--------------------------------</div>
+          </div>
+
+          <!-- ARQUEO Y VALORES -->
+          <div class="ticket-section">
+            <div class="ticket-section-title">ARQUEO Y RENDICIÓN DE VALORES</div>
+            <div class="ticket-row">
+              <span>Fondo Inicial:</span>
+              <span>${{ (comprobanteSeleccionado.montoInicial || 0) | number:'1.2-2':'es-AR' }}</span>
+            </div>
+            <div class="ticket-row">
+              <span>Ventas Digitales:</span>
+              <span>${{ (comprobanteSeleccionado.totalDigital || 0) | number:'1.2-2':'es-AR' }}</span>
+            </div>
+            <div class="ticket-row ticket-row-bold" *ngIf="comprobanteSeleccionado.montoFinal !== null && comprobanteSeleccionado.montoFinal !== undefined">
+              <span>TOTAL RENDIDO:</span>
+              <span>${{ comprobanteSeleccionado.montoFinal | number:'1.2-2':'es-AR' }}</span>
+            </div>
+            <div class="ticket-row ticket-row-bold" *ngIf="comprobanteSeleccionado.diferencia !== null && comprobanteSeleccionado.diferencia !== undefined">
+              <span>BALANCE / ARQUEO:</span>
+              <span>{{ comprobanteSeleccionado.diferencia === 0 ? 'EXACTO ($0.00)' : ((comprobanteSeleccionado.diferencia > 0 ? 'SOBRANTE +$' : 'FALTANTE -$') + (comprobanteSeleccionado.diferencia | number:'1.2-2':'es-AR')) }}</span>
+            </div>
+            <div class="ticket-divider">--------------------------------</div>
+          </div>
+
+          <!-- OBSERVACIONES -->
+          <div class="ticket-section" *ngIf="comprobanteSeleccionado.observaciones">
+            <div class="ticket-section-title">OBSERVACIONES</div>
+            <div class="ticket-obs">{{ comprobanteSeleccionado.observaciones }}</div>
+            <div class="ticket-divider">--------------------------------</div>
+          </div>
+
+          <!-- FIRMAS -->
+          <div class="ticket-firmas">
+            <div class="firma-box">
+              <div class="firma-line">________________________</div>
+              <div class="firma-label">Firma del Cajero</div>
+            </div>
+            <div class="firma-box">
+              <div class="firma-line">________________________</div>
+              <div class="firma-label">Firma del Supervisor</div>
+            </div>
+          </div>
+
+          <div class="ticket-footer">
+            <div>Mael Especieros ERP &bull; Registro Inmutable</div>
+            <div>Impreso el {{ 'now' | date:'dd/MM/yyyy HH:mm:ss' }}</div>
+          </div>
+        </div>
+
+        <!-- ACCIONES DEL MODAL -->
+        <div class="modal-actions-custom no-print" style="margin-top: 20px;">
+          <button type="button" class="btn-modal-cancel" (click)="cerrarModalComprobante()">
+            Cerrar
+          </button>
+          <button type="button" class="btn-operativo-success" (click)="imprimirComprobante()">
+            <i class="fa-solid fa-print"></i>
+            <span>Imprimir Comprobante</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>

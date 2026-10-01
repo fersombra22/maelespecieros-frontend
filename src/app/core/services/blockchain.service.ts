@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 // =====================================================
 // RESPUESTA DE UN BLOQUE DE BLOCKCHAIN
 // =====================================================
@@ -65,7 +66,7 @@ export interface BlockchainPage {
 export class BlockchainService {
   private http = inject(HttpClient);
 
-  private url = 'http://localhost:8080/api/blockchain';
+  private url = `${environment.apiUrl}/blockchain`;
 
   // ===================================================
   // LISTAR BLOQUES
