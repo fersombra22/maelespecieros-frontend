@@ -22,6 +22,8 @@ export interface Caja {
   totalTransferencia?: number;
   totalDigital?: number;
   cantidadVentas?: number;
+  totalEgresos?: number;
+  totalEgresosEfectivo?: number;
 }
 
 export interface AperturaCajaRequest {
@@ -46,4 +48,6 @@ export interface EstadoActualCaja {
   totalTransferenciaActual?: number;
   totalDigitalActual?: number;
   cantidadVentasActual?: number;
+  totalEgresosActual?: number;
+  totalEgresosEfectivoActual?: number;
 }
