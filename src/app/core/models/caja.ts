@@ -16,6 +16,12 @@ export interface Caja {
   usuarioId?: number;
   usuarioUsername?: string;
   usuarioNombreCompleto?: string;
+  totalEfectivo?: number;
+  totalDebito?: number;
+  totalCredito?: number;
+  totalTransferencia?: number;
+  totalDigital?: number;
+  cantidadVentas?: number;
 }
 
 export interface AperturaCajaRequest {
@@ -24,7 +30,8 @@ export interface AperturaCajaRequest {
 }
 
 export interface CierreCajaRequest {
-  montoFinal: number;
+  montoFinal?: number;
+  montoEfectivo?: number;
   observaciones?: string;
 }
 
@@ -33,4 +40,10 @@ export interface EstadoActualCaja {
   caja?: Caja;
   montoVentasActual: number;
   montoEsperadoActual: number;
+  totalEfectivoActual?: number;
+  totalDebitoActual?: number;
+  totalCreditoActual?: number;
+  totalTransferenciaActual?: number;
+  totalDigitalActual?: number;
+  cantidadVentasActual?: number;
 }

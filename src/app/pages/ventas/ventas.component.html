@@ -16,6 +16,28 @@
       </div>
     </section>
 
+    <!-- BANNER ALERTA CAJA CERRADA -->
+    <div *ngIf="cajaVerificada() && !cajaAbierta()" class="caja-cerrada-banner px-4 py-3 rounded-3 d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-3">
+        <div class="caja-banner-icon">
+          <i class="fa-solid fa-lock"></i>
+        </div>
+        <div>
+          <strong class="text-warning d-block">Turno de Caja Cerrado</strong>
+          <span class="text-white-50 small">Para emitir ventas y registrar cobros en el sistema, es necesario realizar la apertura de caja.</span>
+        </div>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-success btn-sm fw-bold px-3 py-2 d-flex align-items-center gap-2" (click)="abrirModalAperturaRapida()">
+          <i class="fa-solid fa-lock-open"></i>
+          <span>Iniciar Turno Ahora</span>
+        </button>
+        <a routerLink="/caja" class="btn btn-outline-light btn-sm fw-bold px-3 py-2 d-flex align-items-center gap-2">
+          <span>Ir a Caja</span>
+        </a>
+      </div>
+    </div>
+
     <!-- LISTA Y BUSCADOR -->
     <section class="lista-panel card-premium d-flex flex-column flex-grow-1 overflow-hidden">
       <!-- Buscador Flotante -->
@@ -88,8 +110,8 @@
             </tr>
             <tr *ngFor="let item of carritoService.carrito()" class="align-middle">
               <td class="text-white-50 font-monospace small ps-4">{{ item.codigoProducto }}</td>
-              <td class="fw-bold fs-5 text-truncate" style="max-width: 250px;">{{ item.nombre }}</td>
-              <td class="text-white-50 text-truncate" style="max-width: 150px;">{{ item.modelo || '-' }}</td>
+              <td class="fw-bold fs-5 text-truncate td-max-250">{{ item.nombre }}</td>
+              <td class="text-white-50 text-truncate td-max-150">{{ item.modelo || '-' }}</td>
               <td class="fs-6">{{ precioActual(item) | currency: 'ARS' }}</td>
               <td>
                 <div class="cantidad-control-mini bg-black bg-opacity-25 rounded px-2 py-1">
@@ -280,3 +302,56 @@
   </div>
 </div>
 <div class="modal-backdrop fade show" *ngIf="mostrarModalCliente()"></div>
+
+<!-- MODAL APERTURA RAPIDA DE CAJA -->
+<div class="modal fade show d-block" *ngIf="mostrarModalAperturaRapida()" tabindex="-1" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-white border-secondary border-opacity-50 p-3 shadow-lg" style="border-radius: 16px;">
+      <div class="modal-header border-0 pb-0">
+        <div class="d-flex align-items-center gap-3">
+          <div class="p-2 bg-success bg-opacity-25 text-success rounded-3 fs-4">
+            <i class="fa-solid fa-lock-open"></i>
+          </div>
+          <div>
+            <h5 class="modal-title fw-bold m-0 text-white">Apertura Rápida de Caja</h5>
+            <small class="text-white-50">Inicia tu turno de ventas indicando el fondo de cambio</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" (click)="cerrarModalAperturaRapida()" [disabled]="procesandoAperturaCaja()"></button>
+      </div>
+      <div class="modal-body py-4">
+        <form (ngSubmit)="confirmarAperturaRapida()">
+          <div class="mb-3">
+            <label class="form-label text-white-50 fw-semibold">Fondo Inicial en Efectivo ($) *</label>
+            <div class="input-group">
+              <span class="input-group-text bg-black border-secondary text-success fw-bold fs-5">$</span>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                class="form-control premium-input bg-black text-white border-secondary fs-5"
+                [ngModel]="montoInicialAperturaRapida()"
+                (ngModelChange)="montoInicialAperturaRapida.set($event)"
+                name="montoInicialRapido"
+                placeholder="0.00"
+                required
+              />
+            </div>
+            <small class="text-white-50 mt-1 d-block">Indica el dinero de cambio inicial que tienes en la gaveta (deja $0 si no hay cambio).</small>
+          </div>
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <button type="button" class="btn btn-outline-secondary" (click)="cerrarModalAperturaRapida()" [disabled]="procesandoAperturaCaja()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-success px-4 fw-bold d-flex align-items-center gap-2" [disabled]="procesandoAperturaCaja() || montoInicialAperturaRapida() < 0">
+              <i *ngIf="procesandoAperturaCaja()" class="fa-solid fa-spinner fa-spin"></i>
+              <i *ngIf="!procesandoAperturaCaja()" class="fa-solid fa-check"></i>
+              <span>Abrir y Comenzar a Vender</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade show" *ngIf="mostrarModalAperturaRapida()"></div>

@@ -64,8 +64,7 @@
         <p>Productos Totales</p>
       </div>
       <button 
-        class="btn-secondary" 
-        style="margin-left: 20px; padding: 10px 15px;"
+        class="btn-secondary btn-inactivos"
         (click)="toggleInactivos()"
         [ngClass]="{'btn-premium': mostrarInactivos}"
       >
@@ -198,8 +197,7 @@
                   <i class="fa-solid fa-trash"></i>
                 </button>
                 <button
-                  class="btn-action"
-                  style="background: linear-gradient(135deg, var(--success), #059669); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);"
+                  class="btn-action reactivate"
                   *ngIf="isAdmin && !producto.activo"
                   (click)="activar(producto)"
                   title="Reactivar"

@@ -1226,3 +1226,285 @@ td {
     padding: 22px;
   }
 }
+.col-id { width: 7%; }
+.col-estado { width: 9%; }
+.col-apertura { width: 12%; }
+.col-cierre { width: 12%; }
+.col-usuario { width: 12%; }
+.col-inicial, .col-ventas, .col-final { width: 9%; }
+.col-diferencia { width: 9%; }
+.col-acciones { width: 12%; }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+
+/* ==================================================
+   MEDIOS DE PAGO Y DESGLOSE EN METRICAS
+   ================================================== */
+.stat-efectivo {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.stat-tarjetas {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.stat-transferencias {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.text-efectivo {
+  color: #34d399;
+}
+
+.text-tarjeta {
+  color: #60a5fa;
+}
+
+.text-transferencia {
+  color: #fbbf24;
+}
+
+/* ==================================================
+   DESGLOSE AUTOMATICO EN MODAL DE CIERRE
+   ================================================== */
+.desglose-pagos-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 14px;
+  border-radius: 14px;
+  margin-bottom: 16px;
+}
+
+.desglose-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.desglose-item-total {
+  grid-column: span 2;
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+.desglose-item-label {
+  font-size: 12px;
+  color: var(--text-muted, #a1a1aa);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.desglose-item-val {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+  color: #ffffff;
+}
+
+.form-helper-text {
+  font-size: 12px;
+  color: var(--text-muted, #a1a1aa);
+  margin: 4px 0 10px;
+  line-height: 1.4;
+}
+
+.balance-sub {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted, #a1a1aa);
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+/* ==================================================
+   BOTON TICKET EN HISTORIAL
+   ================================================== */
+.btn-ticket-action {
+  background: rgba(139, 92, 246, 0.12);
+  color: #c4b5fd;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all var(--transition-fast, 0.15s ease);
+}
+
+.btn-ticket-action:hover {
+  background: rgba(139, 92, 246, 0.25);
+  color: #ffffff;
+  border-color: rgba(139, 92, 246, 0.5);
+  transform: translateY(-1px);
+}
+
+/* ==================================================
+   TICKET DE CIERRE DE CAJA / COMPROBANTE IMPRIMIBLE
+   ================================================== */
+.modal-dialog-ticket {
+  max-width: 480px;
+}
+
+.ticket-cierre-wrapper {
+  background: #ffffff;
+  color: #111827;
+  font-family: 'Courier New', Courier, monospace;
+  padding: 24px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  line-height: 1.4;
+}
+
+.ticket-header {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.ticket-brand {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #000000;
+}
+
+.ticket-sub {
+  font-size: 10px;
+  color: #4b5563;
+  margin-top: 2px;
+}
+
+.ticket-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 8px;
+  color: #111827;
+}
+
+.ticket-divider, .ticket-divider-dot {
+  font-size: 11px;
+  color: #6b7280;
+  margin: 6px 0;
+  overflow: hidden;
+  text-align: center;
+}
+
+.ticket-meta, .ticket-section {
+  margin-bottom: 8px;
+}
+
+.ticket-section-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.ticket-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin: 3px 0;
+}
+
+.ticket-row-bold {
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.small-text {
+  font-size: 11px;
+  color: #4b5563;
+}
+
+.ticket-obs {
+  font-size: 11px;
+  font-style: italic;
+  color: #374151;
+  background: #f3f4f6;
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+
+.ticket-firmas {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 28px;
+  padding-top: 10px;
+}
+
+.firma-box {
+  flex: 1;
+  text-align: center;
+}
+
+.firma-line {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.firma-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #374151;
+  margin-top: 4px;
+}
+
+.ticket-footer {
+  text-align: center;
+  font-size: 9px;
+  color: #6b7280;
+  margin-top: 18px;
+}
+
+/* ==================================================
+   REGLAS DE IMPRESION (@media print)
+   ================================================== */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #ticket-cierre-impresion,
+  #ticket-cierre-impresion * {
+    visibility: visible;
+  }
+
+  #ticket-cierre-impresion {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    padding: 0;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    color: #000000 !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+

@@ -9,11 +9,13 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 
 import { ProductoService } from '../../core/services/producto.service';
 import { VentaService } from '../../core/services/venta.service';
 import { CarritoService, ProductoCarrito } from '../../core/services/carrito.service';
 import { ClienteService } from '../../core/services/cliente.service';
+import { CajaService } from '../../core/services/caja.service';
 
 import { Producto } from '../../core/models/producto';
 import { Cliente } from '../../core/models/cliente';
@@ -35,7 +37,7 @@ const Toast = Swal.mixin({
 @Component({
   selector: 'app-ventas',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './ventas.component.html',
   styleUrls: ['./ventas.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -44,7 +46,13 @@ export class VentasComponent implements OnInit {
   private productoService = inject(ProductoService);
   private ventaService = inject(VentaService);
   private clienteService = inject(ClienteService);
+  private cajaService = inject(CajaService);
+  private router = inject(Router);
   public carritoService = inject(CarritoService); // Public to use its signals in template
+
+  // Estado de caja
+  cajaAbierta = signal<boolean>(true);
+  cajaVerificada = signal<boolean>(false);
 
   // Use Signals for local state to align with OnPush
   sugerencias = signal<Producto[]>([]);
@@ -65,8 +73,64 @@ export class VentasComponent implements OnInit {
   mostrarModalCliente = signal<boolean>(false);
   nuevoCliente = { nombre: '', apellido: '', telefono: '', email: '' };
 
+  // Modal Apertura Rápida de Caja
+  mostrarModalAperturaRapida = signal<boolean>(false);
+  montoInicialAperturaRapida = signal<number>(0);
+  procesandoAperturaCaja = signal<boolean>(false);
+
   ngOnInit(): void {
     this.cargarClientesActivos();
+    this.verificarEstadoCaja();
+  }
+
+  verificarEstadoCaja(): void {
+    this.cajaService.obtenerEstadoActual().subscribe({
+      next: (res) => {
+        this.cajaAbierta.set(res.data?.abierta ?? false);
+        this.cajaVerificada.set(true);
+      },
+      error: () => {
+        this.cajaAbierta.set(false);
+        this.cajaVerificada.set(true);
+      },
+    });
+  }
+
+  abrirModalAperturaRapida(): void {
+    this.montoInicialAperturaRapida.set(0);
+    this.mostrarModalAperturaRapida.set(true);
+  }
+
+  cerrarModalAperturaRapida(): void {
+    this.mostrarModalAperturaRapida.set(false);
+  }
+
+  confirmarAperturaRapida(): void {
+    const monto = Number(this.montoInicialAperturaRapida() || 0);
+    if (monto < 0) {
+      Toast.fire({ icon: 'warning', title: 'El monto inicial no puede ser negativo' });
+      return;
+    }
+    this.procesandoAperturaCaja.set(true);
+    this.cajaService.abrir({ montoInicial: monto }).subscribe({
+      next: () => {
+        this.procesandoAperturaCaja.set(false);
+        this.mostrarModalAperturaRapida.set(false);
+        this.cajaAbierta.set(true);
+        Toast.fire({
+          icon: 'success',
+          title: `Caja abierta con éxito ($${monto.toLocaleString('es-AR', { minimumFractionDigits: 2 })})`
+        });
+      },
+      error: (err) => {
+        this.procesandoAperturaCaja.set(false);
+        Swal.fire({
+          icon: 'error',
+          title: 'No se pudo abrir la caja',
+          text: err.error?.message || 'Error al iniciar turno.'
+        });
+      }
+    });
   }
 
   cargarClientesActivos(): void {
@@ -265,6 +329,23 @@ export class VentasComponent implements OnInit {
   }
 
   finalizarVenta(): void {
+    if (this.cajaVerificada() && !this.cajaAbierta()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Caja Cerrada',
+        text: 'No es posible registrar ventas porque la caja se encuentra cerrada. Debe realizar la apertura de turno primero.',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fa-solid fa-cash-register me-1"></i> Ir a Control de Caja',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#10b981',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.router.navigate(['/caja']);
+        }
+      });
+      return;
+    }
+
     const currentCart = this.carritoService.carrito();
     if (currentCart.length === 0) {
       Toast.fire({
@@ -274,8 +355,7 @@ export class VentasComponent implements OnInit {
       return;
     }
 
-    const request: any = {
-      // Using any temporarily as VentaRequest was modified to include clienteId in backend but maybe not frontend model yet, though we will fix it if needed. Actually let's just cast.
+    const request: VentaRequest = {
       clienteId: this.clienteSeleccionadoId(),
       formaPago: this.formaPago(),
       descuento: this.descuento(),
@@ -308,11 +388,11 @@ export class VentasComponent implements OnInit {
         this.sugerencias.set([]);
         this.mostrarSugerencias.set(false);
       },
-      error: () => {
+      error: (err) => {
         Swal.fire({
           icon: 'error',
-          title: 'Error',
-          text: 'Ocurrió un problema al realizar la venta.',
+          title: 'Error al registrar venta',
+          text: err.error?.message || 'Ocurrió un problema al realizar la venta.',
         });
       },
     });

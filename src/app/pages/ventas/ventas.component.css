@@ -356,3 +356,37 @@
     width: 100%;
   }
 }
+
+.td-max-250 { max-width: 250px; }
+.td-max-150 { max-width: 150px; }
+
+/* Caja Cerrada Alert Banner */
+.caja-cerrada-banner {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(217, 119, 6, 0.08));
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.1);
+  animation: pulse-slow 3s ease-in-out infinite alternate;
+}
+
+.caja-banner-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(245, 158, 11, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f59e0b;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+@keyframes pulse-slow {
+  0% {
+    border-color: rgba(245, 158, 11, 0.3);
+  }
+  100% {
+    border-color: rgba(245, 158, 11, 0.6);
+  }
+}
+

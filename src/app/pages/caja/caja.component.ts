@@ -4,6 +4,8 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import Swal from 'sweetalert2';
 
 import { CajaService } from '../../core/services/caja.service';
+import { AuthService } from '../../core/services/auth.service';
+import { Rol } from '../../core/models/rol';
 import { Caja, EstadoActualCaja, EstadoCaja } from '../../core/models/caja';
 
 @Component({
@@ -18,6 +20,12 @@ export class CajaComponent implements OnInit {
   private fb = inject(FormBuilder);
   private cajaService = inject(CajaService);
   private cdr = inject(ChangeDetectorRef);
+  private authService = inject(AuthService);
+
+  get puedeVerHistorial(): boolean {
+    const rol = this.authService.obtenerUsuario()?.rol;
+    return rol === Rol.ADMIN || rol === Rol.SUPER_ADMIN;
+  }
 
   EstadoCaja = EstadoCaja;
 
@@ -29,13 +37,15 @@ export class CajaComponent implements OnInit {
 
   // Paginación historial
   currentPage: number = 0;
-  pageSize: number = 10;
+  pageSize: number = 3;
   totalElements: number = 0;
   totalPages: number = 0;
 
   // Modales
   mostrarModalApertura: boolean = false;
   mostrarModalCierre: boolean = false;
+  mostrarModalComprobante: boolean = false;
+  comprobanteSeleccionado: Caja | null = null;
 
   // Formularios reactivos
   formApertura: FormGroup;
@@ -48,7 +58,7 @@ export class CajaComponent implements OnInit {
     });
 
     this.formCierre = this.fb.group({
-      montoFinal: [0, [Validators.required, Validators.min(0)]],
+      montoEfectivo: [0, [Validators.required, Validators.min(0)]],
       observaciones: ['', [Validators.maxLength(500)]],
     });
   }
@@ -106,8 +116,8 @@ export class CajaComponent implements OnInit {
   }
 
   abrirModalCierre(): void {
-    const montoEsperado = this.estadoActual?.montoEsperadoActual ?? 0;
-    this.formCierre.reset({ montoFinal: montoEsperado, observaciones: '' });
+    const efectivoEsperado = this.estadoActual?.totalEfectivoActual ?? 0;
+    this.formCierre.reset({ montoEfectivo: efectivoEsperado, observaciones: '' });
     this.mostrarModalCierre = true;
     this.cdr.markForCheck();
   }
@@ -117,10 +127,18 @@ export class CajaComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
-  get diferenciaCierre(): number {
-    const finalVal = Number(this.formCierre.get('montoFinal')?.value || 0);
-    const esperadoVal = Number(this.estadoActual?.montoEsperadoActual || 0);
-    return finalVal - esperadoVal;
+  get efectivoContado(): number {
+    return Number(this.formCierre.get('montoEfectivo')?.value || 0);
+  }
+
+  get diferenciaEfectivo(): number {
+    const efectivoEsperado = Number(this.estadoActual?.totalEfectivoActual || 0);
+    return this.efectivoContado - efectivoEsperado;
+  }
+
+  get totalRendidoCalculado(): number {
+    const digital = Number(this.estadoActual?.totalDigitalActual || 0);
+    return this.efectivoContado + digital;
   }
 
   confirmarApertura(): void {
@@ -177,43 +195,58 @@ export class CajaComponent implements OnInit {
       return;
     }
 
-    const { montoFinal, observaciones } = this.formCierre.value;
-    const dif = this.diferenciaCierre;
+    const { montoEfectivo, observaciones } = this.formCierre.value;
+    const dif = this.diferenciaEfectivo;
     let mensajeDiferencia = '';
 
     if (dif === 0) {
-      mensajeDiferencia = 'El arqueo es exacto (sin diferencias).';
+      mensajeDiferencia = 'El arqueo de efectivo es exacto (sin diferencias).';
     } else if (dif > 0) {
-      mensajeDiferencia = `Sobrante de caja: +$${dif.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`;
+      mensajeDiferencia = `Sobrante en efectivo: +$${dif.toLocaleString('es-AR', { minimumFractionDigits: 2 })}`;
     } else {
-      mensajeDiferencia = `Faltante de caja: -$${Math.abs(dif).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`;
+      mensajeDiferencia = `Faltante en efectivo: -$${Math.abs(dif).toLocaleString('es-AR', { minimumFractionDigits: 2 })}`;
     }
 
     Swal.fire({
       title: '¿Confirmar Cierre y Arqueo?',
       html: `
-        <p class="mb-2"><strong>Monto ingresado:</strong> $${Number(montoFinal).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
-        <p class="mb-2"><strong>Monto esperado:</strong> $${(this.estadoActual?.montoEsperadoActual || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
-        <p class="${dif < 0 ? 'text-danger fw-bold' : dif > 0 ? 'text-warning fw-bold' : 'text-success fw-bold'}">${mensajeDiferencia}</p>
+        <div style="text-align: left; font-size: 14px; line-height: 1.6;">
+          <p class="mb-1"><strong>Efectivo Contado:</strong> $${Number(montoEfectivo).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
+          <p class="mb-1"><strong>Efectivo Esperado:</strong> $${(this.estadoActual?.totalEfectivoActual || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
+          <p class="mb-1"><strong>Pagos Digitales (Automáticos):</strong> $${(this.estadoActual?.totalDigitalActual || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
+          <hr style="margin: 8px 0; border-color: rgba(255,255,255,0.2);" />
+          <p class="mb-2"><strong>Total Rendido Turno:</strong> $${this.totalRendidoCalculado.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
+          <p class="${dif < 0 ? 'text-danger fw-bold' : dif > 0 ? 'text-warning fw-bold' : 'text-success fw-bold'}">${mensajeDiferencia}</p>
+        </div>
       `,
       icon: dif !== 0 ? 'warning' : 'question',
       showCancelButton: true,
       confirmButtonText: 'Sí, cerrar caja',
       cancelButtonText: 'Cancelar',
-      confirmButtonColor: dif !== 0 ? '#dc3545' : '#0d6efd',
+      confirmButtonColor: dif !== 0 ? '#dc3545' : '#8b5cf6',
     }).then((result) => {
       if (result.isConfirmed) {
         this.procesando = true;
         this.cdr.markForCheck();
 
-        this.cajaService.cerrar({ montoFinal: Number(montoFinal), observaciones }).subscribe({
-          next: () => {
+        this.cajaService.cerrar({ montoEfectivo: Number(montoEfectivo), observaciones }).subscribe({
+          next: (res) => {
             this.procesando = false;
             this.mostrarModalCierre = false;
+            this.cdr.markForCheck();
+
             Swal.fire({
               icon: 'success',
-              title: 'Caja Cerrada',
-              text: 'El arqueo y cierre de caja se completó exitosamente.',
+              title: 'Caja Cerrada Exitosamente',
+              html: 'El turno finalizó correctamente. ¿Deseas imprimir el comprobante de cierre de turno ahora?',
+              showCancelButton: true,
+              confirmButtonText: '<i class="fa-solid fa-print"></i> Ver e Imprimir Comprobante',
+              cancelButtonText: 'Cerrar',
+              confirmButtonColor: '#8b5cf6',
+            }).then((swalResult) => {
+              if (swalResult.isConfirmed && res.data) {
+                this.verComprobante(res.data);
+              }
             });
             this.cargarDatos();
           },
@@ -229,6 +262,37 @@ export class CajaComponent implements OnInit {
         });
       }
     });
+  }
+
+  verComprobante(caja: Caja): void {
+    if (!caja.id) return;
+    this.cargando = true;
+    this.cdr.markForCheck();
+
+    this.cajaService.obtenerPorId(caja.id).subscribe({
+      next: (res) => {
+        this.cargando = false;
+        this.comprobanteSeleccionado = res.data || caja;
+        this.mostrarModalComprobante = true;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.cargando = false;
+        this.comprobanteSeleccionado = caja;
+        this.mostrarModalComprobante = true;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  cerrarModalComprobante(): void {
+    this.mostrarModalComprobante = false;
+    this.comprobanteSeleccionado = null;
+    this.cdr.markForCheck();
+  }
+
+  imprimirComprobante(): void {
+    window.print();
   }
 
   cambiarPagina(nuevaPagina: number): void {

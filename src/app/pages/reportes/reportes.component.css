@@ -317,3 +317,7 @@ REPORTES BENTO DESIGN
     max-width: 100%;
   }
 }
+
+.text-purple { color: #6C5CE7; }
+.btn-purple-outline { border: 1px solid #6C5CE7; color: #6C5CE7; background-color: transparent; transition: all 0.3s ease; border-radius: 8px; padding: 10px 15px; font-weight: 600; cursor: pointer; }
+.btn-purple-outline:hover { background-color: #6C5CE7; color: #fff; transform: translateY(-2px); }

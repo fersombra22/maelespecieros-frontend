@@ -511,3 +511,6 @@
     transform: none;
   }
 }
+
+.btn-inactivos { margin-left: 20px; padding: 10px 15px; }
+.reactivate { background: linear-gradient(135deg, var(--success), #059669); box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); color: white; border: none; }
