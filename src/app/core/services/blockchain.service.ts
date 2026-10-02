@@ -100,4 +100,15 @@ export class BlockchainService {
   verificar(): Observable<{ valida: boolean; anomalias: any[] }> {
     return this.http.get<{ valida: boolean; anomalias: any[] }>(this.url + '/verificar');
   }
+
+  // ===================================================
+  // RECONCILIAR Y RESELLAR INTEGRIDAD
+  // ===================================================
+
+  reconciliar(motivo?: string): Observable<{ valida: boolean; mensaje: string; message?: string; [key: string]: any }> {
+    return this.http.post<{ valida: boolean; mensaje: string; message?: string; [key: string]: any }>(
+      `${this.url}/reconciliar`,
+      { motivo: motivo || 'Reconciliación forense y remediación autorizada por administración.' }
+    );
+  }
 }

@@ -319,13 +319,19 @@ export class VentasComponent implements OnInit {
   }
 
   totalEfectivo(): number {
-    return this.carritoService.total(); // Computed signal internally
+    return this.carritoService.total(); // Valor base en efectivo
+  }
+
+  subtotal(): number {
+    return this.carritoService
+      .carrito()
+      .reduce((acc, producto) => acc + this.precioActual(producto) * producto.cantidad, 0);
   }
 
   total(): number {
-    return this.carritoService
-      .carrito()
-      .reduce((total, producto) => total + this.precioActual(producto) * producto.cantidad, 0);
+    const sub = this.subtotal();
+    const desc = this.descuento() || 0;
+    return Math.max(0, sub - desc);
   }
 
   finalizarVenta(): void {

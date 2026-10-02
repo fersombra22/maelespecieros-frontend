@@ -115,9 +115,14 @@ export class CajaComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
+  get efectivoEsperado(): number {
+    const inicial = Number(this.estadoActual?.caja?.montoInicial || 0);
+    const ventasEfectivo = Number(this.estadoActual?.totalEfectivoActual || 0);
+    return inicial + ventasEfectivo;
+  }
+
   abrirModalCierre(): void {
-    const efectivoEsperado = this.estadoActual?.totalEfectivoActual ?? 0;
-    this.formCierre.reset({ montoEfectivo: efectivoEsperado, observaciones: '' });
+    this.formCierre.reset({ montoEfectivo: this.efectivoEsperado, observaciones: '' });
     this.mostrarModalCierre = true;
     this.cdr.markForCheck();
   }
@@ -132,8 +137,7 @@ export class CajaComponent implements OnInit {
   }
 
   get diferenciaEfectivo(): number {
-    const efectivoEsperado = Number(this.estadoActual?.totalEfectivoActual || 0);
-    return this.efectivoContado - efectivoEsperado;
+    return this.efectivoContado - this.efectivoEsperado;
   }
 
   get totalRendidoCalculado(): number {
@@ -211,9 +215,11 @@ export class CajaComponent implements OnInit {
       title: '¿Confirmar Cierre y Arqueo?',
       html: `
         <div style="text-align: left; font-size: 14px; line-height: 1.6;">
-          <p class="mb-1"><strong>Efectivo Contado:</strong> $${Number(montoEfectivo).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
-          <p class="mb-1"><strong>Efectivo Esperado:</strong> $${(this.estadoActual?.totalEfectivoActual || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
-          <p class="mb-1"><strong>Pagos Digitales (Automáticos):</strong> $${(this.estadoActual?.totalDigitalActual || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
+          <p class="mb-1"><strong>Fondo Inicial:</strong> $${(this.estadoActual?.caja?.montoInicial || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
+          <p class="mb-1"><strong>Ventas Efectivo:</strong> $${(this.estadoActual?.totalEfectivoActual || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
+          <p class="mb-1"><strong>Efectivo Esperado en Gaveta:</strong> $${this.efectivoEsperado.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
+          <p class="mb-1"><strong>Efectivo Contado (Físico):</strong> $${Number(montoEfectivo).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
+          <p class="mb-1"><strong>Pagos Digitales (Tarjetas/Transferencias):</strong> $${(this.estadoActual?.totalDigitalActual || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
           <hr style="margin: 8px 0; border-color: rgba(255,255,255,0.2);" />
           <p class="mb-2"><strong>Total Rendido Turno:</strong> $${this.totalRendidoCalculado.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
           <p class="${dif < 0 ? 'text-danger fw-bold' : dif > 0 ? 'text-warning fw-bold' : 'text-success fw-bold'}">${mensajeDiferencia}</p>
