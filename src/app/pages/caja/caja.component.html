@@ -423,10 +423,14 @@
           </div>
         </div>
 
-        <!-- Desglose Automático de Medios de Pago -->
+        <!-- Desglose Automático de Medios de Pago y Fondo Inicial -->
         <div class="desglose-pagos-grid">
           <div class="desglose-item">
-            <span class="desglose-item-label"><i class="fa-solid fa-money-bill-wave text-efectivo"></i> Efectivo Ventas</span>
+            <span class="desglose-item-label"><i class="fa-solid fa-wallet text-warning"></i> Fondo Inicial</span>
+            <span class="desglose-item-val">${{ (estadoActual?.caja?.montoInicial || 0) | number:'1.2-2':'es-AR' }}</span>
+          </div>
+          <div class="desglose-item">
+            <span class="desglose-item-label"><i class="fa-solid fa-money-bill-wave text-efectivo"></i> Ventas Efectivo</span>
             <span class="desglose-item-val">${{ (estadoActual?.totalEfectivoActual || 0) | number:'1.2-2':'es-AR' }}</span>
           </div>
           <div class="desglose-item">
@@ -438,8 +442,8 @@
             <span class="desglose-item-val">${{ (estadoActual?.totalTransferenciaActual || 0) | number:'1.2-2':'es-AR' }}</span>
           </div>
           <div class="desglose-item desglose-item-total">
-            <span class="desglose-item-label"><i class="fa-solid fa-receipt"></i> Total Ventas Turno</span>
-            <span class="desglose-item-val text-success">${{ (estadoActual?.montoVentasActual || 0) | number:'1.2-2':'es-AR' }}</span>
+            <span class="desglose-item-label"><i class="fa-solid fa-vault"></i> Efectivo Esperado en Cajón</span>
+            <span class="desglose-item-val text-warning">${{ efectivoEsperado | number:'1.2-2':'es-AR' }}</span>
           </div>
         </div>
 
