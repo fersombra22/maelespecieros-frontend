@@ -193,7 +193,7 @@
         
         <div class="d-flex justify-content-between align-items-center">
           <span class="text-white-50 text-uppercase small fw-bold tracking-wide">Subtotal</span>
-          <span class="fs-5 text-white fw-bold">{{ totalEfectivo() | currency: 'ARS' }}</span>
+          <span class="fs-5 text-white fw-bold">{{ subtotal() | currency: 'ARS' }}</span>
         </div>
         
         <div class="d-flex justify-content-between align-items-center" *ngIf="descuento() > 0">
@@ -206,7 +206,7 @@
         <div class="d-flex justify-content-between align-items-end mb-2">
           <span class="text-white-50 text-uppercase fw-bold tracking-wide mb-1">Total a Pagar</span>
           <span class="total-destacado fw-bold text-success fs-1">
-            {{ total() - descuento() | currency: 'ARS' }}
+            {{ total() | currency: 'ARS' }}
           </span>
         </div>
 

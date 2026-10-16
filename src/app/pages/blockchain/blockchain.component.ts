@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, ChangeDetectionStrategy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BlockchainService, BlockchainAuditResponse } from '../../core/services/blockchain.service';
+import Swal from 'sweetalert2';
 
 interface AnomaliaAuditoriaResponse {
   entidad: string;
@@ -31,6 +32,7 @@ export class BlockchainComponent implements OnInit {
   totalPaginas = signal(0);
   cargando = signal(false);
   verificando = signal(false);
+  reconciliando = signal(false);
 
   trackByFn(index: number, item: any): number {
     return item.id;
@@ -117,6 +119,51 @@ export class BlockchainComponent implements OnInit {
         this.anomalias.set([]);
         this.mensaje.set('No se pudo verificar la cadena blockchain.');
       },
+    });
+  }
+
+  // ===================================================
+  // RECONCILIAR Y RESELLAR SISTEMA (FORENSE)
+  // ===================================================
+
+  reconciliarSistema(): void {
+    Swal.fire({
+      title: '¿Reconciliar y Resellar Sistema?',
+      text: 'Esta operación recalculará los hashes de integridad en Productos, Ventas, Cajas y regenerará la cadena de bloques criptográfica con un nuevo bloque de auditoría forense.',
+      input: 'text',
+      inputPlaceholder: 'Motivo de la reconciliación (ej: Corrección autorizada de base de datos)',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: '<i class="fa-solid fa-wrench"></i> Sí, Reconciliar y Sellar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#f59e0b',
+      cancelButtonColor: '#6b7280',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.reconciliando.set(true);
+        const motivo = result.value || 'Reconciliación forense y resellado general del sistema';
+        this.service.reconciliar(motivo).subscribe({
+          next: (resp) => {
+            this.reconciliando.set(false);
+            Swal.fire({
+              title: '¡Integridad Restaurada!',
+              text: resp.mensaje || resp.message || 'Se han recalculado los sellos criptográficos y la cadena blockchain ha sido sincronizada.',
+              icon: 'success',
+            });
+            this.verificarCadena();
+            this.cargar();
+          },
+          error: (err) => {
+            this.reconciliando.set(false);
+            console.error('Error durante la reconciliación:', err);
+            Swal.fire({
+              title: 'Error de Reconciliación',
+              text: err?.error?.message || 'No se pudo completar la reconciliación forense.',
+              icon: 'error',
+            });
+          },
+        });
+      }
     });
   }
 
