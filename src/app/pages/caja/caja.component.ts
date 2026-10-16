@@ -189,6 +189,14 @@ export class CajaComponent implements OnInit {
   // METODOS DE GASTOS OPERATIVOS
   // ==========================================
   abrirModalGasto(): void {
+    if (!this.estadoActual?.abierta) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Caja Cerrada',
+        text: 'No es posible registrar gastos sin una caja abierta en el sistema.',
+      });
+      return;
+    }
     this.formGasto.reset({
       monto: null,
       concepto: '',
@@ -206,6 +214,15 @@ export class CajaComponent implements OnInit {
   }
 
   confirmarGasto(): void {
+    if (!this.estadoActual?.abierta) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Caja Cerrada',
+        text: 'No es posible registrar gastos sin una caja abierta en el sistema.',
+      });
+      return;
+    }
+
     if (this.formGasto.invalid) {
       this.formGasto.markAllAsTouched();
       return;
@@ -248,6 +265,24 @@ export class CajaComponent implements OnInit {
   }
 
   anularGasto(gasto: GastoOperativo): void {
+    if (gasto.anulado) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Gasto ya anulado',
+        text: 'Este gasto operativo ya se encuentra anulado.',
+      });
+      return;
+    }
+
+    if (!this.estadoActual?.abierta) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Caja Cerrada',
+        text: 'No es posible anular gastos de un turno de caja que ya ha sido cerrado.',
+      });
+      return;
+    }
+
     Swal.fire({
       title: '¿Anular este gasto operativo?',
       html: `¿Estás seguro de anular el gasto de <strong>$${Number(gasto.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</strong> por concepto <em>"${gasto.concepto}"</em>?`,
