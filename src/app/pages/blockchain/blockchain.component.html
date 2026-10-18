@@ -8,50 +8,72 @@
       <p>Control de integridad de registros del sistema</p>
     </div>
 
-    <button class="btn btn-success" (click)="verificarCadena()">
-      <i class="fa-solid fa-shield-halved"></i>
-      Verificar Integridad
-    </button>
+    <div class="header-actions">
+      <button
+        class="btn btn-warning btn-reconciliar"
+        (click)="reconciliarSistema()"
+        [disabled]="verificando() || reconciliando()"
+        title="Recalcular firmas criptográficas y sincronizar la cadena tras remediación de base de datos"
+      >
+        <i class="fa-solid" [ngClass]="reconciliando() ? 'fa-spinner fa-spin' : 'fa-wrench'"></i>
+        {{ reconciliando() ? 'Reconciliando...' : 'Reconciliar y Sellar' }}
+      </button>
+
+      <button class="btn btn-success" (click)="verificarCadena()" [disabled]="verificando() || reconciliando()">
+        <i class="fa-solid" [ngClass]="verificando() ? 'fa-spinner fa-spin' : 'fa-shield-halved'"></i>
+        {{ verificando() ? 'Verificando...' : 'Verificar Integridad' }}
+      </button>
+    </div>
   </div>
 
   <!-- Alerta General de la Cadena -->
   <div
     class="alert"
-    [ngClass]="{ 'alert-success': valida, 'alert-danger': !valida }"
-    *ngIf="mensaje"
+    [ngClass]="{ 'alert-success': valida(), 'alert-danger': !valida() }"
+    *ngIf="mensaje()"
   >
     <i class="fa-solid fa-circle-info"></i>
-    {{ mensaje }}
+    {{ mensaje() }}
   </div>
 
   <!-- Sección de Anomalías Críticas (Integridad Cruzada) -->
-  <div class="card border-danger mb-3" *ngIf="anomalias.length > 0">
-    <div class="card-header bg-danger text-white">
-      <i class="fa-solid fa-triangle-exclamation"></i> ¡Alerta Crítica! Modificaciones detectadas
-      fuera del sistema
+  <div class="card border-danger mb-3" *ngIf="anomalias().length > 0">
+    <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+      <div>
+        <i class="fa-solid fa-triangle-exclamation"></i> ¡Alerta Crítica! Modificaciones detectadas fuera del sistema
+      </div>
+      <button
+        class="btn btn-sm btn-light text-danger fw-bold shadow-sm"
+        (click)="reconciliarSistema()"
+        [disabled]="reconciliando()"
+        title="Aplicar resellado forense automático"
+      >
+        <i class="fa-solid" [ngClass]="reconciliando() ? 'fa-spinner fa-spin' : 'fa-wrench'"></i>
+        {{ reconciliando() ? 'Reconciliando...' : 'Reparar y Resellar Ahora' }}
+      </button>
     </div>
     <div class="card-body">
-      <table class="table table-sm table-striped">
+      <table>
         <thead>
           <tr>
             <th>Entidad</th>
-            <th>Referencia / ID</th>
-            <th>Campo</th>
-            <th>Original / Seguro</th>
-            <th>Actual / Alterado</th>
+            <th>ID / Ref</th>
+            <th>Campo Afectado</th>
+            <th>Mecanismo</th>
+            <th>Tipo de Anomalía</th>
             <th>Descripción</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let a of anomalias">
+          <tr *ngFor="let a of anomalias()">
             <td>
               <span class="badge bg-danger">{{ a.entidad }}</span>
             </td>
-            <td>{{ a.referenciaId }}</td>
-            <td>{{ a.campoAfectado }}</td>
-            <td>{{ a.valorOriginal }}</td>
-            <td class="fw-bold text-danger">{{ a.valorAlterado }}</td>
-            <td>{{ a.mensajeAlerta }}</td>
+            <td>{{ a.identificador }}</td>
+            <td>{{ a.camposAfectados }}</td>
+            <td>{{ a.mecanismoSeguridad }}</td>
+            <td class="fw-bold text-danger">{{ a.tipoAnomalia }}</td>
+            <td>{{ a.descripcion }}</td>
           </tr>
         </tbody>
       </table>
@@ -60,59 +82,78 @@
 
   <div class="card">
     <div class="card-body">
-      <div *ngIf="cargando" class="text-center">
-        <div class="spinner-border"></div>
-        <p>Cargando bloques...</p>
+      <div *ngIf="cargando()" class="text-center p-5">
+        <div class="spinner-border text-primary"></div>
+        <p class="mt-2 text-muted">Cargando bloques...</p>
       </div>
 
-      <table *ngIf="!cargando" class="table table-hover">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Fecha</th>
-            <th>Usuario</th>
-            <th>Acción</th>
-            <th>Descripción</th>
-            <th>Hash</th>
-            <th class="text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let bloque of bloques">
-            <td>{{ bloque.id }}</td>
-            <td>{{ bloque.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
-            <td>{{ bloque.usuario }}</td>
-            <td>
-              <span class="badge bg-primary">{{ bloque.accion }}</span>
-            </td>
-            <td>{{ bloque.descripcion }}</td>
-            <td>
-              <small>{{ bloque.hashActual ? bloque.hashActual.substring(0, 20) : '' }}...</small>
-            </td>
-            <td class="text-center">
-              <button
-                class="btn btn-sm btn-outline-info"
-                (click)="verDetalles(bloque)"
-                title="Ver autopsia completa"
-              >
-                <i class="fa-solid fa-eye"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-responsive" *ngIf="!cargando()">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Fecha</th>
+              <th>Usuario</th>
+              <th>Acción</th>
+              <th>Descripción</th>
+              <th>Hash</th>
+              <th class="col-actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let bloque of bloques(); trackBy: trackByFn">
+              <td class="fw-bold">#{{ bloque.id }}</td>
+              <td>
+                <span class="badge bg-dark border text-muted">{{
+                  bloque.fecha | date: 'dd/MM/yyyy HH:mm'
+                }}</span>
+              </td>
+              <td>{{ bloque.usuario }}</td>
+              <td>
+                <span
+                  class="badge"
+                  [ngClass]="{
+                    'bg-primary': bloque.accion === 'CREACION',
+                    'bg-warning': bloque.accion === 'ACTUALIZACION',
+                    'bg-danger': bloque.accion === 'ELIMINACION',
+                    'bg-info': bloque.accion === 'LOGIN',
+                  }"
+                  >{{ bloque.accion }}</span
+                >
+              </td>
+              <td>{{ bloque.descripcion }}</td>
+              <td>
+                <small class="font-monospace text-muted"
+                  >{{ bloque.hashActual ? bloque.hashActual.substring(0, 15) : '' }}...</small
+                >
+              </td>
+              <td class="text-center">
+                <div class="hover-actions">
+                  <button
+                    class="btn btn-sm btn-outline-info"
+                    (click)="verDetalles(bloque)"
+                    title="Ver autopsia completa"
+                  >
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-      <div class="paginacion">
-        <button class="btn btn-secondary" (click)="anterior()" [disabled]="pagina === 0">
-          Anterior
+      <div class="paginacion" *ngIf="!cargando()">
+        <button class="btn btn-sm btn-secondary" (click)="anterior()" [disabled]="pagina() === 0">
+          <i class="fa-solid fa-chevron-left"></i> Anterior
         </button>
-        <span>Página {{ pagina + 1 }} / {{ totalPaginas || 1 }}</span>
+        <span>Página {{ pagina() + 1 }} / {{ totalPaginas() || 1 }}</span>
         <button
-          class="btn btn-secondary"
+          class="btn btn-sm btn-secondary"
           (click)="siguiente()"
-          [disabled]="pagina >= totalPaginas - 1"
+          [disabled]="pagina() >= totalPaginas() - 1"
         >
-          Siguiente
+          Siguiente <i class="fa-solid fa-chevron-right"></i>
         </button>
       </div>
     </div>
@@ -120,51 +161,49 @@
 </div>
 
 <!-- MODAL FORENSE DE DETALLES DEL BLOQUE -->
-<div
-  class="modal fade show"
-  tabindex="-1"
-  *ngIf="bloqueSeleccionado"
-  style="display: block; background: rgba(0, 0, 0, 0.5)"
->
+<div class="modal fade show modal-visible" tabindex="-1" *ngIf="bloqueSeleccionado()">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header bg-dark text-white">
         <h5 class="modal-title">
           <i class="fa-solid fa-fingerprint"></i> Autopsia Forense del Bloque #{{
-            bloqueSeleccionado.id
+            bloqueSeleccionado()?.id
           }}
         </h5>
         <button type="button" class="btn-close btn-close-white" (click)="cerrarDetalles()"></button>
       </div>
       <div class="modal-body">
         <p>
-          <strong>UUID:</strong> <code>{{ bloqueSeleccionado.uuid }}</code>
+          <strong>UUID:</strong> <code>{{ bloqueSeleccionado()?.uuid }}</code>
         </p>
-        <p><strong>Fecha:</strong> {{ bloqueSeleccionado.fecha | date: 'dd/MM/yyyy HH:mm:ss' }}</p>
-        <p><strong>Usuario:</strong> {{ bloqueSeleccionado.usuario }}</p>
-        <p><strong>Acción:</strong> {{ bloqueSeleccionado.accion }}</p>
-        <p><strong>Descripción:</strong> {{ bloqueSeleccionado.descripcion }}</p>
+        <p>
+          <strong>Fecha:</strong> {{ bloqueSeleccionado()?.fecha | date: 'dd/MM/yyyy HH:mm:ss' }}
+        </p>
+        <p><strong>Usuario:</strong> {{ bloqueSeleccionado()?.usuario }}</p>
+        <p><strong>Acción:</strong> {{ bloqueSeleccionado()?.accion }}</p>
+        <p><strong>Descripción:</strong> {{ bloqueSeleccionado()?.descripcion }}</p>
         <hr />
         <p>
           <strong>Hash Anterior:</strong> <br /><small class="text-muted text-break">{{
-            bloqueSeleccionado.hashAnterior
+            bloqueSeleccionado()?.hashAnterior
           }}</small>
         </p>
         <p>
           <strong>Hash Actual (SHA-256):</strong> <br /><small
             class="text-success text-break fw-bold"
-            >{{ bloqueSeleccionado.hashActual }}</small
+            >{{ bloqueSeleccionado()?.hashActual }}</small
           >
         </p>
         <p>
           <strong>Firma HMAC:</strong> <br /><small class="text-primary text-break">{{
-            bloqueSeleccionado.firmaHmac
+            bloqueSeleccionado()?.firmaHmac
           }}</small>
         </p>
         <p>
-          <strong>Nonce:</strong> <code>{{ bloqueSeleccionado.nonce }}</code> |
-          <strong>Versión:</strong> {{ bloqueSeleccionado.version }} | <strong>Algoritmo:</strong>
-          {{ bloqueSeleccionado.algoritmo }}
+          <strong>Nonce:</strong> <code>{{ bloqueSeleccionado()?.nonce }}</code> |
+          <strong>Versión:</strong> {{ bloqueSeleccionado()?.version }} |
+          <strong>Algoritmo:</strong>
+          {{ bloqueSeleccionado()?.algoritmo }}
         </p>
       </div>
       <div class="modal-footer">
