@@ -150,4 +150,43 @@ export class HistorialVentasComponent implements OnInit {
   descargarPdf(id: number): void {
     this.ventaService.generarComprobante(id);
   }
+
+  enviarEmail(venta: Venta): void {
+    Swal.fire({
+      title: 'Enviar comprobante por email',
+      text: `Ingrese el correo electrónico para la venta ${venta.numeroVenta}:`,
+      input: 'email',
+      inputValue: venta.clienteEmail || '',
+      inputPlaceholder: 'ejemplo@cliente.com',
+      showCancelButton: true,
+      confirmButtonText: '<i class="fa-solid fa-paper-plane"></i> Enviar',
+      cancelButtonText: 'Cancelar',
+      showLoaderOnConfirm: true,
+      preConfirm: (email) => {
+        if (!email || !email.includes('@')) {
+          Swal.showValidationMessage('Debe ingresar un email válido');
+          return false;
+        }
+        return new Promise((resolve) => {
+          this.ventaService.enviarComprobanteEmail(venta.id, email).subscribe({
+            next: (res) => resolve(res),
+            error: (err) => {
+              Swal.showValidationMessage(err.error?.message || 'Error al enviar el comprobante');
+            }
+          });
+        });
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((res) => {
+      if (res.isConfirmed) {
+        Swal.fire({
+          icon: 'success',
+          title: '¡Enviado!',
+          text: 'El comprobante ha sido enviado exitosamente por correo electrónico.',
+          timer: 3000,
+          showConfirmButton: false
+        });
+      }
+    });
+  }
 }
