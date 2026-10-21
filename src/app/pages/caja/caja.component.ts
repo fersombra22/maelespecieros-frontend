@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 import { CajaService } from '../../core/services/caja.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Rol } from '../../core/models/rol';
-import { Caja, EstadoActualCaja, EstadoCaja } from '../../core/models/caja';
+import { Caja, EstadoActualCaja, EstadoCaja, TipoMedioEgreso, EgresoCajaResponse } from '../../core/models/caja';
 
 @Component({
   selector: 'app-caja',
@@ -27,12 +27,20 @@ export class CajaComponent implements OnInit {
     return rol === Rol.ADMIN || rol === Rol.SUPER_ADMIN;
   }
 
+  get puedeRegistrarEgreso(): boolean {
+    const rol = this.authService.obtenerUsuario()?.rol;
+    return rol === Rol.ADMIN || rol === Rol.SUPER_ADMIN;
+  }
+
   EstadoCaja = EstadoCaja;
+  TipoMedioEgreso = TipoMedioEgreso;
 
   cargando: boolean = true;
   procesando: boolean = false;
+  cargandoEgresos: boolean = false;
 
   estadoActual?: EstadoActualCaja;
+  egresosTurno: EgresoCajaResponse[] = [];
   historial: Caja[] = [];
 
   // Paginación historial
@@ -44,12 +52,14 @@ export class CajaComponent implements OnInit {
   // Modales
   mostrarModalApertura: boolean = false;
   mostrarModalCierre: boolean = false;
+  mostrarModalEgreso: boolean = false;
   mostrarModalComprobante: boolean = false;
   comprobanteSeleccionado: Caja | null = null;
 
   // Formularios reactivos
   formApertura: FormGroup;
   formCierre: FormGroup;
+  formEgreso: FormGroup;
 
   constructor() {
     this.formApertura = this.fb.group({
@@ -60,6 +70,13 @@ export class CajaComponent implements OnInit {
     this.formCierre = this.fb.group({
       montoEfectivo: [0, [Validators.required, Validators.min(0)]],
       observaciones: ['', [Validators.maxLength(500)]],
+    });
+
+    this.formEgreso = this.fb.group({
+      monto: [null, [Validators.required, Validators.min(0.01)]],
+      tipoMedio: [TipoMedioEgreso.EFECTIVO, [Validators.required]],
+      motivo: ['', [Validators.required, Validators.maxLength(255)]],
+      comprobante: ['', [Validators.maxLength(100)]],
     });
   }
 
@@ -74,6 +91,11 @@ export class CajaComponent implements OnInit {
     this.cajaService.obtenerEstadoActual().subscribe({
       next: (res) => {
         this.estadoActual = res.data;
+        if (this.estadoActual?.abierta) {
+          this.cargarEgresosTurno();
+        } else {
+          this.egresosTurno = [];
+        }
         this.cargarHistorial();
       },
       error: (err) => {
@@ -85,6 +107,21 @@ export class CajaComponent implements OnInit {
           text: err.error?.message || 'No se pudo obtener el estado de la caja.',
         });
       },
+    });
+  }
+
+  cargarEgresosTurno(): void {
+    this.cargandoEgresos = true;
+    this.cajaService.listarEgresosActual().subscribe({
+      next: (res) => {
+        this.egresosTurno = res.data || [];
+        this.cargandoEgresos = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.cargandoEgresos = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -115,10 +152,86 @@ export class CajaComponent implements OnInit {
     this.cdr.markForCheck();
   }
 
+  abrirModalEgreso(): void {
+    if (!this.puedeRegistrarEgreso) {
+      Swal.fire('Acceso Denegado', 'Solo administradores o root pueden registrar egresos de dinero.', 'error');
+      return;
+    }
+    if (!this.estadoActual?.abierta) {
+      Swal.fire('Atención', 'No se puede registrar un egreso porque no hay ninguna caja abierta.', 'warning');
+      return;
+    }
+    this.formEgreso.reset({
+      monto: null,
+      tipoMedio: TipoMedioEgreso.EFECTIVO,
+      motivo: '',
+      comprobante: '',
+    });
+    this.mostrarModalEgreso = true;
+    this.cdr.markForCheck();
+  }
+
+  cerrarModalEgreso(): void {
+    this.mostrarModalEgreso = false;
+    this.cdr.markForCheck();
+  }
+
+  confirmarEgreso(): void {
+    if (!this.puedeRegistrarEgreso) {
+      Swal.fire('Acceso Denegado', 'Solo administradores o root pueden registrar egresos de dinero.', 'error');
+      return;
+    }
+    if (this.formEgreso.invalid || this.procesando) {
+      this.formEgreso.markAllAsTouched();
+      return;
+    }
+
+    const val = this.formEgreso.value;
+    Swal.fire({
+      title: '¿Confirmar egreso de dinero?',
+      html: `¿Registrar salida de <strong>$${Number(val.monto).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</strong> por <strong>${val.tipoMedio}</strong>?<br><small class="text-muted">${val.motivo}</small>`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, registrar egreso',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#e67e22',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.procesando = true;
+        this.cerrarModalEgreso();
+        Swal.showLoading();
+
+        this.cajaService.registrarEgreso(val).subscribe({
+          next: () => {
+            this.procesando = false;
+            Swal.fire({
+              icon: 'success',
+              title: 'Egreso registrado',
+              text: 'La salida de dinero fue registrada y sellada en la blockchain con éxito.',
+              timer: 2000,
+              showConfirmButton: false,
+            });
+            this.cargarDatos();
+          },
+          error: (err) => {
+            this.procesando = false;
+            Swal.fire({
+              icon: 'error',
+              title: 'No se pudo registrar el egreso',
+              text: err.error?.message || 'Error al procesar la salida de caja.',
+            });
+            this.cdr.markForCheck();
+          },
+        });
+      }
+    });
+  }
+
   get efectivoEsperado(): number {
     const inicial = Number(this.estadoActual?.caja?.montoInicial || 0);
     const ventasEfectivo = Number(this.estadoActual?.totalEfectivoActual || 0);
-    return inicial + ventasEfectivo;
+    const egresosEfectivo = Number(this.estadoActual?.totalEgresosEfectivoActual || 0);
+    return inicial + ventasEfectivo - egresosEfectivo;
   }
 
   abrirModalCierre(): void {
@@ -142,7 +255,8 @@ export class CajaComponent implements OnInit {
 
   get totalRendidoCalculado(): number {
     const digital = Number(this.estadoActual?.totalDigitalActual || 0);
-    return this.efectivoContado + digital;
+    const egresosDigital = Number(this.estadoActual?.totalEgresosTransferenciaActual || 0);
+    return this.efectivoContado + (digital - egresosDigital);
   }
 
   confirmarApertura(): void {
@@ -217,9 +331,11 @@ export class CajaComponent implements OnInit {
         <div style="text-align: left; font-size: 14px; line-height: 1.6;">
           <p class="mb-1"><strong>Fondo Inicial:</strong> $${(this.estadoActual?.caja?.montoInicial || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
           <p class="mb-1"><strong>Ventas Efectivo:</strong> $${(this.estadoActual?.totalEfectivoActual || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
+          ${(this.estadoActual?.totalEgresosEfectivoActual || 0) > 0 ? `<p class="mb-1 text-danger"><strong>(-) Egresos Efectivo:</strong> -$${Number(this.estadoActual?.totalEgresosEfectivoActual).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>` : ''}
           <p class="mb-1"><strong>Efectivo Esperado en Gaveta:</strong> $${this.efectivoEsperado.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
           <p class="mb-1"><strong>Efectivo Contado (Físico):</strong> $${Number(montoEfectivo).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
-          <p class="mb-1"><strong>Pagos Digitales (Tarjetas/Transferencias):</strong> $${(this.estadoActual?.totalDigitalActual || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
+          <p class="mb-1"><strong>Pagos Digitales:</strong> $${(this.estadoActual?.totalDigitalActual || 0).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
+          ${(this.estadoActual?.totalEgresosTransferenciaActual || 0) > 0 ? `<p class="mb-1 text-danger"><strong>(-) Egresos Digitales:</strong> -$${Number(this.estadoActual?.totalEgresosTransferenciaActual).toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>` : ''}
           <hr style="margin: 8px 0; border-color: rgba(255,255,255,0.2);" />
           <p class="mb-2"><strong>Total Rendido Turno:</strong> $${this.totalRendidoCalculado.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</p>
           <p class="${dif < 0 ? 'text-danger fw-bold' : dif > 0 ? 'text-warning fw-bold' : 'text-success fw-bold'}">${mensajeDiferencia}</p>
@@ -233,12 +349,35 @@ export class CajaComponent implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         this.procesando = true;
+        this.mostrarModalCierre = false;
         this.cdr.markForCheck();
+
+        Swal.fire({
+          title: 'Cerrando caja...',
+          text: 'Consolidando turnos y sellando arqueo...',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+        });
 
         this.cajaService.cerrar({ montoEfectivo: Number(montoEfectivo), observaciones }).subscribe({
           next: (res) => {
             this.procesando = false;
-            this.mostrarModalCierre = false;
+            this.estadoActual = {
+              abierta: false,
+              caja: undefined,
+              montoVentasActual: 0,
+              montoEsperadoActual: 0,
+              totalEfectivoActual: 0,
+              totalDebitoActual: 0,
+              totalCreditoActual: 0,
+              totalTransferenciaActual: 0,
+              totalDigitalActual: 0,
+              cantidadVentasActual: 0,
+            };
+            this.currentPage = 0;
+            this.cargarHistorial();
             this.cdr.markForCheck();
 
             Swal.fire({
@@ -254,10 +393,10 @@ export class CajaComponent implements OnInit {
                 this.verComprobante(res.data);
               }
             });
-            this.cargarDatos();
           },
           error: (err) => {
             this.procesando = false;
+            this.mostrarModalCierre = true;
             this.cdr.markForCheck();
             Swal.fire({
               icon: 'error',

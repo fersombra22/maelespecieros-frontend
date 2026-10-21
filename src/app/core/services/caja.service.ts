@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { ApiResponse } from '../models/api-response';
 import { Page } from '../models/page';
-import { AperturaCajaRequest, Caja, CierreCajaRequest, EstadoActualCaja } from '../models/caja';
+import { AperturaCajaRequest, Caja, CierreCajaRequest, EgresoCajaRequest, EgresoCajaResponse, EstadoActualCaja } from '../models/caja';
 
 @Injectable({
   providedIn: 'root',
@@ -34,5 +34,17 @@ export class CajaService {
 
   obtenerPorId(id: number): Observable<ApiResponse<Caja>> {
     return this.http.get<ApiResponse<Caja>>(`${this.api}/${id}`);
+  }
+
+  registrarEgreso(request: EgresoCajaRequest): Observable<ApiResponse<EgresoCajaResponse>> {
+    return this.http.post<ApiResponse<EgresoCajaResponse>>(`${this.api}/egresos`, request);
+  }
+
+  listarEgresosActual(): Observable<ApiResponse<EgresoCajaResponse[]>> {
+    return this.http.get<ApiResponse<EgresoCajaResponse[]>>(`${this.api}/egresos/actual`);
+  }
+
+  listarEgresosPorCaja(cajaId: number): Observable<ApiResponse<EgresoCajaResponse[]>> {
+    return this.http.get<ApiResponse<EgresoCajaResponse[]>>(`${this.api}/${cajaId}/egresos`);
   }
 }

@@ -13,5 +13,6 @@ export interface Venta {
   usuario?: string;
   clienteId?: number | null;
   clienteNombreCompleto?: string;
+  clienteEmail?: string;
   detalles: DetalleVenta[];
 }
