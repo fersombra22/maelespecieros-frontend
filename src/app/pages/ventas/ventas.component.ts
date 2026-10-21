@@ -1,12 +1,24 @@
-import { Component, OnInit, inject, HostListener, ChangeDetectionStrategy, signal, computed } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  HostListener,
+  ChangeDetectionStrategy,
+  signal,
+  computed,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 
 import { ProductoService } from '../../core/services/producto.service';
 import { VentaService } from '../../core/services/venta.service';
 import { CarritoService, ProductoCarrito } from '../../core/services/carrito.service';
+import { ClienteService } from '../../core/services/cliente.service';
+import { CajaService } from '../../core/services/caja.service';
 
 import { Producto } from '../../core/models/producto';
+import { Cliente } from '../../core/models/cliente';
 import { VentaRequest } from '../../core/models/venta-request';
 import Swal from 'sweetalert2';
 
@@ -17,15 +29,15 @@ const Toast = Swal.mixin({
   timer: 2000,
   timerProgressBar: true,
   didOpen: (toast) => {
-    toast.addEventListener('mouseenter', Swal.stopTimer)
-    toast.addEventListener('mouseleave', Swal.resumeTimer)
-  }
+    toast.addEventListener('mouseenter', Swal.stopTimer);
+    toast.addEventListener('mouseleave', Swal.resumeTimer);
+  },
 });
 
 @Component({
   selector: 'app-ventas',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './ventas.component.html',
   styleUrls: ['./ventas.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,21 +45,135 @@ const Toast = Swal.mixin({
 export class VentasComponent implements OnInit {
   private productoService = inject(ProductoService);
   private ventaService = inject(VentaService);
+  private clienteService = inject(ClienteService);
+  private cajaService = inject(CajaService);
+  private router = inject(Router);
   public carritoService = inject(CarritoService); // Public to use its signals in template
 
+  // Estado de caja
+  cajaAbierta = signal<boolean>(true);
+  cajaVerificada = signal<boolean>(false);
+
   // Use Signals for local state to align with OnPush
-  productos = signal<Producto[]>([]);
+  sugerencias = signal<Producto[]>([]);
+  mostrarSugerencias = signal<boolean>(false);
   formaPago = signal<string>('EFECTIVO');
   descuento = signal<number>(0);
   buscar = signal<string>('');
   cargandoProductos = signal<boolean>(false);
 
+  // Clientes
+  clientesActivos = signal<Cliente[]>([]);
+  clienteSeleccionadoId = signal<number | null>(null);
+
   // Search debounce timer
   private searchTimeout: any;
 
+  // Modal Nuevo Cliente
+  mostrarModalCliente = signal<boolean>(false);
+  nuevoCliente = { nombre: '', apellido: '', telefono: '', email: '' };
+
+  // Modal Apertura Rápida de Caja
+  mostrarModalAperturaRapida = signal<boolean>(false);
+  montoInicialAperturaRapida = signal<number>(0);
+  procesandoAperturaCaja = signal<boolean>(false);
+
   ngOnInit(): void {
-    this.cargarProductos();
+    this.cargarClientesActivos();
+    this.verificarEstadoCaja();
   }
+
+  verificarEstadoCaja(): void {
+    this.cajaService.obtenerEstadoActual().subscribe({
+      next: (res) => {
+        this.cajaAbierta.set(res.data?.abierta ?? false);
+        this.cajaVerificada.set(true);
+      },
+      error: () => {
+        this.cajaAbierta.set(false);
+        this.cajaVerificada.set(true);
+      },
+    });
+  }
+
+  abrirModalAperturaRapida(): void {
+    this.montoInicialAperturaRapida.set(0);
+    this.mostrarModalAperturaRapida.set(true);
+  }
+
+  cerrarModalAperturaRapida(): void {
+    this.mostrarModalAperturaRapida.set(false);
+  }
+
+  confirmarAperturaRapida(): void {
+    const monto = Number(this.montoInicialAperturaRapida() || 0);
+    if (monto < 0) {
+      Toast.fire({ icon: 'warning', title: 'El monto inicial no puede ser negativo' });
+      return;
+    }
+    this.procesandoAperturaCaja.set(true);
+    this.cajaService.abrir({ montoInicial: monto }).subscribe({
+      next: () => {
+        this.procesandoAperturaCaja.set(false);
+        this.mostrarModalAperturaRapida.set(false);
+        this.cajaAbierta.set(true);
+        Toast.fire({
+          icon: 'success',
+          title: `Caja abierta con éxito ($${monto.toLocaleString('es-AR', { minimumFractionDigits: 2 })})`
+        });
+      },
+      error: (err) => {
+        this.procesandoAperturaCaja.set(false);
+        Swal.fire({
+          icon: 'error',
+          title: 'No se pudo abrir la caja',
+          text: err.error?.message || 'Error al iniciar turno.'
+        });
+      }
+    });
+  }
+
+  cargarClientesActivos(): void {
+    this.clienteService.listarActivos().subscribe({
+      next: (res) => {
+        if (res.data) {
+          this.clientesActivos.set(res.data);
+        }
+      },
+    });
+  }
+
+  // --- LOGICA MODAL NUEVO CLIENTE ---
+  abrirModalNuevoCliente(): void {
+    this.nuevoCliente = { nombre: '', apellido: '', telefono: '', email: '' };
+    this.mostrarModalCliente.set(true);
+  }
+
+  cerrarModalCliente(): void {
+    this.mostrarModalCliente.set(false);
+  }
+
+  guardarNuevoCliente(): void {
+    if (!this.nuevoCliente.nombre || !this.nuevoCliente.apellido || !this.nuevoCliente.email) {
+      Toast.fire({ icon: 'warning', title: 'Nombre, apellido y email son obligatorios' });
+      return;
+    }
+
+    this.clienteService.crear(this.nuevoCliente).subscribe({
+      next: (res) => {
+        Toast.fire({ icon: 'success', title: 'Cliente creado correctamente' });
+        this.cargarClientesActivos(); // Recargar la lista
+        if (res.data && res.data.id) {
+          this.clienteSeleccionadoId.set(res.data.id); // Seleccionarlo automáticamente
+        }
+        this.cerrarModalCliente();
+      },
+      error: () => {
+        Swal.fire('Error', 'No se pudo crear el cliente', 'error');
+      },
+    });
+  }
+  // ----------------------------------
 
   // Hotkeys
   @HostListener('window:keydown', ['$event'])
@@ -65,20 +191,23 @@ export class VentasComponent implements OnInit {
     }
   }
 
-  cargarProductos(): void {
+  cargarSugerencias(termino: string): void {
     this.cargandoProductos.set(true);
-    this.productoService.listar(0, 20).subscribe({
+    this.productoService.buscarPorNombre(termino, 0, 10).subscribe({
       next: (response: any) => {
         if (response.data && response.data.content) {
-          this.productos.set(response.data.content);
+          this.sugerencias.set(response.data.content);
         } else {
-          this.productos.set([]);
+          this.sugerencias.set([]);
         }
+        this.mostrarSugerencias.set(true);
         this.cargandoProductos.set(false);
       },
       error: () => {
+        this.sugerencias.set([]);
+        this.mostrarSugerencias.set(true);
         this.cargandoProductos.set(false);
-      }
+      },
     });
   }
 
@@ -86,40 +215,72 @@ export class VentasComponent implements OnInit {
     if (this.searchTimeout) {
       clearTimeout(this.searchTimeout);
     }
-    
+
+    const searchTerm = this.buscar().trim();
+    if (!searchTerm) {
+      this.sugerencias.set([]);
+      this.mostrarSugerencias.set(false);
+      return;
+    }
+
     this.searchTimeout = setTimeout(() => {
-      const searchTerm = this.buscar().trim();
-      if (!searchTerm) {
-        this.cargarProductos();
-        return;
-      }
-      
-      this.cargandoProductos.set(true);
-      this.productoService.buscarPorNombre(searchTerm, 0, 20).subscribe({
-        next: (response: any) => {
-          if (response.data && response.data.content) {
-            this.productos.set(response.data.content);
-          } else {
-            this.productos.set([]);
-          }
-          this.cargandoProductos.set(false);
-        },
-        error: () => {
-          this.cargandoProductos.set(false);
-        }
-      });
+      this.cargarSugerencias(searchTerm);
     }, 300);
+  }
+
+  seleccionarSugerencia(producto: Producto): void {
+    if (producto.stock <= 0) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Sin stock',
+        text: `El producto ${producto.nombre} no tiene stock disponible.`,
+      });
+      return;
+    }
+    const p = this.carritoService.carrito().find((x) => x.id === producto.id);
+    if (p && p.cantidad >= producto.stock) {
+      Toast.fire({ icon: 'warning', title: 'Límite de stock alcanzado' });
+      return;
+    }
+
+    this.agregar(producto);
+    this.buscar.set('');
+    this.sugerencias.set([]);
+    this.mostrarSugerencias.set(false);
+
+    // Devolver foco al input
+    setTimeout(() => {
+      document.getElementById('searchInput')?.focus();
+    }, 100);
+  }
+
+  ocultarSugerencias(): void {
+    // Pequeño timeout para permitir que el click en la sugerencia se registre antes de ocultar
+    setTimeout(() => {
+      this.mostrarSugerencias.set(false);
+    }, 200);
+  }
+
+  mostrarSugerenciasNuevamente(): void {
+    if (this.sugerencias().length > 0) {
+      this.mostrarSugerencias.set(true);
+    }
   }
 
   agregar(producto: Producto): void {
     this.carritoService.agregar(producto);
     Toast.fire({
       icon: 'success',
-      title: 'Producto agregado'
+      title: 'Producto agregado',
     });
   }
 
   aumentar(id: number): void {
+    const p = this.carritoService.carrito().find((x) => x.id === id);
+    if (p && p.cantidad >= p.stock) {
+      Toast.fire({ icon: 'warning', title: 'Límite de stock alcanzado' });
+      return;
+    }
     this.carritoService.aumentarCantidad(id);
   }
 
@@ -131,6 +292,25 @@ export class VentasComponent implements OnInit {
     this.carritoService.eliminar(id);
   }
 
+  setCantidad(id: number, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = parseInt(input.value, 10);
+    const p = this.carritoService.carrito().find((x) => x.id === id);
+
+    if (p && !isNaN(value) && value > 0) {
+      if (value > p.stock) {
+        Toast.fire({ icon: 'warning', title: `Solo hay ${p.stock} en stock` });
+        input.value = p.stock.toString();
+        this.carritoService.actualizarCantidad(id, p.stock);
+      } else {
+        this.carritoService.actualizarCantidad(id, value);
+      }
+    } else {
+      input.value = '1';
+      this.carritoService.actualizarCantidad(id, 1);
+    }
+  }
+
   precioActual(producto: ProductoCarrito): number {
     if (this.formaPago() === 'DEBITO' || this.formaPago() === 'CREDITO') {
       return producto.precioEfectivo / 0.8;
@@ -139,27 +319,50 @@ export class VentasComponent implements OnInit {
   }
 
   totalEfectivo(): number {
-    return this.carritoService.total(); // Computed signal internally
+    return this.carritoService.total(); // Valor base en efectivo
+  }
+
+  subtotal(): number {
+    return this.carritoService
+      .carrito()
+      .reduce((acc, producto) => acc + this.precioActual(producto) * producto.cantidad, 0);
   }
 
   total(): number {
-    return this.carritoService.carrito().reduce(
-      (total, producto) => total + this.precioActual(producto) * producto.cantidad,
-      0
-    );
+    const sub = this.subtotal();
+    const desc = this.descuento() || 0;
+    return Math.max(0, sub - desc);
   }
 
   finalizarVenta(): void {
+    if (this.cajaVerificada() && !this.cajaAbierta()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Caja Cerrada',
+        text: 'No es posible registrar ventas porque la caja se encuentra cerrada. Debe realizar la apertura de turno primero.',
+        showCancelButton: true,
+        confirmButtonText: '<i class="fa-solid fa-cash-register me-1"></i> Ir a Control de Caja',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#10b981',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.router.navigate(['/caja']);
+        }
+      });
+      return;
+    }
+
     const currentCart = this.carritoService.carrito();
     if (currentCart.length === 0) {
       Toast.fire({
         icon: 'warning',
-        title: 'Debe agregar productos al carrito'
+        title: 'Debe agregar productos al carrito',
       });
       return;
     }
 
     const request: VentaRequest = {
+      clienteId: this.clienteSeleccionadoId(),
       formaPago: this.formaPago(),
       descuento: this.descuento(),
       detalles: currentCart.map((producto) => ({
@@ -176,26 +379,71 @@ export class VentasComponent implements OnInit {
           text: 'La operación ha sido registrada.',
           showConfirmButton: true,
           confirmButtonText: '<i class="fa-solid fa-file-pdf"></i> Descargar Comprobante',
+          showDenyButton: true,
+          denyButtonText: '<i class="fa-solid fa-envelope"></i> Enviar por Email',
           showCancelButton: true,
-          cancelButtonText: 'Nueva Venta'
+          cancelButtonText: 'Nueva Venta',
         }).then((result) => {
           if (result.isConfirmed && response.data && response.data.id) {
             this.ventaService.generarComprobante(response.data.id);
+          } else if (result.isDenied && response.data && response.data.id) {
+            this.solicitarYEnviarEmail(response.data.id, response.data.clienteEmail);
           }
         });
 
         this.carritoService.limpiar();
         this.descuento.set(0);
+        this.clienteSeleccionadoId.set(null);
         this.buscar.set('');
-        this.cargarProductos();
+        this.sugerencias.set([]);
+        this.mostrarSugerencias.set(false);
       },
-      error: () => {
+      error: (err) => {
         Swal.fire({
           icon: 'error',
-          title: 'Error',
-          text: 'Ocurrió un problema al realizar la venta.',
+          title: 'Error al registrar venta',
+          text: err.error?.message || 'Ocurrió un problema al realizar la venta.',
         });
       },
+    });
+  }
+
+  solicitarYEnviarEmail(ventaId: number, emailInicial?: string): void {
+    Swal.fire({
+      title: 'Enviar comprobante por email',
+      text: 'Ingrese el correo electrónico del cliente:',
+      input: 'email',
+      inputValue: emailInicial || '',
+      inputPlaceholder: 'ejemplo@cliente.com',
+      showCancelButton: true,
+      confirmButtonText: '<i class="fa-solid fa-paper-plane"></i> Enviar',
+      cancelButtonText: 'Cancelar',
+      showLoaderOnConfirm: true,
+      preConfirm: (email) => {
+        if (!email || !email.includes('@')) {
+          Swal.showValidationMessage('Debe ingresar un email válido');
+          return false;
+        }
+        return new Promise((resolve) => {
+          this.ventaService.enviarComprobanteEmail(ventaId, email).subscribe({
+            next: (res) => resolve(res),
+            error: (err) => {
+              Swal.showValidationMessage(err.error?.message || 'Error al enviar el comprobante');
+            }
+          });
+        });
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((res) => {
+      if (res.isConfirmed) {
+        Swal.fire({
+          icon: 'success',
+          title: '¡Enviado!',
+          text: 'El comprobante ha sido enviado exitosamente al cliente.',
+          timer: 3000,
+          showConfirmButton: false
+        });
+      }
     });
   }
 }

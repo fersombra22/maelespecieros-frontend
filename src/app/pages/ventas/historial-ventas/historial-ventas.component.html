@@ -82,32 +82,28 @@
       </div>
     </div>
 
-    <div class="sin-datos" *ngIf="ventas.length === 0">
-      <i class="fa-solid fa-file-circle-xmark"></i>
-
-      <p>No existen ventas para mostrar.</p>
-    </div>
-
-    <div class="tabla-container" *ngIf="ventas.length > 0">
+    <div class="tabla-container">
       <table>
         <thead>
           <tr>
             <th>Número</th>
-
             <th>Fecha</th>
-
             <th>Forma Pago</th>
-
             <th>Total</th>
-
             <th>Estado</th>
-
             <th>Acciones</th>
           </tr>
         </thead>
-
         <tbody>
-          <tr *ngFor="let venta of ventas">
+          <!-- EMPTY STATE -->
+          <tr *ngIf="ventas.length === 0">
+            <td colspan="6" class="text-center py-5 empty-state">
+              <i class="fa-solid fa-file-circle-xmark mb-3 opacity-25 empty-icon"></i>
+              <p>No existen ventas para mostrar.</p>
+            </td>
+          </tr>
+
+          <tr *ngFor="let venta of ventas; trackBy: trackByFn">
             <td>
               <span class="numero-venta">
                 {{ venta.numeroVenta }}
@@ -145,12 +141,28 @@
 
             <td>
               <div class="acciones">
-                <button class="accion editar text-primary" title="Ver detalle" (click)="verDetalle(venta)">
+                <button
+                  class="accion editar text-primary"
+                  title="Ver detalle"
+                  (click)="verDetalle(venta)"
+                >
                   <i class="fa-solid fa-eye"></i>
                 </button>
 
-                <button class="accion text-success mx-1" title="Descargar comprobante" (click)="descargarPdf(venta.id)">
+                <button
+                  class="accion text-success mx-1"
+                  title="Descargar comprobante"
+                  (click)="descargarPdf(venta.id)"
+                >
                   <i class="fa-solid fa-file-pdf"></i>
+                </button>
+
+                <button
+                  class="accion text-info mx-1"
+                  title="Enviar comprobante por email"
+                  (click)="enviarEmail(venta)"
+                >
+                  <i class="fa-solid fa-envelope"></i>
                 </button>
 
                 <button
@@ -169,14 +181,27 @@
     </div>
 
     <!-- Paginación -->
-    <div class="table-footer d-flex justify-content-between align-items-center mt-3 px-3 pb-3" *ngIf="totalPages > 1">
-      <span>Total de ventas: <strong>{{ totalElements }}</strong></span>
+    <div
+      class="table-footer d-flex justify-content-between align-items-center mt-3 px-3 pb-3"
+      *ngIf="totalPages > 1"
+    >
+      <span
+        >Total de ventas: <strong>{{ totalElements }}</strong></span
+      >
       <div class="pagination-controls">
-        <button class="btn btn-sm btn-outline-secondary me-2" [disabled]="currentPage === 0" (click)="cambiarPagina(currentPage - 1)">
+        <button
+          class="btn btn-sm btn-outline-secondary me-2"
+          [disabled]="currentPage === 0"
+          (click)="cambiarPagina(currentPage - 1)"
+        >
           <i class="fa-solid fa-chevron-left"></i> Anterior
         </button>
         <span class="mx-2">Página {{ currentPage + 1 }} de {{ totalPages }}</span>
-        <button class="btn btn-sm btn-outline-secondary ms-2" [disabled]="currentPage === totalPages - 1" (click)="cambiarPagina(currentPage + 1)">
+        <button
+          class="btn btn-sm btn-outline-secondary ms-2"
+          [disabled]="currentPage === totalPages - 1"
+          (click)="cambiarPagina(currentPage + 1)"
+        >
           Siguiente <i class="fa-solid fa-chevron-right"></i>
         </button>
       </div>

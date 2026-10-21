@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { AuthService } from '../../core/services/auth.service';
+import { LayoutService } from '../../core/services/layout.service';
 
 @Component({
   selector: 'app-navbar',
@@ -13,8 +14,8 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class NavbarComponent {
   private authService = inject(AuthService);
-
   private router = inject(Router);
+  public layoutService = inject(LayoutService);
 
   usuario = this.authService.obtenerUsuario();
 

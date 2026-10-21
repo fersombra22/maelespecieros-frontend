@@ -1,4 +1,10 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+} from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 
@@ -21,7 +27,7 @@ import { CategoriaRequest } from '../../core/models/categoria-request';
 
   templateUrl: './categorias.component.html',
   styleUrls: ['./categorias.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CategoriasComponent implements OnInit {
   private categoriaService = inject(CategoriaService);

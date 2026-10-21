@@ -46,4 +46,31 @@ export class VentaService {
       },
     });
   }
+
+  enviarComprobanteEmail(id: number, email?: string): Observable<ApiResponse<void>> {
+    let params = new HttpParams();
+    if (email) {
+      params = params.set('email', email);
+    }
+    return this.http.post<ApiResponse<void>>(`${this.api}/${id}/enviar-email`, {}, { params });
+  }
+
+  compararVentas(periodo: string): Observable<ApiResponse<any>> {
+    let params = new HttpParams().set('periodo', periodo);
+    return this.http.get<ApiResponse<any>>(`${this.api}/comparacion`, { params });
+  }
+
+  descargarComparacionPdf(periodo: string): void {
+    let params = new HttpParams().set('periodo', periodo);
+    this.http.get(`${this.api}/comparacion/pdf`, { params, responseType: 'blob' }).subscribe({
+      next: (archivo) => {
+        const blob = new Blob([archivo], { type: 'application/pdf' });
+        const urlArchivo = window.URL.createObjectURL(blob);
+        window.open(urlArchivo, '_blank');
+      },
+      error: (error) => {
+        console.error('Error descargando PDF de comparación', error);
+      },
+    });
+  }
 }

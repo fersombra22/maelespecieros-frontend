@@ -1,9 +1,16 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { VentaService } from '../../../core/services/venta.service';
 import { Venta } from '../../../core/models/venta';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-historial-ventas',
@@ -14,13 +21,17 @@ import { Venta } from '../../../core/models/venta';
 
   templateUrl: './historial-ventas.component.html',
   styleUrls: ['./historial-ventas.component.css'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HistorialVentasComponent implements OnInit {
   private ventaService = inject(VentaService);
   private cdr = inject(ChangeDetectorRef);
 
   ventas: Venta[] = [];
+
+  trackByFn(index: number, item: any): number {
+    return item.id;
+  }
 
   cargando = true;
   numeroBusqueda: string = '';
@@ -54,7 +65,7 @@ export class HistorialVentasComponent implements OnInit {
       error: () => {
         this.cargando = false;
         this.cdr.markForCheck();
-        alert('No se pudo cargar el historial.');
+        Swal.fire('Error', 'No se pudo cargar el historial.', 'error');
       },
     });
   }
@@ -90,7 +101,7 @@ export class HistorialVentasComponent implements OnInit {
           this.ventas = [];
           this.cargando = false;
           this.cdr.markForCheck();
-          alert('No se encontró la venta.');
+          Swal.fire('Error', 'No se encontró la venta.', 'warning');
         },
       });
   }
@@ -114,22 +125,68 @@ export class HistorialVentasComponent implements OnInit {
   }
 
   anular(id: number): void {
-    const confirmar = confirm('¿Desea anular esta venta?');
-    if (!confirmar) {
-      return;
-    }
-    this.ventaService.anular(id).subscribe({
-      next: () => {
-        alert('Venta anulada correctamente.');
-        this.cargarVentas();
-      },
-      error: () => {
-        alert('No se pudo anular la venta.');
-      },
+    Swal.fire({
+      title: '¿Desea anular esta venta?',
+      text: 'Esta acción no se puede deshacer.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, anular',
+      cancelButtonText: 'Cancelar',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.ventaService.anular(id).subscribe({
+          next: () => {
+            Swal.fire('Anulada', 'Venta anulada correctamente.', 'success');
+            this.cargarVentas();
+          },
+          error: () => {
+            Swal.fire('Error', 'No se pudo anular la venta.', 'error');
+          },
+        });
+      }
     });
   }
 
   descargarPdf(id: number): void {
     this.ventaService.generarComprobante(id);
+  }
+
+  enviarEmail(venta: Venta): void {
+    Swal.fire({
+      title: 'Enviar comprobante por email',
+      text: `Ingrese el correo electrónico para la venta ${venta.numeroVenta}:`,
+      input: 'email',
+      inputValue: venta.clienteEmail || '',
+      inputPlaceholder: 'ejemplo@cliente.com',
+      showCancelButton: true,
+      confirmButtonText: '<i class="fa-solid fa-paper-plane"></i> Enviar',
+      cancelButtonText: 'Cancelar',
+      showLoaderOnConfirm: true,
+      preConfirm: (email) => {
+        if (!email || !email.includes('@')) {
+          Swal.showValidationMessage('Debe ingresar un email válido');
+          return false;
+        }
+        return new Promise((resolve) => {
+          this.ventaService.enviarComprobanteEmail(venta.id, email).subscribe({
+            next: (res) => resolve(res),
+            error: (err) => {
+              Swal.showValidationMessage(err.error?.message || 'Error al enviar el comprobante');
+            }
+          });
+        });
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((res) => {
+      if (res.isConfirmed) {
+        Swal.fire({
+          icon: 'success',
+          title: '¡Enviado!',
+          text: 'El comprobante ha sido enviado exitosamente por correo electrónico.',
+          timer: 3000,
+          showConfirmButton: false
+        });
+      }
+    });
   }
 }

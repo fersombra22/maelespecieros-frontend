@@ -8,4 +8,7 @@ export interface Dashboard {
   totalVentas: number;
 
   totalFacturado: number;
+  porcentajeVariacionMensual: number;
+  topProductos: { nombre: string; cantidadVendida: number; totalGenerado: number }[];
+  ventasPorMetodoPago: { formaPago: string; total: number }[];
 }
