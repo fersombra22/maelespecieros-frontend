@@ -158,6 +158,14 @@
                 </button>
 
                 <button
+                  class="accion text-info mx-1"
+                  title="Enviar comprobante por email"
+                  (click)="enviarEmail(venta)"
+                >
+                  <i class="fa-solid fa-envelope"></i>
+                </button>
+
+                <button
                   class="accion eliminar text-danger"
                   title="Anular venta"
                   *ngIf="venta.estado !== 'ANULADA'"

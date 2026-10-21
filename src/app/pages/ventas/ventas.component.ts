@@ -379,11 +379,15 @@ export class VentasComponent implements OnInit {
           text: 'La operación ha sido registrada.',
           showConfirmButton: true,
           confirmButtonText: '<i class="fa-solid fa-file-pdf"></i> Descargar Comprobante',
+          showDenyButton: true,
+          denyButtonText: '<i class="fa-solid fa-envelope"></i> Enviar por Email',
           showCancelButton: true,
           cancelButtonText: 'Nueva Venta',
         }).then((result) => {
           if (result.isConfirmed && response.data && response.data.id) {
             this.ventaService.generarComprobante(response.data.id);
+          } else if (result.isDenied && response.data && response.data.id) {
+            this.solicitarYEnviarEmail(response.data.id, response.data.clienteEmail);
           }
         });
 
@@ -401,6 +405,45 @@ export class VentasComponent implements OnInit {
           text: err.error?.message || 'Ocurrió un problema al realizar la venta.',
         });
       },
+    });
+  }
+
+  solicitarYEnviarEmail(ventaId: number, emailInicial?: string): void {
+    Swal.fire({
+      title: 'Enviar comprobante por email',
+      text: 'Ingrese el correo electrónico del cliente:',
+      input: 'email',
+      inputValue: emailInicial || '',
+      inputPlaceholder: 'ejemplo@cliente.com',
+      showCancelButton: true,
+      confirmButtonText: '<i class="fa-solid fa-paper-plane"></i> Enviar',
+      cancelButtonText: 'Cancelar',
+      showLoaderOnConfirm: true,
+      preConfirm: (email) => {
+        if (!email || !email.includes('@')) {
+          Swal.showValidationMessage('Debe ingresar un email válido');
+          return false;
+        }
+        return new Promise((resolve) => {
+          this.ventaService.enviarComprobanteEmail(ventaId, email).subscribe({
+            next: (res) => resolve(res),
+            error: (err) => {
+              Swal.showValidationMessage(err.error?.message || 'Error al enviar el comprobante');
+            }
+          });
+        });
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((res) => {
+      if (res.isConfirmed) {
+        Swal.fire({
+          icon: 'success',
+          title: '¡Enviado!',
+          text: 'El comprobante ha sido enviado exitosamente al cliente.',
+          timer: 3000,
+          showConfirmButton: false
+        });
+      }
     });
   }
 }

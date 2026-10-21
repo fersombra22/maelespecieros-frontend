@@ -3,6 +3,11 @@ export enum EstadoCaja {
   CERRADA = 'CERRADA'
 }
 
+export enum TipoMedioEgreso {
+  EFECTIVO = 'EFECTIVO',
+  TRANSFERENCIA = 'TRANSFERENCIA'
+}
+
 export interface Caja {
   id: number;
   montoInicial: number;
@@ -22,6 +27,9 @@ export interface Caja {
   totalTransferencia?: number;
   totalDigital?: number;
   cantidadVentas?: number;
+  totalEgresosEfectivo?: number;
+  totalEgresosTransferencia?: number;
+  totalEgresos?: number;
 }
 
 export interface AperturaCajaRequest {
@@ -35,6 +43,25 @@ export interface CierreCajaRequest {
   observaciones?: string;
 }
 
+export interface EgresoCajaRequest {
+  monto: number;
+  tipoMedio: TipoMedioEgreso;
+  motivo: string;
+  comprobante?: string;
+}
+
+export interface EgresoCajaResponse {
+  id: number;
+  cajaId: number;
+  monto: number;
+  tipoMedio: TipoMedioEgreso;
+  motivo: string;
+  comprobante?: string;
+  fecha: string;
+  usuarioId: number;
+  usuarioNombre: string;
+}
+
 export interface EstadoActualCaja {
   abierta: boolean;
   caja?: Caja;
@@ -46,4 +73,7 @@ export interface EstadoActualCaja {
   totalTransferenciaActual?: number;
   totalDigitalActual?: number;
   cantidadVentasActual?: number;
+  totalEgresosEfectivoActual?: number;
+  totalEgresosTransferenciaActual?: number;
+  totalEgresosActual?: number;
 }
